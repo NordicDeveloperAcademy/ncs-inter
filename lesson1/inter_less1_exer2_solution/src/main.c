@@ -3,11 +3,11 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-
+#include <stdio.h>
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/logging/log.h>
-
+#include <zephyr/random/rand32.h>
 /* The devicetree node identifier for the "led0"  and "led1" alias. */
 #define LED0_NODE DT_ALIAS(led0)
 #define LED1_NODE DT_ALIAS(led1)
@@ -15,16 +15,28 @@
 /* 2200 msec = 2.2 sec */
 #define PRODUCER_SLEEP_TIME_MS   2200
 
-LOG_MODULE_REGISTER(Less1_Exer1,LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(Less1_Exer2,LOG_LEVEL_DBG);
 /* Stack size for both the producer and consumer threads */
 #define STACKSIZE 2048
 #define PRODUCER_THREAD_PRIORITY 6
 #define CONSUMER_THREAD_PRIORITY 7
-
+#define MAX_DATA_SIZE 32
+#define MIN_DATA_ITEMS 4
+#define MAX_DATA_ITEMS 14
 static const struct gpio_dt_spec led0 = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 static const struct gpio_dt_spec led1 = GPIO_DT_SPEC_GET(LED1_NODE, gpios);
 
-/* STEP 2.3 - Create the expiry function for the timer */
+/* STEP - */
+struct data_item_t {
+	void *fifo_reserved;
+	uint8_t  data[MAX_DATA_SIZE];
+	uint16_t len;
+};
+
+/* STEP - */
+K_FIFO_DEFINE(my_fifo);
+static uint32_t messages_count =0;
+
 void timer0_handler(struct k_timer *dummy)
 {
     
@@ -39,18 +51,7 @@ void timer0_handler(struct k_timer *dummy)
 
 }
 
-/* STEP 2.1 - Define the timer */
 K_TIMER_DEFINE(timer0, timer0_handler, NULL);
-
-/* STEP 3.1 - Define the data type of the message */
-typedef struct {
-    uint32_t x_reading;
-    uint32_t y_reading;
-    uint32_t z_reading;
-} SensorReading;
-
-/* STEP 3.2 - Define the message queue */
-K_MSGQ_DEFINE(device_message_queue, sizeof(SensorReading), 16, 4);
 
 int main(void)
 {
@@ -68,7 +69,6 @@ int main(void)
 	if (ret < 0) {
 		return 0;
 	}
-    /* STEP 2.2 - Start the timer  */
 	/* start periodic timer that expires once every 0.5 second  */
 	k_timer_start(&timer0, K_MSEC(500), K_MSEC(500));
 
@@ -83,16 +83,20 @@ static void producer_func(void *unused1, void *unused2, void *unused3)
 	ARG_UNUSED(unused3);
 
     while (1) {
-        static SensorReading acc_val ={100,100,100};
-        int ret;
-        /* STEP 3.3 - Write messages to the message queue */
-        ret = k_msgq_put(&device_message_queue,&acc_val,K_FOREVER);
-        if (ret){
-            LOG_ERR("Return value from k_msgq_put = %d",ret);
+        int bytes_written; 
+        uint32_t data_number = MIN_DATA_ITEMS + sys_rand32_get()%(MAX_DATA_ITEMS-MIN_DATA_ITEMS+1);
+        for (int i =0; i<=data_number;i++){
+        struct data_item_t *buf= k_malloc(sizeof(struct data_item_t));
+        if (buf == NULL){
+        /* Unable to locate memory from the heap */
+            LOG_ERR("Enable to allocate memory");
         }
-        acc_val.x_reading += 1;
-        acc_val.y_reading += 1;
-        acc_val.z_reading += 1;
+            bytes_written = snprintf(buf->data,MAX_DATA_SIZE,"Data Seq. %u:\t%u",messages_count,sys_rand32_get());
+            buf->len = bytes_written; 
+            messages_count++;
+            k_fifo_put(&my_fifo,buf);
+        }
+        LOG_INF("Producer: Data Iteams Generated: %u",data_number);
         k_msleep(PRODUCER_SLEEP_TIME_MS);
     }
 }
@@ -104,15 +108,10 @@ static void consumer_func(void *unused1, void *unused2, void *unused3)
 	ARG_UNUSED(unused3);
 
     while (1) {
-        SensorReading temp;
-        int ret;
-        /* STEP 3.4 - Read messages from the message queue */
-        /* Wait until a message is available K_FOREVER */
-        ret = k_msgq_get(&device_message_queue,&temp,K_FOREVER);
-        if (ret){
-            LOG_ERR("Return value from k_msgq_get = %d",ret);
-        }
-        LOG_INF("Values got from the queue: %d.%d.%d\r\n",temp.x_reading,temp.y_reading,temp.z_reading);
+        struct data_item_t *rec_item;
+        rec_item = k_fifo_get(&my_fifo, K_FOREVER);
+        LOG_INF("Consumer: %s\tSize: %u",rec_item->data,rec_item->len);
+        k_free(rec_item);
     }
 }
 

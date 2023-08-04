@@ -59,7 +59,7 @@ int main(void)
 }
 
 
-void producer_func(void *unused1, void *unused2, void *unused3)
+static void producer_func(void *unused1, void *unused2, void *unused3)
 {
 	ARG_UNUSED(unused1);
 	ARG_UNUSED(unused2);
@@ -78,7 +78,7 @@ void producer_func(void *unused1, void *unused2, void *unused3)
     }
 }
 
-void consumer_func(void *unused1, void *unused2, void *unused3)
+static void consumer_func(void *unused1, void *unused2, void *unused3)
 {
 	ARG_UNUSED(unused1);
 	ARG_UNUSED(unused2);
