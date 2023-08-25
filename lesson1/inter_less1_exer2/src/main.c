@@ -30,7 +30,7 @@ static const struct gpio_dt_spec led1 = GPIO_DT_SPEC_GET(LED1_NODE, gpios);
 
 /* STEP 3 - Define the FIFO */
 
-void timer0_handler(struct k_timer *dummy)
+static void timer0_handler(struct k_timer *dummy)
 {
 
 	/*Interrupt Context - System Timer ISR */
@@ -44,7 +44,7 @@ void timer0_handler(struct k_timer *dummy)
 	flip = !flip;
 }
 
-K_TIMER_DEFINE(timer0, timer0_handler, NULL);
+static K_TIMER_DEFINE(timer0, timer0_handler, NULL);
 
 int main(void)
 {

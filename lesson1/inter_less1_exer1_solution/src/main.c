@@ -25,7 +25,7 @@ static const struct gpio_dt_spec led0 = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 static const struct gpio_dt_spec led1 = GPIO_DT_SPEC_GET(LED1_NODE, gpios);
 
 /* STEP 2.3 - Create the expiry function for the timer */
-void timer0_handler(struct k_timer *dummy)
+static void timer0_handler(struct k_timer *dummy)
 {
 
 	/*Interrupt Context - Sysetm Timer ISR */
@@ -40,7 +40,7 @@ void timer0_handler(struct k_timer *dummy)
 }
 
 /* STEP 2.1 - Define the timer */
-K_TIMER_DEFINE(timer0, timer0_handler, NULL);
+static K_TIMER_DEFINE(timer0, timer0_handler, NULL);
 
 /* STEP 3.1 - Define the data type of the message */
 typedef struct {

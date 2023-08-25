@@ -36,7 +36,7 @@ struct data_item_t {
 /* STEP 3 - Define the FIFO */
 K_FIFO_DEFINE(my_fifo);
 
-void timer0_handler(struct k_timer *dummy)
+static void timer0_handler(struct k_timer *dummy)
 {
 
 	/*Interrupt Context - System Timer ISR */
@@ -50,7 +50,7 @@ void timer0_handler(struct k_timer *dummy)
 	flip = !flip;
 }
 
-K_TIMER_DEFINE(timer0, timer0_handler, NULL);
+static K_TIMER_DEFINE(timer0, timer0_handler, NULL);
 
 int main(void)
 {
