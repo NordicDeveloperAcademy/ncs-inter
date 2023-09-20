@@ -1,4 +1,5 @@
 
+# Step X.X - Configure button and LED for Serial Recovery
 / {
   aliases {
 		mcuboot-button0 = &button1;
