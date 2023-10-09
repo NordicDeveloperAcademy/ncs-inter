@@ -1,0 +1,61 @@
+&spi3{
+    compatible = "nordic,nrf-spim";
+    #address-cells = < 0x1 >;
+    #size-cells = < 0x0 >;
+    reg = < 0x4002f000 0x1000 >;
+    interrupts = < 0x2f 0x1 >;
+    max-frequency = < 0x1e84800 >;
+    easydma-maxcnt-bits = < 0x10 >;
+    rx-delay-supported;
+    rx-delay = < 0x2 >;
+    status = "okay";
+    cs-gpios = < &arduino_header 0x10 0x1 >, < &arduino_header 0xa 0x1 >;
+    pinctrl-0 = < &spi3_default >;
+    pinctrl-1 = < &spi3_sleep >;
+    pinctrl-names = "default", "sleep";
+    ili9340: ili9340@0 {
+        compatible = "ilitek,ili9340";
+        spi-max-frequency = < 0xe7319b >;
+        reg = < 0x0 >;
+        cmd-data-gpios = < &arduino_header 0xf 0x1 >;
+        width = < 0x140 >;
+        height = < 0xf0 >;
+        pixel-format = < 0x1 >;
+        rotation = < 0x5a >;
+        frmctr1 = [ 00 18 ];
+        pwctrl1 = [ 23 00 ];
+        vmctrl1 = [ 3E 28 ];
+        vmctrl2 = [ 86 ];
+        pgamctrl = [ 0F 31 2B 0C 0E 08 4E F1 37 07 10 03 0E 09 00 ];
+        ngamctrl = [ 00 0E 14 03 11 07 31 C1 48 08 0F 0C 31 36 0F ];
+    };
+    adafruit_2_8_tft_touch_v2_sdhc: sdhc@1 {
+        compatible = "zephyr,sdhc-spi-slot";
+        reg = < 0x1 >;
+        status = "okay";
+        spi-max-frequency = < 0x16e3600 >;
+        mmc {
+            compatible = "zephyr,sdmmc-disk";
+            status = "okay";
+        };
+    };
+};
+
+&pinctrl {
+    spi3_default{
+        group1 {
+                psels = <NRF_PSEL(SPIM_SCK, 1, 15)>,
+                        <NRF_PSEL(SPIM_MISO, 1, 14)>,
+                        <NRF_PSEL(SPIM_MOSI, 1, 13)>;
+        };
+    };
+
+    spi3_sleep{
+        group1 {
+                psels = <NRF_PSEL(SPIM_SCK, 1, 15)>,
+                        <NRF_PSEL(SPIM_MISO, 1, 14)>,
+                        <NRF_PSEL(SPIM_MOSI, 1, 13)>;
+                low-power-enable;
+        };
+    };
+};
