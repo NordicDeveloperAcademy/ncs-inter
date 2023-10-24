@@ -1,4 +1,5 @@
 /* Step 3.1 - choose CDC ACM for mcumgr */
+/* Step 5.1 - Add external flash */
 / {
 	chosen {
 	};
