@@ -1,0 +1,7 @@
+/* Step 3.1 - choose CDC ACM for mcumgr */
+/ {
+	chosen {
+	};
+};
+
+/* Step 3.1 - Configure CDC ACM */
