@@ -11,6 +11,9 @@
 #include <net/nrf_cloud.h>
 #include <net/nrf_cloud_log.h>
 
+/* Step 3.1 - Dependency for sys_reboot(). */
+#include <zephyr/sys/reboot.h>
+
 #include "cloud_connection.h"
 
 LOG_MODULE_REGISTER(cloud_connection, 4);
@@ -407,8 +410,9 @@ static void cloud_event_handler(const struct nrf_cloud_evt *nrf_cloud_evt)
 			fota_type == NRF_CLOUD_FOTA_BOOTLOADER	  ?		"Bootloader"	:
 										"Invalid");
 
-		/* Notify fota_support of the completed download. */
-		// on_fota_downloaded();
+    /* Step 3.1 - Reboot since the FOTA is done. */
+    /* Note: The Multi Service Sample has a reboot command here, which was removed for this DevAcademy exercise. */
+	  sys_reboot(SYS_REBOOT_COLD);
 		break;
 	}
 	case NRF_CLOUD_EVT_FOTA_ERROR:
