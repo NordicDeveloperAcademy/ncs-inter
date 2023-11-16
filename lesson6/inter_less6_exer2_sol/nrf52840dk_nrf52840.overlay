@@ -38,8 +38,8 @@
     pinctrl-names = "default", "sleep";
 };
 
-/* Step 1.2 -  Add a pwm_led instance and change the polarity */
 /{
+/* Step 1.2 -  Add a pwm_led instance and change the polarity */
     pwmleds {
         compatible = "pwm-leds";
         pwm_led0: pwm_led_0 {

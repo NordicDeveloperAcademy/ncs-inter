@@ -10,9 +10,9 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led0));
 
 
-
 #define PWM_PERIOD_NS 10000000
 #define PWM_DUTY_CYCLE 1400000
+
 /* Step  2.2 - Define minimum and maximum duty cycle */
 #define PWM_MIN_DUTY_CYCLE 600000
 #define PWM_MAX_DUTY_CYCLE 2000000
@@ -37,7 +37,7 @@ int motor_init(void)
     return err;
 }
 
-/* Step 2.1 - Create */
+/* Step 2.1 - Create a function to set the angle of the motor*/
 int set_motor_angle(uint32_t duty_cycle_ns)
 {
     int err;
@@ -49,7 +49,7 @@ int set_motor_angle(uint32_t duty_cycle_ns)
     return err;
 }
 
-/* Step 3 - Add button handler & */
+/* Step 3.4 - Add button handler callback function */
 void button_handler(uint32_t button_state, uint32_t has_changed)
 {
     int err = 0;
@@ -77,7 +77,7 @@ void button_handler(uint32_t button_state, uint32_t has_changed)
 	}
 }
 
-/* Configurations */
+/* Step 3.2 - Create a button and led initialization function */
 static void configure_dk_buttons_and_leds(void)
 {
     int err;
@@ -91,19 +91,21 @@ static void configure_dk_buttons_and_leds(void)
 
 void main(void)
 {
-        LOG_INF("Starting PWM basic sample \n");
-        /* Step 3.3 - Call the initialization function */
-        motor_init();
-        configure_dk_buttons_and_leds();
+    LOG_INF("Starting PWM basic sample \n");
+    motor_init();
+    /* Step 3.2 - Test your code */
+    configure_dk_buttons_and_leds();
 
-        for (;;){
-            LOG_INF("Setting motor angle to %d",PWM_MIN_DUTY_CYCLE);
-            set_motor_angle(PWM_MIN_DUTY_CYCLE);
-            k_sleep(K_SECONDS(5));
-            LOG_INF("Setting motor angle to %d",PWM_MAX_DUTY_CYCLE);
-            set_motor_angle(PWM_MAX_DUTY_CYCLE);
-            k_sleep(K_SECONDS(5));
-        
-        }
-        
+    for (;;){
+
+        /* Step 2.3 */
+        LOG_INF("Setting motor angle to %d",PWM_MIN_DUTY_CYCLE);
+        set_motor_angle(PWM_MIN_DUTY_CYCLE);
+        k_sleep(K_SECONDS(5));
+        LOG_INF("Setting motor angle to %d",PWM_MAX_DUTY_CYCLE);
+        set_motor_angle(PWM_MAX_DUTY_CYCLE);
+        k_sleep(K_SECONDS(5));
+    
+    }
+      
 }
