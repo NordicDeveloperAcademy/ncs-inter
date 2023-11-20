@@ -10,8 +10,10 @@
 /* Step 3 - Include header for nrfx SAADC driver */
 #include <nrfx_saadc.h>
 
-/* Step 4 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
+/* Step 4.1 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
 static nrfx_saadc_channel_t channel = NRFX_SAADC_DEFAULT_CHANNEL_SE(NRF_SAADC_INPUT_VDD, 0);
+
+/* Step 4.2 - Declare the buffer to hold the SAAD sample value */
 static nrf_saadc_value_t sample;
 
 /* Step 5.1 - Define the battery sample interval */
