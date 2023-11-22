@@ -1,0 +1,5 @@
+# Copyright (c) 2019 Nordic Semiconductor
+# SPDX-License-Identifier: Apache-2.0
+
+config CUSTOM_BME280_DRIVER
+	bool "Support for the demonstration out of tree custom BME280 driver using SPI"
