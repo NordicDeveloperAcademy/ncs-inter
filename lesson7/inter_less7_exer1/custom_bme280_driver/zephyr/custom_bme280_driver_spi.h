@@ -25,16 +25,16 @@ extern "C" {
 
 typedef	void (*custom_bme280_api_print_t)(const struct device * dev);
 typedef	int  (*custom_bme280_api_open_t)(const struct device * dev);
-typedef int  (*custom_bme280_api_read_t)(const struct device * dev, uint32_t * val);
-typedef int  (*custom_bme280_api_write_t)(const struct device * dev, uint32_t * val);
+typedef int  (*custom_bme280_api_read_reg_t)(const struct device * dev, uint8_t reg, uint8_t *data, int size);
+typedef int  (*custom_bme280_api_write_reg_t)(const struct device * dev, uint8_t reg, uint8_t value);
 typedef int  (*custom_bme280_api_close_t)(const struct device * dev);
 
 
 struct custom_bme280_driver_api {
 	custom_bme280_api_print_t print;
 	custom_bme280_api_open_t open;
-	custom_bme280_api_read_t read;
-	custom_bme280_api_write_t write;
+	custom_bme280_api_read_reg_t read_reg;
+	custom_bme280_api_write_reg_t write_reg;
 	custom_bme280_api_close_t close;
 };
 
@@ -59,24 +59,24 @@ static inline int z_impl_custom_bme280_open(const struct device * dev)
 	return api->open(dev);
 }
 
-__syscall   int  custom_bme280_read(const struct device * dev, uint32_t * val);
-static inline int z_impl_custom_bme280_read(const struct device * dev, uint32_t * val)
+__syscall   int  custom_bme280_read_reg(const struct device * dev, uint8_t reg, uint8_t *data, int size);
+static inline int z_impl_custom_bme280_read_reg(const struct device * dev, uint8_t reg, uint8_t *data, int size)
 {
 	const struct custom_bme280_driver_api *api = dev->api;
 
-	__ASSERT(api->read, "Callback pointer should not be NULL");
+	__ASSERT(api->read_reg, "Callback pointer should not be NULL");
 
-	return api->read(dev, val);
+	return api->read_reg(dev, reg, data, size);
 }
 
-__syscall   int  custom_bme280_write(const struct device * dev, uint32_t * val);
-static inline int z_impl_custom_bme280_write(const struct device * dev, uint32_t * val)
+__syscall   int  custom_bme280_write_reg(const struct device * dev, uint8_t reg, uint8_t value);
+static inline int z_impl_custom_bme280_write_reg(const struct device * dev, uint8_t reg, uint8_t value)
 {
 	const struct custom_bme280_driver_api *api = dev->api;
 
-	__ASSERT(api->write, "Callback pointer should not be NULL");
+	__ASSERT(api->write_reg, "Callback pointer should not be NULL");
 
-	return api->write(dev, val);
+	return api->write_reg(dev, reg, value);
 }
 
 __syscall   int  custom_bme280_close(const struct device * dev);
