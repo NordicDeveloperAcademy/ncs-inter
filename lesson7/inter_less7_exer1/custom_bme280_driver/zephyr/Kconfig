@@ -3,3 +3,4 @@
 
 config CUSTOM_BME280_DRIVER
 	bool "Support for the demonstration out of tree custom BME280 driver using SPI"
+

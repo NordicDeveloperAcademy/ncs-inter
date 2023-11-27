@@ -213,8 +213,8 @@ void bme_calibrationdata_read(void){
 	bme_read_reg(regaddr, values, 1);
 	bmedata.dig_h6 = values[0];
 
-	printk("BME280 Calibration Data read and saved \n");
-	printk("---------------------------------------\n");
+	printk("BME280 Calibration Data from sensor BME280 read and saved \n");
+	printk("----------------------------------------------------------\n");
 	printk("\nT1: %d\tT2: %d\tT3: %d", bmedata.dig_t1, bmedata.dig_t2, bmedata.dig_t3);
 	printk("\nP1: %d\tP2: %d\tP3: %d", bmedata.dig_p1, bmedata.dig_p2, bmedata.dig_p3);
 	printk("\nP4: %d\tP5: %d\tP5: %d", bmedata.dig_p4, bmedata.dig_p5, bmedata.dig_p6);
@@ -254,11 +254,118 @@ static int init(const struct device *dev)
 	return 0;
 }
 
+static void bme280_compensate_temp(struct bme280_data *data, int32_t adc_temp)
+{
+	int32_t var1, var2;
+
+	var1 = (((adc_temp >> 3) - ((int32_t)data->dig_t1 << 1)) *
+		((int32_t)data->dig_t2)) >> 11;
+	var2 = (((((adc_temp >> 4) - ((int32_t)data->dig_t1)) *
+		  ((adc_temp >> 4) - ((int32_t)data->dig_t1))) >> 12) *
+		((int32_t)data->dig_t3)) >> 14;
+
+	data->t_fine = var1 + var2;
+	data->comp_temp = (data->t_fine * 5 + 128) >> 8;
+
+}
+
+static void bme280_compensate_press(struct bme280_data *data, int32_t adc_press)
+{
+	int64_t var1, var2, p;
+
+	var1 = ((int64_t)data->t_fine) - 128000;
+	var2 = var1 * var1 * (int64_t)data->dig_p6;
+	var2 = var2 + ((var1 * (int64_t)data->dig_p5) << 17);
+	var2 = var2 + (((int64_t)data->dig_p4) << 35);
+	var1 = ((var1 * var1 * (int64_t)data->dig_p3) >> 8) +
+		((var1 * (int64_t)data->dig_p2) << 12);
+	var1 = (((((int64_t)1) << 47) + var1)) * ((int64_t)data->dig_p1) >> 33;
+
+	/* Avoid exception caused by division by zero. */
+	if (var1 == 0) {
+		data->comp_press = 0U;
+		return;
+	}
+
+	p = 1048576 - adc_press;
+	p = (((p << 31) - var2) * 3125) / var1;
+	var1 = (((int64_t)data->dig_p9) * (p >> 13) * (p >> 13)) >> 25;
+	var2 = (((int64_t)data->dig_p8) * p) >> 19;
+	p = ((p + var1 + var2) >> 8) + (((int64_t)data->dig_p7) << 4);
+
+	data->comp_press = (uint32_t)p;
+}
+
+static void bme280_compensate_humidity(struct bme280_data *data, int32_t adc_humidity)
+{
+	int32_t h;
+
+	h = (data->t_fine - ((int32_t)76800));
+	h = ((((adc_humidity << 14) - (((int32_t)data->dig_h4) << 20) -
+		(((int32_t)data->dig_h5) * h)) + ((int32_t)16384)) >> 15) *
+		(((((((h * ((int32_t)data->dig_h6)) >> 10) * (((h *
+		((int32_t)data->dig_h3)) >> 11) + ((int32_t)32768))) >> 10) +
+		((int32_t)2097152)) * ((int32_t)data->dig_h2) + 8192) >> 14);
+	h = (h - (((((h >> 15) * (h >> 15)) >> 7) *
+		((int32_t)data->dig_h1)) >> 4));
+	h = (h > 419430400 ? 419430400 : h);
+
+	data->comp_humidity = (uint32_t)(h >> 12);
+}
+
+/// @brief The function to read, compensate and show the
+///        Temperature, Pressure, and Humidity values from
+///        the BME280 device
+int bme_read_values(void)
+{
+	//Set the registers addresses as per data-sheet
+
+	uint8_t regs[] = {0xF7, 0xF8, 0xF9, \
+					  0xFA, 0xFB, 0xFC, \
+					  0xFD, 0xFE, 0xFF};
+	uint8_t readbuf[sizeof(regs)];
+	uint8_t size = sizeof(regs);
+	int32_t datap = 0, datat = 0, datah = 0;
+	int err;
+
+	struct spi_buf tx_spi_buf = {.buf = (void *)&regs, .len = sizeof(regs)};
+	struct spi_buf_set tx_spi_buf_set = {.buffers = &tx_spi_buf, .count = 1};
+	struct spi_buf rx_spi_bufs = {.buf = readbuf, .len = size};
+	struct spi_buf_set rx_spi_buffer_set = {.buffers = &rx_spi_bufs, .count = 1};
+
+	gpio_pin_set(gpiodev, CSB_PIN, 1);
+	err = spi_transceive(spidev, &bme_spi_config, &tx_spi_buf_set, &rx_spi_buffer_set);	
+	if (err < 0) {
+		printk("\nSPI TRANSCEIVE FAILED: Error %d\n", err);
+		return err;
+	}
+	gpio_pin_set(gpiodev, CSB_PIN, 0);
+
+	/*Put the data read from from registers into actual order (see datasheet) */
+	//uncompensated pressure value
+	datap = (readbuf[1] << 12) | (readbuf[2] << 4) | ((readbuf[3] >> 4) & 0x0F);
+	//uncompensated temperature value
+	datat = (readbuf[4] << 12) | (readbuf[5] << 4) | ((readbuf[6] >> 4) & 0x0F);
+	//uncompensated humidity value
+	datah = (readbuf[7] << 8)  | (readbuf[8]);
+
+	//Compensate Pressure, Temperature and Humidity values using given functions	
+	bme280_compensate_temp(&bmedata, datat);
+	bme280_compensate_press(&bmedata,datap);
+	bme280_compensate_humidity(&bmedata, datah);
+
+	//Print the Uncompensated and Compensated values
+	printk("\nUncomp-Temp= %d\tComp-Temp= %d \n", datat, bmedata.comp_temp);
+	printk("\tUncomp-Pres= %d\tComp-Pres= %d \n", datap, bmedata.comp_press);
+	printk("\tUncomp-Hum= %d\tComp-Hum= %d \n", datah, bmedata.comp_humidity);
+	return 0;
+}
+
 static void bme280_print(const struct device *dev)
 {
 	printk("Print all characteristics of BME280 sensor\n");
 
-	// __ASSERT();
+	bme_read_values();
 }
 
 static int bme280_open(const struct device *dev)

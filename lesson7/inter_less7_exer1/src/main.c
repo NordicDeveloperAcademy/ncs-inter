@@ -22,5 +22,7 @@ int main(void)
 
 	custom_bme280_print(dev);
 
+	while(1);
+	
 	return 0;
 }

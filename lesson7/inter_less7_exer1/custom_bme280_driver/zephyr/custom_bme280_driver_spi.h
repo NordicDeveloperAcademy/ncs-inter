@@ -23,6 +23,10 @@ extern "C" {
  * maintained outside of Zephyr.
  */
 
+/* Step 4: Understand four parts of this header file in detail */
+
+
+/* Step 4-Part 1: typedef declaration of the function pointers */
 typedef	void (*custom_bme280_api_print_t)(const struct device * dev);
 typedef	int  (*custom_bme280_api_open_t)(const struct device * dev);
 typedef int  (*custom_bme280_api_read_reg_t)(const struct device * dev, uint8_t reg, uint8_t *data, int size);
@@ -30,6 +34,7 @@ typedef int  (*custom_bme280_api_write_reg_t)(const struct device * dev, uint8_t
 typedef int  (*custom_bme280_api_close_t)(const struct device * dev);
 
 
+/* Step 4-Part 2: define a struct to have a member for each typedef you defined in Part 1 */
 struct custom_bme280_driver_api {
 	custom_bme280_api_print_t print;
 	custom_bme280_api_open_t open;
@@ -38,8 +43,10 @@ struct custom_bme280_driver_api {
 	custom_bme280_api_close_t close;
 };
 
-
+/* Step 4-Part 3: Implement the API to be exposed to the application with type and arguments matching the typedef */
 __syscall     void        custom_bme280_print(const struct device * dev);
+
+/* Step 4-Part 4: Implement the Z_impl_* translation function to call the device driver API for this feature */
 static inline void z_impl_custom_bme280_print(const struct device * dev)
 {
 	const struct custom_bme280_driver_api *api = dev->api;
