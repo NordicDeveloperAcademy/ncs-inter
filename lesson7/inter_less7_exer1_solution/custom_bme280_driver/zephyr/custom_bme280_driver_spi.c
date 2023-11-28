@@ -404,14 +404,14 @@ static const struct custom_bme280_driver_api custom_bme280_api_funcs = {
 };
 
 /* Step 5: Define a device instance using DEVICE_DEFINE */
-DEVICE_DEFINE(inter_less7_exer1, 
+DEVICE_DEFINE(inter_less7_exer1,
              "CUSTOM_BME280_DRIVER",
-		      init, 
-			  NULL, 
-			  &data, 
-			  NULL,
-		      APPLICATION, /* SPI driver is initialized with POST_KERNEL, to be sure we need to initialize this
-			                this with APPLICATION priority */
-			  CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
-		      &custom_bme280_api_funcs);
+              init,
+              NULL,
+              &data,
+              NULL,
+              APPLICATION, /* SPI driver is initialized with POST_KERNEL, to be sure we need to initialize this
+                            this with APPLICATION priority */
+              CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
+              &custom_bme280_api_funcs);
 
