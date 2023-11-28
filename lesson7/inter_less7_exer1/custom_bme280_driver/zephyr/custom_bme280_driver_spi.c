@@ -404,6 +404,6 @@ static const struct custom_bme280_driver_api custom_bme280_api_funcs = {
 	.close      = bme280_close,
 };
 
-/* Step 1: Define a device instance using DEVICE_DEFINE */
+/* Step 5: Define a device instance using DEVICE_DEFINE */
 
 

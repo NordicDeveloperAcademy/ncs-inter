@@ -117,7 +117,6 @@ static int bme_write_reg(uint8_t reg, uint8_t value)
 	//Bit7 is 0 for the write command
 	uint8_t tx_buf[] = {(reg & 0x7F), value};
 
-	/*Step 8: Set tx-buffer, enable CS, do spi_write() and then disable CS*/
 	struct spi_buf tx_spi_buf = {.buf = tx_buf, .len = sizeof(tx_buf)};
 	struct spi_buf_set tx_spi_buf_set = {.buffers = &tx_spi_buf, .count = 1};
 	gpio_pin_set(gpiodev, CSB_PIN, 1);
@@ -404,7 +403,7 @@ static const struct custom_bme280_driver_api custom_bme280_api_funcs = {
 	.close      = bme280_close,
 };
 
-/* Step 1: Define a device instance using DEVICE_DEFINE */
+/* Step 5: Define a device instance using DEVICE_DEFINE */
 DEVICE_DEFINE(inter_less7_exer1, 
              "CUSTOM_BME280_DRIVER",
 		      init, 
