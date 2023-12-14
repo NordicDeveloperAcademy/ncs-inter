@@ -17,15 +17,32 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/spi.h>
 
-#define DELAY 100
-#define LEDDELAY 3000
+#define DELAY 		100
+#define LEDDELAY 	3000
+
+//DEFINE THE CHIP-SELECT BAR PIN NUMBER FOR THE BOARD
+#ifdef CONFIG_BOARD_NRF7002DK_NRF5340_CPUAPP
+	#define CSB_PIN 25
+#endif
+#ifdef CONFIG_BOARD_NRF5340DK_NRF5340_CPUAPP
+	#define CSB_PIN 25
+#endif
+#ifdef CONFIG_BOARD_NRF52840DK_NRF52840
+	#define CSB_PIN 30
+#endif
+#ifdef CONFIG_BOARD_NRF52DK_NRF52832
+	#define CSB_PIN 30
+#endif
+#ifdef CONFIG_BOARD_NRF52833DK_NRF52833
+	#define CSB_PIN 30
+#endif
+#ifdef CONFIG_BOARD_NRF9160DK_NRF9160
+	#define CSB_PIN 18
+#endif
 
 /*Step 5: Obtain the SPI Controller node and GPIO node for CS pin */
 static const struct device *spidev = DEVICE_DT_GET(DT_NODELABEL(spi1));
 const struct device *gpiodev =DEVICE_DT_GET(DT_NODELABEL(gpio0));
-
-//Define pin number for chip-select-bar pin
-#define CSB_PIN 30
 
 /*Step 6: Define and initialize a spi_config structure */
 const struct spi_config bme_spi_config = {
@@ -79,7 +96,7 @@ static int bme_read_reg(uint8_t reg, uint8_t *data, int size)
 	uint8_t tx_buffer = reg;
 
 	/*Step 7.1: Set the transmit and receive buffers */
-	struct spi_buf tx_spi_buf = {.buf = (void *)&tx_buffer, .len = 1};	
+	struct spi_buf tx_spi_buf = {.buf = (void *)&tx_buffer, .len = 1};
 	struct spi_buf_set tx_spi_buf_set = {.buffers = &tx_spi_buf, .count = 1};
 	struct spi_buf rx_spi_bufs = {.buf = data, .len = size};
 	struct spi_buf_set rx_spi_buffer_set = {.buffers = &rx_spi_bufs, .count = 1};
@@ -214,6 +231,7 @@ void bme_calibrationdata_read(void){
 	bme_read_reg(regaddr, values, 1);
 	bmedata.dig_h6 = values[0];
 
+	printk("\nReading the parameters from sensor for temperature, pressure, and humidity");
 	printk("\nT1: %d\tT2: %d\tT3: %d", bmedata.dig_t1, bmedata.dig_t2, bmedata.dig_t3);
 	printk("\nP1: %d\tP2: %d\tP3: %d", bmedata.dig_p1, bmedata.dig_p2, bmedata.dig_p3);
 	printk("\nP4: %d\tP5: %d\tP5: %d", bmedata.dig_p4, bmedata.dig_p5, bmedata.dig_p6);
@@ -248,8 +266,9 @@ int bme_print_regs(void)
 	regs_more[0] = 0xF2;
 	for (uint8_t i=0; i<11; i++)
 		regs_more[i+1] = regs_more[i] + 1;
-		
+
 	//Read 1 byte data from each register and print
+	printk("\n\nReading all BME280 registers (one by one with delay=%dms):", DELAY);	
 	err = bme_read_reg(reg_id, &buf, size);
 	if(err < 0){return err;}
 	data = buf;
@@ -352,9 +371,11 @@ int bme_read_values(void)
 	uint8_t regs[] = {0xF7, 0xF8, 0xF9, \
 					  0xFA, 0xFB, 0xFC, \
 					  0xFD, 0xFE, 0xFF};
+	
 	uint8_t readbuf[sizeof(regs)];
 	uint8_t size = sizeof(regs);
 	int32_t datap = 0, datat = 0, datah = 0;
+	float pressure=0.0, temperature=0.0, humidity=0.0;
 	int err;
 
 	/*Step 12.2: Set the transmit and receive buffers */
@@ -385,10 +406,15 @@ int bme_read_values(void)
 	bme280_compensate_press(&bmedata,datap);
 	bme280_compensate_humidity(&bmedata, datah);
 
+	//Convert to proper format as per data sheet
+	temperature = (float)bmedata.comp_temp/100.0;
+	pressure 	= (float)bmedata.comp_press/256.0;
+	humidity 	= (float)bmedata.comp_humidity/1024.0;
+	
 	//Print the Uncompensated and Compensated values
-	printk("\nUncomp-Temp= %d\tComp-Temp= %d", datat, bmedata.comp_temp);
-	printk("\tUncomp-Pres= %d\tComp-Pres= %d", datap, bmedata.comp_press);
-	printk("\tUncomp-Hum= %d\tComp-Hum= %d", datah, bmedata.comp_humidity);
+	printk("\nUncomp-Temp= %d\tComp-Temp= %fC", datat, temperature);
+	printk("\tUncomp-Pres= %d\tComp-Pres= %fPa", datap, pressure);
+	printk("\tUncomp-Hum= %d\tComp-Hum= %f%%RH", datah, humidity);
 	return 0;
 }
 
@@ -427,6 +453,7 @@ int main(void)
 	bme_print_regs();
 
 	//Continuously read data values and toggle led	
+	printk("\n\nContinuously read sensor samples, compensate, and display (delay = %dms) ", LEDDELAY);
 	while(1){
 		bme_read_values();
 		ret = gpio_pin_toggle(gpiodev, 13);
