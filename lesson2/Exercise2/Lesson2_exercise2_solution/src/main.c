@@ -11,7 +11,7 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/sys/printk.h>
 #include <inttypes.h>
-// Step 1.3 add coredump.h 
+// Step 2 add coredump.h 
 #include <zephyr/debug/coredump.h>
 
 
@@ -40,7 +40,7 @@ void button_pressed(const struct device *dev, struct gpio_callback *cb,
 {
 	printk("Button pressed at %" PRIu32 "\n", k_cycle_get_32());
 	printk("Coredump: %s\n", CONFIG_BOARD);
-	// step 3 Call coredump function
+	// Step 3 Call coredump function
 	crash_function(0);
 }
 

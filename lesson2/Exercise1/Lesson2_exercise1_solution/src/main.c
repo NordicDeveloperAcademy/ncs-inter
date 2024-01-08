@@ -11,8 +11,7 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/sys/printk.h>
 #include <inttypes.h>
-// Step 1.3 add coredump.h 
-#include <zephyr/debug/coredump.h>
+
 
 
 #define SLEEP_TIME_MS	1
@@ -40,7 +39,7 @@ void button_pressed(const struct device *dev, struct gpio_callback *cb,
 {
 	printk("Button pressed at %" PRIu32 "\n", k_cycle_get_32());
 	printk("Coredump: %s\n", CONFIG_BOARD);
-	// step 3 Call coredump function
+	// step 3 Call crash_function function with a null as input variable
 	crash_function(0);
 }
 
