@@ -22,7 +22,7 @@ int main(void)
 	uint32_t count = 0;
 
 	/* STEP 4.1 - Define a variable of type adc_sequence and a buffer of type uint16_t */
-	uint16_t buf;
+	int16_t buf;
 	struct adc_sequence sequence = {
 		.buffer = &buf,
 		/* buffer size in bytes, not number of samples */
