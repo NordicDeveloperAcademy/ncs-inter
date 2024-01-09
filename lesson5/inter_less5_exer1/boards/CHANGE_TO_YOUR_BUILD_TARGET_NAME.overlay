@@ -1,0 +1,11 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright (c) 2022 Nordic Semiconductor ASA
+ */
+
+/* STEP 2.2 - Create a zephyr,user node and set it’s io-channels to the ADC channel  */
+
+
+/* STEP 2.3 -Configure the ADC channel  */
+
