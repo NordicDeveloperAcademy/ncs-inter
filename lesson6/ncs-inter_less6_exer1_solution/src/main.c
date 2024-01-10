@@ -17,18 +17,20 @@ LOG_MODULE_REGISTER(Lesson6_Exercise1, LOG_LEVEL_INF);
 /* STEP 3.2 - Initialize and populate struct pwm_dt_spec */
 static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(PWM_LED0);
 
-void main(void)
+int main(void)
 {
 
     /* STEP 3.3 - Check if the device is ready */
     if (!device_is_ready(pwm_led0.dev)) {
         LOG_ERR("PWM device %s is not ready", pwm_led0.dev->name);
-        return -EBUSY;
+        return 0;
 	}
     
     /* STEP 4 - Control the LED with the control signal generated from the PWM */
-    err = pwm_set_dt(&pwm_led0, PWM_PERIOD_NS, PWM_DUTY_CYCLE);
+    int err = pwm_set_dt(&pwm_led0, PWM_PERIOD_NS, PWM_DUTY_CYCLE);
     if (err) {
-        LOG_ERR("pwm_set_dt returned %d", err);
-    }    
+        LOG_ERR("Error in pwm_set_dt(), err: %d", err);
+    }
+    
+    return 0;
 }
