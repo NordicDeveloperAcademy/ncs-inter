@@ -26,6 +26,8 @@ int set_motor_angle(uint32_t duty_cycle_ns)
         LOG_ERR("pwm_set_dt_returned %d", err);
     }
  
+ 	err = pwm_capture_cycles(in.dev, in.pwm, PWM_CAPTURE_TYPE_PULSE,
+				 &period, &pulse, K_MSEC(1000));
     return err;
 }
 
