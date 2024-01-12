@@ -1,10 +1,6 @@
 /*
- * Copyright (c) 2023 Nordic Semiconductor
- * NCS Intermediate Course
- * Lesson 4
- * Exercise 2
- * Interaction with TFT Screen using SPI
- *  
+ * Copyright (c) 2024 Nordic Semiconductor ASA
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -96,7 +92,7 @@ int draw_diagonal_line(const struct device *screen, uint8_t x, uint8_t y, uint8_
 	printk("\n\nDISPLAYING DIAGONAL LINE (pixelated)\n\tStarting pixel (x, y)= %2d, %2d", x, y);
 	for(int i=0; i<nump; i++)		
 	{		
-		/* STEP 11 - call the screen_write() to display pixel and update coordinates */
+		/* STEP 11 - Call the screen_write() to display pixel and update coordinates */
 		ret = screen_write(screen, x++, y++, &buf_desc, buf);
 		if (ret < 0) {
 			return ret;
@@ -145,7 +141,7 @@ int draw_lines(const struct device *screen, uint8_t x, uint8_t y, uint8_t dy, ui
 	printk("\n\nDISPLAYING SERIES OF LINES (1 LINE AT A TIME)\n\tStarting line (x, y)= %2d, %2d", x, y);
 	for(int i=0; i<numl; i++)
 	{		
-		/* STEP 12 - call the screen_write() and update y-coordinate for new line */
+		/* STEP 12 - Call the screen_write() and update y-coordinate for new line */
 		ret = screen_write(screen, x, y, &buf_desc, buf);
 		if (ret < 0) {
 			return ret;
@@ -189,7 +185,7 @@ int draw_box(const struct device *screen, uint8_t x, uint8_t y, uint8_t w, uint8
 	buf_desc.height = h;
 	buf_desc.pitch = w;
 	
-	/* STEP 13 Oberver that we are sending complete rectangular buffer at once */
+	/* STEP 13 - Oberver that we are sending complete rectangular buffer at once */
 	//Fill the color buffer
 	fill_buf_24bit(BOXCOLOR, buf, buf_size);
 	//Write the buffer to screen at (x,y)
@@ -219,7 +215,7 @@ int main(void)
 	uint8_t num_lines = 25;								//Number of lines
 	int ret;
 
-	/* STEP 14 - obtain the screen node from device tree */
+	/* STEP 14 - Obtain the screen node from device tree */
 	screen = DEVICE_DT_GET(DT_NODELABEL(ili9340));
 	if (!device_is_ready(screen)) {
 		LOG_ERR("Device %s not found; Aborting", screen->name);

@@ -1,17 +1,13 @@
 /*
- * Copyright (c) 2023 Nordic Semiconductor
- * NCS Intermediate Course
- * Lesson 4
- * Exercise 1
- * Interaction with Sensor on SPI (BME280)
- *  
+ * Copyright (c) 2024 Nordic Semiconductor ASA
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-/*Step 3: Add required header files */
+/* STEP 3 - Add required header files */
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/gpio.h>
@@ -40,11 +36,11 @@
 	#define CSB_PIN 18
 #endif
 
-/*Step 5: Obtain the SPI Controller node and GPIO node for CS pin */
+/* STEP 5 - Obtain the SPI Controller node and GPIO node for CS pin */
 static const struct device *spidev = DEVICE_DT_GET(DT_NODELABEL(spi1));
 const struct device *gpiodev =DEVICE_DT_GET(DT_NODELABEL(gpio0));
 
-/*Step 6: Define and initialize a spi_config structure */
+/* STEP 6 - Define and initialize a spi_config structure */
 const struct spi_config bme_spi_config = {
 	.frequency = 125000U,
 	.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB,
@@ -95,30 +91,30 @@ static int bme_read_reg(uint8_t reg, uint8_t *data, int size)
 
 	uint8_t tx_buffer = reg;
 
-	/*Step 7.1: Set the transmit and receive buffers */
+	/* STEP 7.1 - Set the transmit and receive buffers */
 	struct spi_buf tx_spi_buf = {.buf = (void *)&tx_buffer, .len = 1};
 	struct spi_buf_set tx_spi_buf_set = {.buffers = &tx_spi_buf, .count = 1};
 	struct spi_buf rx_spi_bufs = {.buf = data, .len = size};
 	struct spi_buf_set rx_spi_buffer_set = {.buffers = &rx_spi_bufs, .count = 1};
 
-	/*Step 7.2: Enable the sensor by activating Chip-select (put CSB into active state) */
+	/* STEP 7.2 - Enable the sensor by activating Chip-select (put CSB into active state) */
 	gpio_pin_set(gpiodev, CSB_PIN, 1);
 
-	/*Step 7.3: write the transmit buffers to sensor using spi_write() */
+	/* STEP 7.3 - Write the transmit buffers to sensor using spi_write() */
 	err = spi_write(spidev, &bme_spi_config, &tx_spi_buf_set);
 	if (err < 0) {
 		printk("\nspi_write FAIL: Error %d\n", err);
 		return err;
 	}
 
-	/*Step 7.4: read the data from sensor using spi_read() */
+	/* STEP 7.4 - Read the data from sensor using spi_read() */
 	err = spi_read(spidev, &bme_spi_config, &rx_spi_buffer_set);
 	if (err < 0) {
 		printk("\nspi_read FAIL: Error %d\n", err);
 		return err;
 	}
 
-	/*Step 7.5: disable the device by putting CSB into inactive state */
+	/* STEP 7.5 - Disable the device by putting CSB into inactive state */
 	gpio_pin_set(gpiodev, CSB_PIN, 0);
 
 	return 0;
@@ -135,7 +131,7 @@ static int bme_write_reg(uint8_t reg, uint8_t value)
 	//Bit7 is 0 for the write command
 	uint8_t tx_buf[] = {(reg & 0x7F), value};
 
-	/*Step 8: Set tx-buffer, enable CS, do spi_write() and then disable CS*/
+	/* STEP 8 - Set tx-buffer, enable CS, do spi_write() and then disable CS */
 	struct spi_buf tx_spi_buf = {.buf = tx_buf, .len = sizeof(tx_buf)};
 	struct spi_buf_set tx_spi_buf_set = {.buffers = &tx_spi_buf, .count = 1};
 	gpio_pin_set(gpiodev, CSB_PIN, 1);
@@ -156,7 +152,7 @@ void bme_calibrationdata_read(void){
 	uint8_t values[2];
 	uint8_t regaddr;
 
-	/*Step 9: go through the following code. We are using bme_read_reg function
+	/* STEP 9 - Go through the following code. We are using bme_read_reg function
 	and reading required number of bytes from respective register location
 	and setting data in proper order to form compensation parameter values*/
 	regaddr = 0x88;
@@ -251,7 +247,7 @@ int bme_print_regs(void)
 	uint8_t data;
 	int err;
 
-	/*Step 10: go through the following code and see how we are using
+	/* STEP 10 - Go through the following code and see how we are using
 	bme_read_reg function to read and print different registers (1byte) */
 	//Register addresses to read from (see the data sheet)
 	uint8_t reg_id = 0xD0;
@@ -299,7 +295,7 @@ int bme_print_regs(void)
 	return 0;
 }
 
-/* Step 11: following compensation code taken from BME280 datasheet
+/* STEP 11 - Following compensation code taken from BME280 datasheet
 Just note their prototype and see that they use compensation parameters
 from the bme280_data struct and store back the compensated value */
 static void bme280_compensate_temp(struct bme280_data *data, int32_t adc_temp)
@@ -367,7 +363,7 @@ int bme_read_values(void)
 {
 	//Set the registers addresses as per data-sheet
 
-	/*Step 12.1: Store register addresses to do burst read*/
+	/* STEP 12.1 - Store register addresses to do burst read */
 	uint8_t regs[] = {0xF7, 0xF8, 0xF9, \
 					  0xFA, 0xFB, 0xFC, \
 					  0xFD, 0xFE, 0xFF};
@@ -378,13 +374,13 @@ int bme_read_values(void)
 	float pressure=0.0, temperature=0.0, humidity=0.0;
 	int err;
 
-	/*Step 12.2: Set the transmit and receive buffers */
+	/* STEP 12.2 - Set the transmit and receive buffers */
 	struct spi_buf tx_spi_buf = {.buf = (void *)&regs, .len = sizeof(regs)};
 	struct spi_buf_set tx_spi_buf_set = {.buffers = &tx_spi_buf, .count = 1};
 	struct spi_buf rx_spi_bufs = {.buf = readbuf, .len = size};
 	struct spi_buf_set rx_spi_buffer_set = {.buffers = &rx_spi_bufs, .count = 1};
 
-	/*Step 12.3: Enable CS, do spi_transceive (trasmit+receive) and then disable CS */
+	/* STEP 12.3 - Enable CS, do spi_transceive (trasmit+receive) and then disable CS */
 	gpio_pin_set(gpiodev, CSB_PIN, 1);
 	err = spi_transceive(spidev, &bme_spi_config, &tx_spi_buf_set, &rx_spi_buffer_set);	
 	if (err < 0) {
@@ -393,7 +389,7 @@ int bme_read_values(void)
 	}
 	gpio_pin_set(gpiodev, CSB_PIN, 0);
 
-	/*Put the data read from from registers into actual order (see datasheet) */
+	/* Put the data read from from registers into actual order (see datasheet) */
 	//uncompensated pressure value
 	datap = (readbuf[1] << 12) | (readbuf[2] << 4) | ((readbuf[3] >> 4) & 0x0F);
 	//uncompensated temperature value

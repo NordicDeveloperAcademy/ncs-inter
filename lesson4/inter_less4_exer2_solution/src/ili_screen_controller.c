@@ -4,7 +4,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 
-/* STEP 4 - Include driver, library and custom header files*/
+/* STEP 4 - Include driver, library and custom header files */
 #include <zephyr/drivers/spi.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/devicetree/spi.h>
@@ -58,13 +58,13 @@ int spi_ctrl_transmit(const struct device *dev, uint8_t cmd, const void *tx_data
 	struct spi_buf tx_buf;
 	struct spi_buf_set tx_bufs; 
 
-	/* STEP 5 - Fill the buffer with command parameters*/
+	/* STEP 5 - Fill the buffer with command parameters */
 	tx_buf.buf = &cmd;
 	tx_buf.len = 1U;				//1 Byte command
 	tx_bufs.buffers = &tx_buf;
 	tx_bufs.count = 1U;				//1 Buffer to transmit
 
-	/* STEP 6 - Set GPIO pin for Command and write using spi_write_dt()*/
+	/* STEP 6 - Set GPIO pin for Command and write using spi_write_dt() */
 	gpio_pin_set_dt(&config->cmd_data, 1);   //Data_CMD=1
 	ret = spi_write_dt(&config->spi, &tx_bufs);
 	if (ret < 0) {
