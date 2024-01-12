@@ -73,7 +73,7 @@ void main(void)
     }
 
     if (dk_buttons_init(button_handler)) {
-        LOG_ERR("Couldn't init buttons (err %d)", err);
+        LOG_ERR("Failed to initialize the buttons library");
     }
 
     for (;;){
