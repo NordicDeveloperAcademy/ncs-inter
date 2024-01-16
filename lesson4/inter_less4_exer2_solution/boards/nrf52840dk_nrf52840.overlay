@@ -1,3 +1,4 @@
+/* STEP 2 - Create an overlay file for your board */
 &spi3{
     compatible = "nordic,nrf-spim";
     #address-cells = < 0x1 >;
