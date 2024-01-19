@@ -1,0 +1,4 @@
+
+&gpio0 {
+	status = "okay";
+};

@@ -1,0 +1,22 @@
+nrf_modem_lib_sram:
+  span: [nrf_modem_lib_ctrl, nrf_modem_lib_tx, nrf_modem_lib_rx, nrf_modem_lib_trace]
+nrf_modem_lib_ctrl:
+  placement: {after: [tfm_sram, spm_sram, start]}
+  size: 0x4e8
+  region: sram_primary
+  inside: sram_nonsecure
+nrf_modem_lib_tx:
+  placement: {after: [nrf_modem_lib_ctrl]}
+  size: 8320
+  region: sram_primary
+  inside: sram_nonsecure
+nrf_modem_lib_rx:
+  placement: {after: [nrf_modem_lib_tx]}
+  size: 8192
+  region: sram_primary
+  inside: sram_nonsecure
+nrf_modem_lib_trace:
+  placement: {after: [nrf_modem_lib_rx]}
+  size: 0
+  region: sram_primary
+  inside: sram_nonsecure

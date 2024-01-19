@@ -1,0 +1,15 @@
+
+/* Configure button and LED for Serial Recovery */
+/ {
+  aliases {
+		mcuboot-button0 = &button1;
+		mcuboot-led0 = &led1;
+  };
+};
+
+/* Step 5.1 - Add external flash */
+/ {
+	chosen {
+		nordic,pm-ext-flash = &mx25r64;
+	};
+};
