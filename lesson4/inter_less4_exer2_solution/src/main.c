@@ -168,7 +168,7 @@ int draw_box(const struct device *screen, uint8_t x, uint8_t y, uint8_t w, uint8
 	}
 
 	k_free(buf);
-	printk("\tBottom right corner (x, y)= %2d, %2d", x+w, y+h);
+	LOG_INF("Bottom right corner (x, y) of box = %2d, %2d", x+w, y+h);
 	display_blanking_off(screen);
 
 	return 0;
@@ -176,7 +176,7 @@ int draw_box(const struct device *screen, uint8_t x, uint8_t y, uint8_t w, uint8
 
 int main(void)
 {
-		int err;
+	int err;
 
 	/* Initialize variables to suitable values (as per screen size) */
 	size_t x = 0, y = 0, dy = 0;						
