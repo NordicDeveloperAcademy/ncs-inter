@@ -8,6 +8,8 @@
 
 int main(void)
 {
-	printf("Starting exercise 1! %s\n", );
+	
+	printf("Starting Exercise 1! %s\n");
+	// Add Exercise 1.2 step 2 below 
 	return 0;
 }
