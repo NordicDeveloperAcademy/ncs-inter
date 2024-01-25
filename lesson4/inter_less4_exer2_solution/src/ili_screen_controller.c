@@ -12,7 +12,6 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/spi.h>
-#include <zephyr/devicetree/spi.h>
 
 /* STEP 3.2 - Include display driver and custom header files */
 #include <zephyr/sys/byteorder.h>
