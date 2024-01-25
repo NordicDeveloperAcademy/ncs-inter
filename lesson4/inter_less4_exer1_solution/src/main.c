@@ -447,7 +447,7 @@ int main(void)
 		return 0;
 	}
 	
-	gpio_pin_configure_dt(&ledspec, GPIO_ACTIVE_HIGH);
+	gpio_pin_configure_dt(&ledspec, GPIO_OUTPUT_ACTIVE);
 	
 	/* STEP 10.2 - Read calibration data */
 	bme_calibrationdata();
