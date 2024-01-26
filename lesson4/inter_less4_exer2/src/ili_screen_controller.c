@@ -14,9 +14,7 @@
 #include <zephyr/drivers/spi.h>
 
 /* STEP 3.2 - Include display driver and custom header files */
-#include <zephyr/sys/byteorder.h>
-#include <zephyr/drivers/display.h>
-#include "ili_screen_controller.h"
+
 
 LOG_MODULE_DECLARE(Lesson4_Exercise2, LOG_LEVEL_INF);
 
@@ -63,33 +61,13 @@ int spi_ctrl_transmit(const struct device *dev, uint8_t cmd, const void *tx_data
 	const struct ili_ctrl_config *config = dev->config;
 	
 	/* STEP 4.1 - Declare and configure the transmit buffers with command parameters */
-	struct spi_buf tx_buf;
-	struct spi_buf_set tx_bufs; 
-
-	tx_buf.buf = &cmd;
-	tx_buf.len = 1U;
-	tx_bufs.buffers = &tx_buf;
-	tx_bufs.count = 1U;
+	
 
 	/* STEP 4.2 - Set GPIO pin for Command and write using spi_write_dt() */
-	gpio_pin_set_dt(&config->cmd_data, 1); 
-	err = spi_write_dt(&config->spi, &tx_bufs);
-	if (err < 0) {
-		LOG_ERR("spi_ctrl_transmit: Error on %s", config->spi.bus->name);
-		return err;
-	}
+	
 
 	/* STEP 4.3 - Transmit the data that follows the command, if any. */
-	if (tx_data != NULL) {
-		tx_buf.buf = (void *)tx_data;
-		tx_buf.len = tx_len;
-		gpio_pin_set_dt(&config->cmd_data, 0);
-		err = spi_write_dt(&config->spi, &tx_bufs);
-		if (err < 0) {
-			LOG_ERR("spi_ctrl_transmit: Error on %s", config->spi.bus->name);
-			return err;
-		}		
-	}
+	
 
 	return 0;
 }
@@ -112,14 +90,8 @@ int ili_ctrl_setmem(const struct device *dev, const uint16_t x, const uint16_t y
 	spi_ydata[1] = sys_cpu_to_be16(y + h - 1U);
 
 	/* STEP 5 - Call spi_ctrl_transmit() to transmit CASET and PASET commands */
-	err = spi_ctrl_transmit(dev, ILI9XXX_CASET, &spi_xdata[0], 4U);	
-	if (err < 0) {
-		return err;
-	}
-	err = spi_ctrl_transmit(dev, ILI9XXX_PASET, &spi_ydata[0], 4U);
-	if (err < 0) {
-		return err;
-	}
+	
+
 	return 0;
 }
 
@@ -152,11 +124,7 @@ int screen_write(const struct device *dev, const uint16_t x, const uint16_t y, \
 	else {write_h = desc->height; nbr_of_writes = 1U;}
 
 	/* STEP 6 - Call spi_ctrl_transmit() to send the RAMWR command */
-	err = spi_ctrl_transmit(dev, ILI9XXX_RAMWR, data_start_addr,
-			     desc->width * data->bytes_per_pixel * write_h);
-	if (err < 0) {
-		return err;
-	}
+	
 
 	tx_bufs.buffers = &tx_buf;
 	tx_bufs.count = 1;

@@ -15,42 +15,18 @@
 
 LOG_MODULE_REGISTER(Lesson4_Exercise1, LOG_LEVEL_INF);
 
-#define READ_DELAY 		100
-#define LEDDELAY 		3000
-
-// Define the chip-select bar (CSB) pin number for the board
-#ifdef CONFIG_BOARD_NRF7002DK_NRF5340_CPUAPP
-	#define CSB_PIN 25
-#endif
-#ifdef CONFIG_BOARD_NRF5340DK_NRF5340_CPUAPP
-	#define CSB_PIN 25
-#endif
-#ifdef CONFIG_BOARD_NRF52840DK_NRF52840
-	#define CSB_PIN 30
-#endif
-#ifdef CONFIG_BOARD_NRF52DK_NRF52832
-	#define CSB_PIN 30
-#endif
-#ifdef CONFIG_BOARD_NRF52833DK_NRF52833
-	#define CSB_PIN 30
-#endif
-#ifdef CONFIG_BOARD_NRF9160DK_NRF9160
-	#define CSB_PIN 18
-#endif
-
-// Define LED0 pin number
+#define DELAY_REG 		10
+#define DELAY_PARAM		50
+#define DELAY_VALUES	1000
 #define LED0	13
+#define SPIOP	SPI_WORD_SET(8) | SPI_TRANSFER_MSB
+#define CTRLHUM 		0xF2
+#define CTRLMEAS		0xF4
 
-/* STEP 3 - Obtain the SPI controller node and GPIO node for CS pin */
-static const struct device * spidev = DEVICE_DT_GET(DT_NODELABEL(spi1));
-const struct device * gpiodev = DEVICE_DT_GET(DT_NODELABEL(gpio0));
-
-/* STEP 4 - Define and initialize an spi_config structure */
-const struct spi_config bme_spi_config = {
-	.frequency = 125000U,
-	.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB,
-	.slave = 0,
-};
+/* STEP 3 - Obtain the SPI-SPEC and GPIO-SPEC from SPI controller node */
+struct spi_dt_spec spispec = SPI_DT_SPEC_GET(DT_NODELABEL(bme280), SPIOP, 0);
+const struct gpio_dt_spec gpiospec = GPIO_DT_SPEC_GET(DT_NODELABEL(spi1), cs_gpios);
+const struct gpio_dt_spec ledspec = GPIO_DT_SPEC_GET(DT_NODELABEL(led0), gpios);
 
 // Data structure to store BME280 data
 struct bme280_data {
@@ -87,39 +63,26 @@ struct bme280_data {
 
 /// @brief The function to read-out a single BME280 register
 /// @param reg is the address of the register
-/// @param data is the pointer to store read data
+/// @param data is the buffer pointer to store read values
 /// @param size is the size of data
 /// @return 0 or err code
-static int bme_read_reg(uint8_t reg, uint8_t *data, int size)
+static int bme_read_reg(uint8_t reg, uint8_t *data, uint8_t size)
 {
 	int err;
 
-	/* STEP 5.1 - Set the transmit and receive buffers */
+	/* STEP 4.1 - Set the transmit and receive buffers */
 	uint8_t tx_buffer = reg;
-	struct spi_buf tx_spi_buf = {.buf = (void *)&tx_buffer, .len = 1};
-	struct spi_buf_set tx_spi_buf_set = {.buffers = &tx_spi_buf, .count = 1};
-	struct spi_buf rx_spi_bufs = {.buf = data, .len = size};
-	struct spi_buf_set rx_spi_buffer_set = {.buffers = &rx_spi_bufs, .count = 1};
+	struct spi_buf tx_spi_buf			= {.buf = (void *)&tx_buffer, .len = 1};
+	struct spi_buf_set tx_spi_buf_set 	= {.buffers = &tx_spi_buf, .count = 1};
+	struct spi_buf rx_spi_bufs 			= {.buf = data, .len = size};
+	struct spi_buf_set rx_spi_buf_set	= {.buffers = &rx_spi_bufs, .count = 1};
 
-	/* STEP 5.2 - Enable the sensor by activating the chip-select signal */
-	gpio_pin_set(gpiodev, CSB_PIN, 1);
-
-	/* STEP 5.3 - Write the transmit buffers to the sensor */
-	err = spi_write(spidev, &bme_spi_config, &tx_spi_buf_set);
+	/* STEP 4.2 - Call the transceive function */
+	err = spi_transceive_dt(&spispec, &tx_spi_buf_set, &rx_spi_buf_set);
 	if (err < 0) {
-		LOG_ERR("spi_write() failed, err: %d", err);
+		LOG_ERR("spi_transceive_dt() failed, err: %d", err);
 		return err;
 	}
-
-	/* STEP 5.4 - Read the data from the sensor */
-	err = spi_read(spidev, &bme_spi_config, &rx_spi_buffer_set);
-	if (err < 0) {
-		LOG_ERR("spi_read() failed, err: %d", err);
-		return err;
-	}
-
-	/* STEP 5.5 - Put the device into inactive mode by disabling the cnip-select signal */
-	gpio_pin_set(gpiodev, CSB_PIN, 0);
 
 	return 0;
 }
@@ -132,20 +95,17 @@ static int bme_write_reg(uint8_t reg, uint8_t value)
 {
 	int err;
 
-	/* STEP 6.1 - [] */
-	/* Bit7 is 0 for the write command */
-	uint8_t tx_buf[] = {(reg & 0x7F), value};
+	/* STEP 5.1 - delcare a tx buffer having register address and data */
+	uint8_t tx_buf[] = {(reg & 0x7F), value};	
+	struct spi_buf 		tx_spi_buf 		= {.buf = tx_buf, .len = sizeof(tx_buf)};
+	struct spi_buf_set 	tx_spi_buf_set	= {.buffers = &tx_spi_buf, .count = 1};
 
-	/* STEP 6.2 - Write the data-byte to the sensor register */
-	struct spi_buf tx_spi_buf = {.buf = tx_buf, .len = sizeof(tx_buf)};
-	struct spi_buf_set tx_spi_buf_set = {.buffers = &tx_spi_buf, .count = 1};
-	gpio_pin_set(gpiodev, CSB_PIN, 1);
-	err = spi_write(spidev, &bme_spi_config, &tx_spi_buf_set);
+	/* STEP 5.2 - call the spi_write_dt function with SPISPEC to write buffers */
+	err = spi_write_dt(&spispec, &tx_spi_buf_set);
 	if (err < 0) {
-		LOG_ERR("spi_write() failed, err %d", err);
+		LOG_ERR("spi_write_dt() failed, err %d", err);
 		return err;
 	}
-	gpio_pin_set(gpiodev, CSB_PIN, 0);
 
 	return 0;
 }
@@ -153,106 +113,140 @@ static int bme_write_reg(uint8_t reg, uint8_t value)
 /// @brief The function to read calibration registers and 
 ///        set the values in bme_data struct so that 
 ///        calibrating functiions could use these values
-void bme_calibrationdata_read(void){
-	uint8_t values[2];
+void bme_calibrationdata(void)
+{
+	/* Set data size of 3 as the first byte is dummy using bme_read_reg() */
+	uint8_t values[3];
+	uint8_t size = 3;	
+	
 	uint8_t regaddr;
-
-	/* STEP 7 - Go through the following code. We are using bme_read_reg()
-	to read the required number of bytes from respective register locations
-	and setting the data in proper order to form the compensation parameter values */
+	LOG_INF("-------------------------------------------------------------");
+	LOG_INF("BME_READ_CALIBRATIONDATA: Reading from calibration registers:");
+	/* STEP 6 - We are using bme_read_reg() to read required number of bytes from 
+	respective register(s) and put values to construct compensation parameters */
 	regaddr = 0x88;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_t1 = ((uint16_t)values[1])<<8 | values[0];
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_t1 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param T1 = %d", regaddr, size-1, bmedata.dig_t1);
+	k_msleep(DELAY_PARAM);
 
 	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_t2 = ((uint16_t)values[1])<<8 | values[0];
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_t2 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param Param T2 = %d", regaddr, size-1, bmedata.dig_t2);
+	k_msleep(DELAY_PARAM);
+	
+	regaddr += 2;
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_t3 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param T3 = %d", regaddr, size-1, bmedata.dig_t3);
+	k_msleep(DELAY_PARAM);
+	
+	regaddr += 2;
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_p1 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param P1 = %d", regaddr, size-1, bmedata.dig_p1);
+	k_msleep(DELAY_PARAM);
 
 	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_t3 = ((uint16_t)values[1])<<8 | values[0];
-
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_p2 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param P2 = %d", regaddr, size-1, bmedata.dig_p2);
+	k_msleep(DELAY_PARAM);
+	
 	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_p1 = ((uint16_t)values[1])<<8 | values[0];
-
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_p3 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param P3 = %d", regaddr, size-1, bmedata.dig_p3);
+	k_msleep(DELAY_PARAM);
+	
 	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_p2 = ((uint16_t)values[1])<<8 | values[0];
-
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_p4 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param P4 = %d", regaddr, size-1, bmedata.dig_p4);
+	k_msleep(DELAY_PARAM);
+	
 	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_p3 = ((uint16_t)values[1])<<8 | values[0];
-
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_p5 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param P5 = %d", regaddr, size-1, bmedata.dig_p5);
+	k_msleep(DELAY_PARAM);
+	
 	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_p4 = ((uint16_t)values[1])<<8 | values[0];
-
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_p6 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param P6 = %d", regaddr, size-1, bmedata.dig_p6);
+	k_msleep(DELAY_PARAM);
+	
 	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_p5 = ((uint16_t)values[1])<<8 | values[0];
-
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_p7 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param P7 = %d", regaddr, size-1, bmedata.dig_p7);
+	k_msleep(DELAY_PARAM);
+	
 	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_p6 = ((uint16_t)values[1])<<8 | values[0];
-
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_p8 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param P8 = %d", regaddr, size-1, bmedata.dig_p8);
+	k_msleep(DELAY_PARAM);
+	
 	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_p7 = ((uint16_t)values[1])<<8 | values[0];
-
-	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_p8 = ((uint16_t)values[1])<<8 | values[0];
-
-	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_p9 = ((uint16_t)values[1])<<8 | values[0];
-
-	regaddr += 2;
-	bme_read_reg(regaddr, values, 1);
-	bmedata.dig_h1 = values[0];
-
-	regaddr += 40;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_h2 = ((uint16_t)values[1])<<8 | values[0];
-
-	regaddr += 2;
-	bme_read_reg(regaddr, values, 1);
-	bmedata.dig_h3 = values[0];
-
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_p9 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param P9 = %d", regaddr, size-1, bmedata.dig_p9);
+	k_msleep(DELAY_PARAM);
+	
+	regaddr += 3; size=2; //only read one byte for H1 (see datasheet)
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_h1 = (uint8_t)values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H1 = %d", regaddr, size-1, bmedata.dig_h1);
+	k_msleep(DELAY_PARAM);
+	
+	regaddr += 64; size=3; //read two bytes for H2
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_h2 = ((uint16_t)values[2])<<8 | values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H2 = %d", regaddr, size-1, bmedata.dig_h2);
+	k_msleep(DELAY_PARAM);
+	
+	regaddr += 2; size=2; //only read one byte for H3
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_h3 = (uint8_t)values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H3 = %d", regaddr, size-1, bmedata.dig_h3);
+	k_msleep(DELAY_PARAM);
+	
+	regaddr += 1; size=3; //read two bytes for H4
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_h4 = ((uint16_t)values[1])<<4 | (values[2] & 0x0F);
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H4 = %d", regaddr, size-1, bmedata.dig_h4);
+	k_msleep(DELAY_PARAM);
+	
 	regaddr += 1;
+	bme_read_reg(regaddr, values, size);
+	bmedata.dig_h5 = ((uint16_t)values[2])<<4 | ((values[1] >> 4) & 0x0F);
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H5 = %d", regaddr, size-1, bmedata.dig_h5);
+	k_msleep(DELAY_PARAM);
+	
+	regaddr += 2; size=2; //only read one byte for H6
 	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_h4 = ((uint16_t)values[0])<<4 | (values[1] & 0x0F);
+	bmedata.dig_h6 = (uint8_t)values[1];
+	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H6 = %d", regaddr, size-1, bmedata.dig_h6);
+	k_msleep(DELAY_PARAM);
+	LOG_INF("-------------------------------------------------------------");
 
-	regaddr += 2;
-	bme_read_reg(regaddr, values, 2);
-	bmedata.dig_h5 = ((uint16_t)values[1])<<4 | ((values[0] >> 4) & 0x0F);
-
-	regaddr += 2;
-	bme_read_reg(regaddr, values, 1);
-	bmedata.dig_h6 = values[0];
-
-	LOG_INF("Reading the parameters from sensor for temperature, pressure, and humidity");
-	LOG_INF("T1: %d\tT2: %d\tT3: %d", bmedata.dig_t1, bmedata.dig_t2, bmedata.dig_t3);
-	LOG_INF("P1: %d\tP2: %d\tP3: %d", bmedata.dig_p1, bmedata.dig_p2, bmedata.dig_p3);
-	LOG_INF("P4: %d\tP5: %d\tP5: %d", bmedata.dig_p4, bmedata.dig_p5, bmedata.dig_p6);
-	LOG_INF("P7: %d\tP8: %d\tP9: %d", bmedata.dig_p7, bmedata.dig_p8, bmedata.dig_p9);
-	LOG_INF("H1: %d\tH2: %d\tH3: %d", bmedata.dig_h1, bmedata.dig_h2, bmedata.dig_h3);
-	LOG_INF("H4: %d\tH5: %d\tH6: %d\n", bmedata.dig_h4, bmedata.dig_h5, bmedata.dig_h6);
 }
 
 /// @brief The function to read and print different BME280 registers
 /// 		It sets register addresses as per the data-sheet
 ///			and then calls the read_bme_reg() function to read
 ///			registers one by one and display the contents
-int bme_print_regs(void)
+int bme_print_registers(void)
 {
-	uint8_t buf;
-	uint8_t size = 1;
+	uint8_t buf[2];
+	uint8_t size = 2;	//size=2 as 1st byte is dummy using bme_read_reg()
 	uint8_t data;
 	int err;
 
-	/* STEP 8 - Go through the following code and see how we are using
+	/* STEP 7 - Go through the following code and see how we are using
 	bme_read_reg() to read and print different registers (1-byte) */
 
 	// Register addresses to read from (see the data sheet)
@@ -269,51 +263,53 @@ int bme_print_regs(void)
 	for (uint8_t i=0; i<11; i++)
 		regs_more[i+1] = regs_more[i] + 1;
 
+	LOG_INF("-------------------------------------------------------------");
 	// Read 1 byte data from each register and print
-	LOG_INF("Reading all BME280 registers (one by one with delay = %d ms):", READ_DELAY);	
-	err = bme_read_reg(reg_id, &buf, size);
+	LOG_INF("BME_PRINT_REGISTERS: Reading all BME280 registers (one by one)");	
+	err = bme_read_reg(reg_id, buf, size);
 	if (err < 0)
 	{
 		LOG_INF("Error in bme_read_reg(), err: %d", err);
 		return err;
 	}
-	data = buf;
+	
+	data = buf[1];
 	bmedata.chip_id = data;
 	LOG_INF("\tReg[0x%02x]  =  0x%02x", reg_id, data);
-	k_msleep(READ_DELAY);
+	k_msleep(DELAY_REG);
 	
 	// Reading from more calibration registers
 	for (uint8_t i = 0; i < sizeof(regs_morecalib); i++)
 	{
-		err = bme_read_reg(regs_morecalib[i], &buf, size);
+		err = bme_read_reg(regs_morecalib[i], buf, size);
 		if (err < 0)
 		{
 			LOG_INF("Error in bme_read_reg(), err: %d", err);
 			return err;
 		}
-		data = buf;
+		data = buf[1];
 		LOG_INF("\tReg[0x%02x]  =  0x%02x", regs_morecalib[i], data);
-		k_msleep(READ_DELAY);
+		k_msleep(DELAY_REG);
 	}
 
 	// Reading from more registers
 	for (uint8_t i=0; i<sizeof(regs_more); i++)
 	{
-		err = bme_read_reg(regs_more[i], &buf, size);
+		err = bme_read_reg(regs_more[i], buf, size);
 		if (err < 0)
 		{
 			LOG_INF("Error in bme_read_reg(), err: %d", err);
 			return err;
 		}
-		data = buf;
+		data = buf[1];
 		LOG_INF("\tReg[0x%02x]  =  0x%02x", regs_more[i], data);
-		k_msleep(READ_DELAY);
+		k_msleep(DELAY_REG);
 	}
-
+	LOG_INF("-------------------------------------------------------------");
 	return 0;
 }
 
-/* STEP 9 - Go through the compensation functions and 
+/* STEP 8 - Go through the compensation functions and 
   note that they use the compensation parameters from 
   the bme280_data structure and then store back the compensated value */
 static void bme280_compensate_temp(struct bme280_data *data, int32_t adc_temp)
@@ -377,7 +373,7 @@ static void bme280_compensate_humidity(struct bme280_data *data, int32_t adc_hum
 /// @brief The function to read, compensate and show the
 ///        temperature, pressure, and humidity values from
 ///        the BME280 device
-int bme_read_values(void)
+int bme_read_sample(void)
 {
 
 	int err;
@@ -385,26 +381,24 @@ int bme_read_values(void)
 	int32_t datap = 0, datat = 0, datah = 0;
 	float pressure = 0.0, temperature = 0.0, humidity = 0.0;
 
-	/* STEP 10.1 - Store register addresses to do burst read */
+	/* STEP 9.1 - Store register addresses to do burst read */
 	uint8_t regs[] = {0xF7, 0xF8, 0xF9, \
 					  0xFA, 0xFB, 0xFC, \
-					  0xFD, 0xFE, 0xFF};
+					  0xFD, 0xFE, 0xFF};	//0xFF is dummy reg
 	uint8_t readbuf[sizeof(regs)];
 
-	/* STEP 10.2 - Set the transmit and receive buffers */
-	struct spi_buf tx_spi_buf = {.buf = (void *)&regs, .len = sizeof(regs)};
-	struct spi_buf_set tx_spi_buf_set = {.buffers = &tx_spi_buf, .count = 1};
-	struct spi_buf rx_spi_bufs = {.buf = readbuf, .len = sizeof(regs)};
-	struct spi_buf_set rx_spi_buffer_set = {.buffers = &rx_spi_bufs, .count = 1};
+	/* STEP 9.2 - Set the transmit and receive buffers */
+	struct spi_buf 		tx_spi_buf 			= {.buf = (void *)&regs, .len = sizeof(regs)};
+	struct spi_buf_set 	tx_spi_buf_set		= {.buffers = &tx_spi_buf, .count = 1};
+	struct spi_buf 		rx_spi_bufs			= {.buf = readbuf, .len = sizeof(regs)};
+	struct spi_buf_set 	rx_spi_buffer_set	= {.buffers = &rx_spi_bufs, .count = 1};
 
-	/* STEP 10.3 - Use spi_transceive() to transmit and receive at the same time */
-	gpio_pin_set(gpiodev, CSB_PIN, 1);
-	err = spi_transceive(spidev, &bme_spi_config, &tx_spi_buf_set, &rx_spi_buffer_set);	
+	/* STEP 9.3 - Use spi_transceive() to transmit and receive at the same time */
+	err = spi_transceive_dt(&spispec, &tx_spi_buf_set, &rx_spi_buffer_set);
 	if (err < 0) {
-		LOG_ERR("spi_transceive() failed, err: %d", err);
+		LOG_ERR("spi_transceive_dt() failed, err: %d", err);
 		return err;
 	}
-	gpio_pin_set(gpiodev, CSB_PIN, 0);
 
 	/* Put the data read from registers into actual order (see datasheet) */
 	// Uncompensated pressure value
@@ -415,19 +409,19 @@ int bme_read_values(void)
 	datah = (readbuf[7] << 8)  | (readbuf[8]);
 
 	// Compensate pressure, temperature and humidity values using given functions	
-	bme280_compensate_temp(&bmedata, datat);
 	bme280_compensate_press(&bmedata,datap);
+	bme280_compensate_temp(&bmedata, datat);
 	bme280_compensate_humidity(&bmedata, datah);
 
 	// Convert to proper format as per data sheet
-	temperature = (float)bmedata.comp_temp/100.0;
 	pressure 	= (float)bmedata.comp_press/256.0;
+	temperature = (float)bmedata.comp_temp/100.0;
 	humidity 	= (float)bmedata.comp_humidity/1024.0;
 	
 	// Print the uncompensated and compensated values
-	LOG_INF("Temp \t uncomp = %d C \t comp = %f C", datat, temperature);
-	LOG_INF("Pressure \t uncomp = %d Pa \t comp = %f Pa", datap, pressure);
-	LOG_INF("Humidity \t uncomp = %d RH \t comp = %f%% RH", datah, humidity);
+	LOG_INF("\tTemperature: \t uncomp = %d C \t comp = %8.2f C", datat, temperature);
+	LOG_INF("\tPressure:    \t uncomp = %d Pa \t comp = %8.2f Pa", datap, pressure);	
+	LOG_INF("\tHumidity:    \t uncomp = %d RH \t comp = %8.2f %%RH", datah, humidity);
 
 	return 0;
 }
@@ -440,39 +434,37 @@ int main(void)
 {
 	int err;
 	
-	/* STEP 11.1 - Check if SPI and GPIO devices are ready */
-	err = device_is_ready(spidev);
+	/* STEP 10.1 - Check if SPI and GPIO devices are ready */
+	err = spi_is_ready_dt(&spispec);
 	if (!err) {
 		LOG_ERR("Error: SPI device is not ready, err: %d", err);
 		return 0;
 	}
 
-	err = device_is_ready(gpiodev);
+	err = gpio_is_ready_dt(&gpiospec);
 	if (!err) {
 		LOG_ERR("Error: GPIO device is not ready, err: %d", err);
 		return 0;
 	}
+	
+	gpio_pin_configure_dt(&ledspec, GPIO_OUTPUT_ACTIVE);
+	
+	/* STEP 10.2 - Read calibration data */
+	bme_calibrationdata();
 
-	/* STEP 11.2 - Configure the chip select pin and LED0 */
-	gpio_pin_configure(gpiodev, CSB_PIN, GPIO_OUTPUT | GPIO_ACTIVE_LOW);
-	gpio_pin_configure(gpiodev, LED0, GPIO_OUTPUT_ACTIVE);
+	/* STEP 10.3 - Write sampling parameters and read and print the registers */
+	bme_write_reg(CTRLHUM, 0x04);
+	bme_write_reg(CTRLMEAS, 0x93);	
+	bme_print_registers();
+	
+	LOG_INF("-------------------------------------------------------------");
+	LOG_INF("Continuously read sensor samples, compensate, and display using BME_READ_SAMPLE():");
 
-	/* STEP 11.3 - Read calibration data */
-	bme_calibrationdata_read();
-
-	/* STEP 11.4 - Write sampling parameters and read and print the registers */
-	bme_write_reg(0xF2, 0x04);
-	bme_write_reg(0xF4, 0x93);
-
-	bme_print_regs();
-
-	// Continuously read data values and toggle led	
-	LOG_INF("Continuously read sensor samples, compensate, and display (delay = %d ms) ", LEDDELAY);
 	while(1){
-		/* STEP 11.5 - Continously read sensor samples and toggle LED */
-		bme_read_values();
-		gpio_pin_toggle(gpiodev, LED0);
-		k_msleep(LEDDELAY);
+		/* STEP 10.4 - Continuously read sensor samples and toggle led */
+		bme_read_sample();
+		gpio_pin_toggle_dt(&ledspec);
+		k_msleep(DELAY_VALUES);
 	}
 
 	return 0;
