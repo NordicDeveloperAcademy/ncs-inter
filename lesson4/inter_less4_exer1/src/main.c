@@ -19,6 +19,18 @@ LOG_MODULE_REGISTER(Lesson4_Exercise1, LOG_LEVEL_INF);
 #define SPIOP	SPI_WORD_SET(8) | SPI_TRANSFER_MSB
 #define CTRLHUM 		0xF2
 #define CTRLMEAS		0xF4
+#define CALIB00			0x88
+#define CALIB26			0xE1
+#define ID				0xD0
+#define PRESSMSB		0xF7
+#define PRESSLSB		0xF8
+#define PRESSXLSB		0xF9
+#define TEMPMSB			0xFA
+#define TEMPLSB			0xFB
+#define TEMPXLSB		0xFC
+#define HUMMSB			0xFD
+#define HUMLSB			0xFE
+#define DUMMY			0xFF
 
 /* STEP 3 - Obtain the SPI-SPEC and GPIO-SPEC from SPI controller node */
 
@@ -105,7 +117,7 @@ void bme_calibrationdata(void)
 	LOG_INF("BME_READ_CALIBRATIONDATA: Reading from calibration registers:");
 	/* STEP 6 - We are using bme_read_reg() to read required number of bytes from 
 	respective register(s) and put values to construct compensation parameters */
-	regaddr = 0x88;
+	regaddr = CALIB00;
 	bme_read_reg(regaddr, values, size);
 	bmedata.dig_t1 = ((uint16_t)values[2])<<8 | values[1];
 	LOG_INF("\tReg[0x%02x] %d Bytes read: Param T1 = %d", regaddr, size-1, bmedata.dig_t1);
@@ -231,16 +243,16 @@ int bme_print_registers(void)
 	bme_read_reg() to read and print different registers (1-byte) */
 
 	// Register addresses to read from (see the data sheet)
-	uint8_t reg_id = 0xD0;
+	uint8_t reg_id = ID;
 	uint8_t regs_morecalib[16];
 	uint8_t regs_more[12];
 	
 	// Set the register addresses
-	regs_morecalib[0] = 0xE1;
+	regs_morecalib[0] = CALIB26;
 	for (uint8_t i=0; i<15; i++)
 		regs_morecalib[i+1] = regs_morecalib[i] + 1;
 	
-	regs_more[0] = 0xF2;
+	regs_more[0] = CTRLHUM;
 	for (uint8_t i=0; i<11; i++)
 		regs_more[i+1] = regs_more[i] + 1;
 
