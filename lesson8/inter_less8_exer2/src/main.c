@@ -7,7 +7,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 
-/* STEP 3.3 - Include header for usb */
+/* STEP 4.4 - Include header for usb */
+
 
 /* 1000 msec = 1 sec */
 
@@ -27,7 +28,7 @@ int main(void)
 {
 	int ret;
 
-  /* Step 3.3 - Enable usb */
+  /* Step 4.5 - Enable USB */
 
 	if (!device_is_ready(led.port)) {
 		return 0;
