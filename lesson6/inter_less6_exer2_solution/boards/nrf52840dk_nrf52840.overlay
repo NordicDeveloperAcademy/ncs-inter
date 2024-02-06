@@ -17,14 +17,14 @@
 &pinctrl {
     pwm0_custom: pwm0_custom {
         group1 {
-            psels = <NRF_PSEL(PWM_OUT0, 0, 13)>;
+            psels = <NRF_PSEL(PWM_OUT0, 0, 10)>;
             nordic,invert;
         };
     };
 
     pwm0_csleep: pwm0_csleep {
         group1 {
-            psels = <NRF_PSEL(PWM_OUT0, 0, 13)>;
+            psels = <NRF_PSEL(PWM_OUT0, 0, 10)>;
             low-power-enable;
         };
     };
@@ -46,10 +46,6 @@
         };
     };
 };
-
-
-
-/* DETTE ER FOR MOTOR & it works */ 
 
 
 /* STEP 5.6 Select what GPIO pwm1 should drive */
