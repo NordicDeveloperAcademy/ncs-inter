@@ -1,4 +1,4 @@
-/* STEP 2 - Create an overlay file for your board */
+/* STEP 2.1 - Add the SPI peripheral to spi1 */
 &i2c0 {	status = "disabled";};
 &spi0 {	status = "disabled";};
 &i2c1 {	status = "disabled";};
@@ -17,6 +17,7 @@
 	};
 };
 
+/* STEP 2.2 - Change the pin configuration */
 &pinctrl {
 	spi1_default: spi1_default {
 		group1 {
