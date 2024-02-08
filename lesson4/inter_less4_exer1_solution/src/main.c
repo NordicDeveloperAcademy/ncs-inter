@@ -19,7 +19,7 @@ LOG_MODULE_REGISTER(Lesson4_Exercise1, LOG_LEVEL_INF);
 #define DELAY_PARAM		50
 #define DELAY_VALUES	1000
 #define LED0	13
-#define SPIOP	SPI_WORD_SET(8) | SPI_TRANSFER_MSB
+
 #define CTRLHUM 		0xF2
 #define CTRLMEAS		0xF4
 #define CALIB00			0x88
@@ -35,11 +35,13 @@ LOG_MODULE_REGISTER(Lesson4_Exercise1, LOG_LEVEL_INF);
 #define HUMLSB			0xFE
 #define DUMMY			0xFF
 
-/* STEP 3 - Obtain the SPI-SPEC and GPIO-SPEC from SPI controller node */
-struct spi_dt_spec spispec = SPI_DT_SPEC_GET(DT_NODELABEL(bme280), SPIOP, 0);
 const struct gpio_dt_spec ledspec = GPIO_DT_SPEC_GET(DT_NODELABEL(led0), gpios);
 
-// Data structure to store BME280 data
+/* STEP 3 - Retrieve the API-device structure */
+#define SPIOP	SPI_WORD_SET(8) | SPI_TRANSFER_MSB
+struct spi_dt_spec spispec = SPI_DT_SPEC_GET(DT_NODELABEL(bme280), SPIOP, 0);
+
+/* Data structure to store BME280 data */
 struct bme280_data {
 	/* Compensation parameters */
 	uint16_t dig_t1;
@@ -70,13 +72,8 @@ struct bme280_data {
 	int32_t t_fine;
 
 	uint8_t chip_id;
-}bmedata;
+} bmedata;
 
-/// @brief The function to read-out a single BME280 register
-/// @param reg is the address of the register
-/// @param data is the buffer pointer to store read values
-/// @param size is the size of data
-/// @return 0 or err code
 static int bme_read_reg(uint8_t reg, uint8_t *data, uint8_t size)
 {
 	int err;
@@ -98,10 +95,6 @@ static int bme_read_reg(uint8_t reg, uint8_t *data, uint8_t size)
 	return 0;
 }
 
-/// @brief The function to write a value to the BME280 register
-/// @param reg is the address of the register
-/// @param values is the data to write
-/// @return 0 or err code
 static int bme_write_reg(uint8_t reg, uint8_t value)
 {
 	int err;
@@ -121,9 +114,6 @@ static int bme_write_reg(uint8_t reg, uint8_t value)
 	return 0;
 }
 
-/// @brief The function to read calibration registers and 
-///        set the values in bme_data struct so that 
-///        calibrating functiions could use these values
 void bme_calibrationdata(void)
 {
 	/* Set data size of 3 as the first byte is dummy using bme_read_reg() */
@@ -132,7 +122,7 @@ void bme_calibrationdata(void)
 	
 	uint8_t regaddr;
 	LOG_INF("-------------------------------------------------------------");
-	LOG_INF("BME_READ_CALIBRATIONDATA: Reading from calibration registers:");
+	LOG_INF("bme_read_calibrationdata: Reading from calibration registers:");
 	/* STEP 6 - We are using bme_read_reg() to read required number of bytes from 
 	respective register(s) and put values to construct compensation parameters */
 	regaddr = CALIB00;
@@ -207,25 +197,25 @@ void bme_calibrationdata(void)
 	LOG_INF("\tReg[0x%02x] %d Bytes read: Param P9 = %d", regaddr, size-1, bmedata.dig_p9);
 	k_msleep(DELAY_PARAM);
 	
-	regaddr += 3; size=2; //only read one byte for H1 (see datasheet)
+	regaddr += 3; size=2; /* only read one byte for H1 (see datasheet) */
 	bme_read_reg(regaddr, values, size);
 	bmedata.dig_h1 = (uint8_t)values[1];
 	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H1 = %d", regaddr, size-1, bmedata.dig_h1);
 	k_msleep(DELAY_PARAM);
 	
-	regaddr += 64; size=3; //read two bytes for H2
+	regaddr += 64; size=3; /* read two bytes for H2 */
 	bme_read_reg(regaddr, values, size);
 	bmedata.dig_h2 = ((uint16_t)values[2])<<8 | values[1];
 	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H2 = %d", regaddr, size-1, bmedata.dig_h2);
 	k_msleep(DELAY_PARAM);
 	
-	regaddr += 2; size=2; //only read one byte for H3
+	regaddr += 2; size=2; /* only read one byte for H3 */
 	bme_read_reg(regaddr, values, size);
 	bmedata.dig_h3 = (uint8_t)values[1];
 	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H3 = %d", regaddr, size-1, bmedata.dig_h3);
 	k_msleep(DELAY_PARAM);
 	
-	regaddr += 1; size=3; //read two bytes for H4
+	regaddr += 1; size=3; /* read two bytes for H4 */
 	bme_read_reg(regaddr, values, size);
 	bmedata.dig_h4 = ((uint16_t)values[1])<<4 | (values[2] & 0x0F);
 	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H4 = %d", regaddr, size-1, bmedata.dig_h4);
@@ -237,7 +227,7 @@ void bme_calibrationdata(void)
 	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H5 = %d", regaddr, size-1, bmedata.dig_h5);
 	k_msleep(DELAY_PARAM);
 	
-	regaddr += 2; size=2; //only read one byte for H6
+	regaddr += 2; size=2; /* only read one byte for H6 */
 	bme_read_reg(regaddr, values, 2);
 	bmedata.dig_h6 = (uint8_t)values[1];
 	LOG_INF("\tReg[0x%02x] %d Bytes read: Param H6 = %d", regaddr, size-1, bmedata.dig_h6);
@@ -246,26 +236,22 @@ void bme_calibrationdata(void)
 
 }
 
-/// @brief The function to read and print different BME280 registers
-/// 		It sets register addresses as per the data-sheet
-///			and then calls the read_bme_reg() function to read
-///			registers one by one and display the contents
 int bme_print_registers(void)
 {
 	uint8_t buf[2];
-	uint8_t size = 2;	//size=2 as 1st byte is dummy using bme_read_reg()
+	uint8_t size = 2;	/* size=2 as 1st byte is dummy using bme_read_reg()  */
 	uint8_t data;
 	int err;
 
 	/* STEP 7 - Go through the following code and see how we are using
 	bme_read_reg() to read and print different registers (1-byte) */
 
-	// Register addresses to read from (see the data sheet)
+	/* Register addresses to read from (see the data sheet) */
 	uint8_t reg_id = ID;
 	uint8_t regs_morecalib[16];
 	uint8_t regs_more[12];
 	
-	// Set the register addresses
+	/* Set the register addresses */
 	regs_morecalib[0] = CALIB26;
 	for (uint8_t i=0; i<15; i++)
 		regs_morecalib[i+1] = regs_morecalib[i] + 1;
@@ -274,9 +260,8 @@ int bme_print_registers(void)
 	for (uint8_t i=0; i<11; i++)
 		regs_more[i+1] = regs_more[i] + 1;
 
-	LOG_INF("-------------------------------------------------------------");
-	// Read 1 byte data from each register and print
-	LOG_INF("BME_PRINT_REGISTERS: Reading all BME280 registers (one by one)");	
+	/* Read 1 byte data from each register and print */
+	LOG_INF("bme_print_registers: Reading all BME280 registers (one by one)");	
 	err = bme_read_reg(reg_id, buf, size);
 	if (err < 0)
 	{
@@ -289,7 +274,7 @@ int bme_print_registers(void)
 	LOG_INF("\tReg[0x%02x]  =  0x%02x", reg_id, data);
 	k_msleep(DELAY_REG);
 	
-	// Reading from more calibration registers
+	/* Reading from more calibration registers */
 	for (uint8_t i = 0; i < sizeof(regs_morecalib); i++)
 	{
 		err = bme_read_reg(regs_morecalib[i], buf, size);
@@ -303,7 +288,7 @@ int bme_print_registers(void)
 		k_msleep(DELAY_REG);
 	}
 
-	// Reading from more registers
+	/* Reading from more registers */
 	for (uint8_t i=0; i<sizeof(regs_more); i++)
 	{
 		err = bme_read_reg(regs_more[i], buf, size);
@@ -381,9 +366,6 @@ static void bme280_compensate_humidity(struct bme280_data *data, int32_t adc_hum
 	data->comp_humidity = (uint32_t)(h >> 12);
 }
 
-/// @brief The function to read, compensate and show the
-///        temperature, pressure, and humidity values from
-///        the BME280 device
 int bme_read_sample(void)
 {
 
@@ -412,24 +394,24 @@ int bme_read_sample(void)
 	}
 
 	/* Put the data read from registers into actual order (see datasheet) */
-	// Uncompensated pressure value
+	/* Uncompensated pressure value */
 	datap = (readbuf[1] << 12) | (readbuf[2] << 4) | ((readbuf[3] >> 4) & 0x0F);
-	// Uncompensated temperature value
+	/* Uncompensated temperature value */
 	datat = (readbuf[4] << 12) | (readbuf[5] << 4) | ((readbuf[6] >> 4) & 0x0F);
-	// Uncompensated humidity value
+	/* Uncompensated humidity value */
 	datah = (readbuf[7] << 8)  | (readbuf[8]);
 
-	// Compensate pressure, temperature and humidity values using given functions	
+	/* Compensate values using given functions */
 	bme280_compensate_press(&bmedata,datap);
 	bme280_compensate_temp(&bmedata, datat);
 	bme280_compensate_humidity(&bmedata, datah);
 
-	// Convert to proper format as per data sheet
+	/* Convert to proper format as per data sheet */
 	pressure 	= (float)bmedata.comp_press/256.0;
 	temperature = (float)bmedata.comp_temp/100.0;
 	humidity 	= (float)bmedata.comp_humidity/1024.0;
 	
-	// Print the uncompensated and compensated values
+	/* Print the uncompensated and compensated values */
 	LOG_INF("\tTemperature: \t uncomp = %d C \t comp = %8.2f C", datat, temperature);
 	LOG_INF("\tPressure:    \t uncomp = %d Pa \t comp = %8.2f Pa", datap, pressure);	
 	LOG_INF("\tHumidity:    \t uncomp = %d RH \t comp = %8.2f %%RH", datah, humidity);
@@ -437,14 +419,16 @@ int bme_read_sample(void)
 	return 0;
 }
 
-/// @brief  The main entry function
-///			First Calibration Data is read, 
-///			next, sampling parameters are written
-///			and then data is read in while(1)
 int main(void)
 {
 	int err;
 	
+	err = gpio_is_ready_dt(&ledspec);
+	if (!err) {
+		LOG_ERR("Error: GPIO device is not ready, err: %d", err);
+		return 0;
+	}
+
 	/* STEP 10.1 - Check if SPI and GPIO devices are ready */
 	err = spi_is_ready_dt(&spispec);
 	if (!err) {
@@ -452,12 +436,6 @@ int main(void)
 		return 0;
 	}
 
-	err = gpio_is_ready_dt(&ledspec);
-	if (!err) {
-		LOG_ERR("Error: GPIO device is not ready, err: %d", err);
-		return 0;
-	}
-	
 	gpio_pin_configure_dt(&ledspec, GPIO_OUTPUT_ACTIVE);
 	
 	/* STEP 10.2 - Read calibration data */
@@ -468,8 +446,7 @@ int main(void)
 	bme_write_reg(CTRLMEAS, 0x93);	
 	bme_print_registers();
 	
-	LOG_INF("-------------------------------------------------------------");
-	LOG_INF("Continuously read sensor samples, compensate, and display using BME_READ_SAMPLE():");
+	LOG_INF("Continuously read sensor samples, compensate, and display");
 
 	while(1){
 		/* STEP 10.4 - Continuously read sensor samples and toggle led */
