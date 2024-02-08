@@ -17,7 +17,6 @@ LOG_MODULE_REGISTER(Lesson2_Exercise2, LOG_LEVEL_INF);
 void crash_function(uint32_t *addr)
 {
 	LOG_INF("Button pressed at %" PRIu32, k_cycle_get_32());
-	LOG_INF("Button pressed at %d", k_cycle_get_32());
 	LOG_INF("Coredump: %s", CONFIG_BOARD);
 
 	#if !defined(CONFIG_CPU_CORTEX_M)
