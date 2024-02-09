@@ -21,20 +21,20 @@
 &pinctrl {
     pwm0_custom: pwm0_custom {
         group1 {
-            psels = <NRF_PSEL(PWM_OUT0, 0, 2)>;
+            psels = <NRF_PSEL(PWM_OUT0, 0, 17)>;
             nordic,invert;
         };
     };
 
     pwm0_csleep: pwm0_csleep {
         group1 {
-            psels = <NRF_PSEL(PWM_OUT0, 0, 2)>;
+            psels = <NRF_PSEL(PWM_OUT0, 0, 17)>;
             low-power-enable;
         };
     };
 };
 
-/* STEP 5.2 - Add the servo device  */
+/* STEP 5.2 - Add the servo device */
 / {
     servo: servo {
         compatible = "pwm-servo";
@@ -55,14 +55,14 @@
 &pinctrl {
     pwm1_custom_motor: pwm1_custom_motor {
         group1 {
-            psels = <NRF_PSEL(PWM_OUT0, 0, 10)>;
+            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
             nordic,invert;
         };
     };
 
     pwm1_csleep_motor: pwm1_csleep_motor {
         group1 {
-            psels = <NRF_PSEL(PWM_OUT0, 0, 10)>;
+            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
             low-power-enable;
         };
     };

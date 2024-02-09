@@ -11,7 +11,7 @@
 /* STEP 1.3 - Include the relevant headers for pwm*/
 
 
-LOG_MODULE_REGISTER(Lesson6_Exercise1, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(Lesson4_Exercise1, LOG_LEVEL_INF);
 
 /* STEP 2 - Define the desired PWM period and pulse */
 
