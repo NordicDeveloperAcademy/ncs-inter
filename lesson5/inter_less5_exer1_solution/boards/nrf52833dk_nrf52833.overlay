@@ -1,26 +1,38 @@
-/*
- * SPDX-License-Identifier: Apache-2.0
- *
- * Copyright (c) 2022 Nordic Semiconductor ASA
- */
-
-
-/ {
-	zephyr,user {
-		io-channels = <&adc 0>;
+/* STEP 2.1 - Add the SPI peripheral to spi1 */
+&i2c0 {	status = "disabled";};
+&spi0 {	status = "disabled";};
+&i2c1 {	status = "disabled";};
+	
+&spi1 {
+    compatible = "nordic,nrf-spim";
+	status = "okay";
+	pinctrl-0 = <&spi1_default>;
+	pinctrl-1 = <&spi1_sleep>;
+	pinctrl-names = "default", "sleep";
+	cs-gpios = <&gpio0 30 GPIO_ACTIVE_LOW>;
+	bme280@0 {
+		compatible = "bosch,bme280";
+		reg = <0>;
+		spi-max-frequency = <125000>; 
 	};
 };
 
-&adc {
-	#address-cells = <1>;
-	#size-cells = <0>;
-	status = "okay";
-	channel@0 {
-		reg = <0>;
-		zephyr,gain = "ADC_GAIN_1_6";
-		zephyr,reference = "ADC_REF_INTERNAL";
-		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
-		zephyr,input-positive = <NRF_SAADC_AIN0>; /* P0.02 for nRF52xx, P0.04 for nRF53xx */
-		zephyr,resolution = <12>;
+/* STEP 2.2 - Change the pin configuration */
+&pinctrl {
+	spi1_default: spi1_default {
+		group1 {
+				psels = <NRF_PSEL(SPIM_SCK, 0, 28)>,
+						<NRF_PSEL(SPIM_MOSI, 0, 29)>,
+						<NRF_PSEL(SPIM_MISO, 0, 31)>;
+		};
+	};
+
+	spi1_sleep: spi1_sleep {
+		group1 {
+				psels = <NRF_PSEL(SPIM_SCK, 0, 28)>,
+						<NRF_PSEL(SPIM_MOSI, 0, 29)>,
+						<NRF_PSEL(SPIM_MISO, 0, 31)>;
+				low-power-enable;
+		};
 	};
 };
