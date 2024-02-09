@@ -7,8 +7,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-#define LOG_MODULE_NAME main
-LOG_MODULE_REGISTER(LOG_MODULE_NAME);
+LOG_MODULE_REGISTER(Lesson6_Exercise3, LOG_LEVEL_DBG);
 
 /* Step 3 - Include header for nrfx drivers */
 #include <nrfx_saadc.h>

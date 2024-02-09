@@ -14,7 +14,7 @@
 /* STEP 3.2 - Define a variable of type adc_dt_spec for each channel */
 
 
-LOG_MODULE_REGISTER(Less5_Exer1, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(Lesson6_Exercise1, LOG_LEVEL_DBG);
 
 int main(void)
 {

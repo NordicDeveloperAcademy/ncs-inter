@@ -10,7 +10,7 @@
 /* STEP 1.2 - Include the header files for SPI, GPIO and devicetree */
 
 
-LOG_MODULE_REGISTER(Lesson4_Exercise1, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(Lesson5_Exercise1, LOG_LEVEL_INF);
 
 #define DELAY_REG 		10
 #define DELAY_PARAM		50

@@ -13,7 +13,7 @@
 /* STEP 7 - Include the header file for the ili_screen_controller module*/
 #include "ili_screen_controller.h"
 
-LOG_MODULE_REGISTER(Lesson4_Exercise2, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(Lesson5_Exercise2, LOG_LEVEL_INF);
 
 #define BKGCOLOR 	0x00U		// Greyscale value for background
 #define HLINECOLOR	0xFF0000	// RGB value for line-color (0xRRGGBB)

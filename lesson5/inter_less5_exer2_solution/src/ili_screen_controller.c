@@ -18,7 +18,7 @@
 #include <zephyr/drivers/display.h>
 #include "ili_screen_controller.h"
 
-LOG_MODULE_DECLARE(Lesson4_Exercise2, LOG_LEVEL_INF);
+LOG_MODULE_DECLARE(Lesson5_Exercise2, LOG_LEVEL_INF);
 
 /* Structure for ILI9340 controller configuration*/
 enum madctl_cmd_set {CMD_SET_1,	CMD_SET_2,};
