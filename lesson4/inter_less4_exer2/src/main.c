@@ -50,7 +50,7 @@ void button_handler(uint32_t button_state, uint32_t has_changed)
 	}
 }
 
-void main(void)
+int main(void)
 {
 
     int err = 0;

@@ -8,6 +8,6 @@ list(APPEND EXTRA_ZEPHYR_MODULES
 
 cmake_minimum_required(VERSION 3.20.0)
 
-# Step 3: Add the below custom driver
+# STEP 3 - Add the custom driver
 
 

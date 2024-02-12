@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.20.0)
 # Step 3: Add the below custom driver 
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(out_of_tree_driver)
+project(nrf_connect_sdk_intermediate)
 
 target_sources(app PRIVATE
   src/main.c
