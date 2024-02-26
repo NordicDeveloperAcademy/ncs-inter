@@ -38,7 +38,8 @@ int main(void)
     /* STEP 4 - Control the LED with the control signal generated from the PWM */
     err = pwm_set_dt(&pwm_led0, PWM_PERIOD_NS, PWM_DUTY_CYCLE);
     if (err) {
-        LOG_ERR("Error in pwm_set_dt(), err: %d", err);
+	LOG_ERR("Error in pwm_set_dt(), err: %d", err);
+	return 0;
     }
     
     return 0;
