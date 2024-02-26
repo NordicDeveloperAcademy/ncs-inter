@@ -8,7 +8,7 @@ LOG_MODULE_REGISTER(Lesson4_Exercise2, LOG_LEVEL_INF);
 
 #define PWM_LED0        DT_ALIAS(pwm_led0)
 
-/* STEP 4.7 - Define the servo motor through its nodelabel */
+/* STEP 5.7 - Define the servo motor through its nodelabel */
 #define SERVO_MOTOR     DT_NODELABEL(servo) 
 
 static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(PWM_LED0);
