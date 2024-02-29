@@ -9,14 +9,13 @@
 #include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(Lesson2_Exercise1, LOG_LEVEL_INF);
-
+int8_t test_var = 124;
 int main(void)
 {
-	
+
 	LOG_INF("Starting Exercise 1!");
 
 	/* STEP 4 - Add some logic to the application */
-
 
 	return 0;
 }
