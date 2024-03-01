@@ -7,16 +7,16 @@
 #include <stdio.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-/* STEP 7.2.1*/
+/* STEP 7.2.1 */
 
 LOG_MODULE_REGISTER(Lesson2_Exercise1, LOG_LEVEL_INF);
-
-/*Step 7.2.2*/
-
 int8_t test_var = 124;
+/* STEP 7.2.2*/
+
+
 int main(void)
 {
-	/*STEP 7.2.3*/
+	/* STEP 7.2.3 */
 
 	LOG_INF("Starting Exercise 1!");
 
