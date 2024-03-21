@@ -42,14 +42,6 @@
 #warning "Custom BME280 driver enabled without any devices"
 #endif
 
-/**
- * This is a minimal example of data that can be passed into device driver model
- */
-
-static struct custom_driver_data {
-	uint32_t foo;
-} data;
-
 /* Data structure to store BME280 data */
 struct bme280_data {
 	/* Compensation parameters */
