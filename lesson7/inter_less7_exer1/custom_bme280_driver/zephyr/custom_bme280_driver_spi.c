@@ -438,8 +438,8 @@ static const struct custom_bme280_driver_api custom_bme280_api_funcs = {
 		.spi = SPI_DT_SPEC_INST_GET(inst, SPIOP, 0),	\
 	}
 
-/* STEP 5 - Define a device driver instance */
+/* STEP 5.1 - Define a device driver instance */
 
 
-/* Create the struct device for every status "okay" node in the devicetree. */
-DT_INST_FOREACH_STATUS_OKAY(CUSTOM_BME280_DEFINE)
+/* STEP 5.2 - Create the struct device for every status "okay" node in the devicetree */
+
