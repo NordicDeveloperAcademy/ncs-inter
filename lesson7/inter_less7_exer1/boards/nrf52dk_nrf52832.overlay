@@ -1,0 +1,36 @@
+&i2c0 {	status = "disabled";};
+&spi0 {	status = "disabled";};
+&i2c1 {	status = "disabled";};
+	
+&spi1 {
+    compatible = "nordic,nrf-spi"; //using SPI as per ERRATA 58
+	status = "okay";
+	pinctrl-0 = <&spi1_default>;
+	pinctrl-1 = <&spi1_sleep>;
+	pinctrl-names = "default", "sleep";
+	cs-gpios = <&gpio0 30 GPIO_ACTIVE_LOW>;
+	bme280: bme280@0 {
+		compatible = "custom,bme280";
+		reg = <0>;
+		spi-max-frequency = <125000>; 
+	};
+};
+
+&pinctrl {
+	spi1_default: spi1_default {
+		group1 {
+				psels = <NRF_PSEL(SPIM_SCK, 0, 28)>,
+						<NRF_PSEL(SPIM_MOSI, 0, 29)>,
+						<NRF_PSEL(SPIM_MISO, 0, 31)>;
+		};
+	};
+
+	spi1_sleep: spi1_sleep {
+		group1 {
+				psels = <NRF_PSEL(SPIM_SCK, 0, 28)>,
+						<NRF_PSEL(SPIM_MOSI, 0, 29)>,
+						<NRF_PSEL(SPIM_MISO, 0, 31)>;
+				low-power-enable;
+		};
+	};
+};

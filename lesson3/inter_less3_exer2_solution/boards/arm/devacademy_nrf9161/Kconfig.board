@@ -1,0 +1,14 @@
+# DevAcademy NRF9161 board configuration
+
+# Copyright (c) 2023 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+if SOC_NRF9161_LACA
+
+config BOARD_DEVACADEMY_NRF9161
+	bool "DevAcademy NRF9161"
+
+config BOARD_DEVACADEMY_NRF9161_NS
+	bool "DevAcademy NRF9161 non-secure"
+
+endif # SOC_NRF9161_LACA
