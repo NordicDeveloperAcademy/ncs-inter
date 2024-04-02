@@ -12,10 +12,7 @@
 
 LOG_MODULE_REGISTER(Lesson4_Exercise2, LOG_LEVEL_INF);
 
-#define PWM_LED0        DT_ALIAS(pwm_led0)
-
-/* STEP 5.7 - Define the servo motor through its nodelabel */
-   
+#define PWM_LED0        DT_ALIAS(pwm_led0)   
 
 static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(PWM_LED0);
 
@@ -33,6 +30,7 @@ static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(PWM_LED0);
 
 
 /* STEP 2.1 - Create a function to set the angle of the motor */
+/* STEP 5.8 - Change set_motor_angle() to use the pwm_servo device */
 
 
 /* STEP 4.3 - Create a function to set the duty cycle of a PWM LED */

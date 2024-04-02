@@ -14,13 +14,11 @@ LOG_MODULE_REGISTER(Lesson4_Exercise2, LOG_LEVEL_INF);
 
 #define PWM_LED0        DT_ALIAS(pwm_led0)
 
-/* STEP 5.7 - Define the servo motor through its nodelabel */
-#define SERVO_MOTOR     DT_NODELABEL(servo) 
-
 static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(PWM_LED0);
 
 /* STEP 5.4 - Retrieve the device structure for the servo motor */
-static const struct pwm_dt_spec pwm_servo = PWM_DT_SPEC_GET(DT_NODELABEL(servo));
+#define SERVO_MOTOR     DT_NODELABEL(servo) 
+static const struct pwm_dt_spec pwm_servo = PWM_DT_SPEC_GET(SERVO_MOTOR);
 
 
 /* STEP 5.5 - Use DT_PROP() to obtain the minimum and maximum duty cycle */
@@ -35,6 +33,7 @@ static const struct pwm_dt_spec pwm_servo = PWM_DT_SPEC_GET(DT_NODELABEL(servo))
 #define PWM_MAX_DUTY_CYCLE 50000000
 
 /* STEP 2.1 - Create a function to set the angle of the motor */
+/* STEP 5.8 - Change set_motor_angle() to use the pwm_servo device */
 int set_motor_angle(uint32_t duty_cycle_ns)
 {
     int err;
