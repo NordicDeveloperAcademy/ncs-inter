@@ -7,7 +7,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/logging/log.h>
-#include <zephyr/random/rand32.h>
+#include <zephyr/random/random.h>
 /* The devicetree node identifier for the "led0"  and "led1" alias. */
 #define LED0_NODE DT_ALIAS(led0)
 #define LED1_NODE DT_ALIAS(led1)
