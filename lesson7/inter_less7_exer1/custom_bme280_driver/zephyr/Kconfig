@@ -12,10 +12,5 @@ if CUSTOM_BME280_DRIVER
 
 source "subsys/logging/Kconfig.template.log_config"
 # STEP 3 - Add a custom driver initialization priority
-config DRIVER_INIT_PRIORITY
-	int "Init priority"
-	default 71
-	help
-	  Custom device driver initialization priority, This needs be more than CONFIG_SPI_INIT_PRIORITY.
 
 endif
