@@ -5,13 +5,16 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/net/socket.h>
+#include <zephyr/net/conn_mgr_connectivity.h>
 #include <zephyr/logging/log.h>
 #include <stdio.h>
 #include <date_time.h>
 #include <net/nrf_cloud.h>
+#include <net/nrf_cloud_codec.h>
 #include <net/nrf_cloud_log.h>
+#include "app_version.h"
 
-/* STEP 6.1.1 - Dependency for sys_reboot(). */
+/* STEP 6.1.1 - Dependency for sys_reboot() */
 
 #include "cloud_connection.h"
 
@@ -21,16 +24,14 @@ LOG_MODULE_REGISTER(cloud_connection, 4);
 
 /* Pendable events that threads can wait for. */
 #define NETWORK_READY			BIT(0)
-#define CLOUD_READY			BIT(1)
-#define CLOUD_DISCONNECTED		BIT(2)
-#define DATE_TIME_KNOWN			BIT(3)
+#define CLOUD_CONNECTED			BIT(1)
+#define CLOUD_READY			BIT(2)
+#define CLOUD_DISCONNECTED		BIT(3)
+#define DATE_TIME_KNOWN			BIT(4)
 static K_EVENT_DEFINE(cloud_events);
 
 /* Atomic status flag tracking whether an initial association is in progress. */
 atomic_t initial_association;
-
-static void cloud_ready(void);
-static void update_shadow(void);
 
 /* Helper functions for pending on pendable events. */
 bool await_network_ready(k_timeout_t timeout)
@@ -53,6 +54,19 @@ bool await_date_time_known(k_timeout_t timeout)
 	return k_event_wait(&cloud_events, DATE_TIME_KNOWN, false, timeout) != 0;
 }
 
+/* Wait for a connection result, and return true if connection was successful within the timeout,
+ * otherwise return false.
+ */
+static bool await_connection_result(k_timeout_t timeout)
+{
+	/* After a connection attempt, either CLOUD_CONNECTED or CLOUD_DISCONNECTED will be
+	 * raised, depending on whether the connection succeeded.
+	 */
+	uint32_t events = CLOUD_CONNECTED | CLOUD_DISCONNECTED;
+
+	return (k_event_wait(&cloud_events, events, false, timeout) & CLOUD_CONNECTED) != 0;
+}
+
 /* Delayable work item for handling cloud readiness timeout.
  * The work item is scheduled at a delay any time connection starts and is cancelled when the
  * connection to nRF Cloud becomes ready to use (signalled by NRF_CLOUD_EVT_READY).
@@ -69,17 +83,46 @@ static void ready_timeout_work_fn(struct k_work *work)
 
 static K_WORK_DELAYABLE_DEFINE(ready_timeout_work, ready_timeout_work_fn);
 
+
+/* Start the readiness timeout if readiness is not already achieved. */
 static void start_readiness_timeout(void)
 {
-	LOG_DBG("Starting cloud connection readiness timeout for %d seconds",
-		50);
-	k_work_reschedule(&ready_timeout_work, K_SECONDS(50));
+	/* It doesn't make sense to start the readiness timeout if we're already ready. */
+	if (!k_event_test(&cloud_events, CLOUD_READY)) {
+		return;
+	}
+
+	LOG_DBG("Starting cloud connection readiness timeout for %d seconds",600);
+	k_work_reschedule(&ready_timeout_work, K_SECONDS(600));
 }
 
 static void clear_readiness_timeout(void)
 {
 	LOG_DBG("Stopping cloud connection readiness timeout");
 	k_work_cancel_delayable(&ready_timeout_work);
+}
+
+/**
+ * @brief Update internal state in response to achieving connection.
+ */
+static void cloud_connected(void)
+{
+	LOG_INF("Connected to nRF Cloud");
+
+	/* Notify that the nRF Cloud connection is established. */
+	k_event_post(&cloud_events, CLOUD_CONNECTED);
+}
+
+/**
+ * @brief Update internal state in response to achieving readiness.
+ */
+static void cloud_ready(void)
+{
+	/* Clear the readiness timeout, since we have become ready. */
+	clear_readiness_timeout();
+
+	/* Notify that the nRF Cloud connection is ready for use. */
+	k_event_post(&cloud_events, CLOUD_READY);
 }
 
 /* A callback that the application may register in order to handle custom device messages.
@@ -106,8 +149,8 @@ void disconnect_cloud(void)
 	/* Clear the readiness timeout in case it was running. */
 	clear_readiness_timeout();
 
-	/* Clear the Ready event, no longer accurate. */
-	k_event_clear(&cloud_events, CLOUD_READY);
+	/* Clear the Ready and Connected events, no longer accurate. */
+	k_event_clear(&cloud_events, CLOUD_READY | CLOUD_CONNECTED);
 
 	/* Clear the initial association flag, no longer accurate. */
 	atomic_set(&initial_association, false);
@@ -118,13 +161,11 @@ void disconnect_cloud(void)
 	LOG_INF("Disconnecting from nRF Cloud");
 	int err;
 
-#if defined(CONFIG_NRF_CLOUD_MQTT)
 	err = nrf_cloud_disconnect();
-#elif defined(CONFIG_NRF_CLOUD_COAP)
-	err = nrf_cloud_coap_disconnect();
-#endif
-	/* nrf_cloud_uninit returns -EACCES if we are not currently in a connected state. */
-	if (err == -EACCES) {
+	/* nrf_cloud_disconnect returns -EACCES if we are not currently in a connected state.
+	 * nrf_cloud_coap_disconnect returns -ENOTCONN if socket is not open.
+	 */
+	if ((err == -EACCES) || (err == -ENOTCONN)) {
 		LOG_DBG("Already disconnected from nRF Cloud");
 	} else if (err) {
 		LOG_ERR("Cannot disconnect from nRF Cloud, error: %d. Continuing anyways", err);
@@ -139,30 +180,30 @@ void disconnect_cloud(void)
 /**
  * @brief Attempt to connect to nRF Cloud and update internal state accordingly.
  *
+ * Blocks until connection attempt either succeeds or fails.
+ *
  * @retval true if successful
  * @retval false if connection failed
  */
 static bool connect_cloud(void)
 {
+	char device_id[NRF_CLOUD_CLIENT_ID_MAX_LEN + 1];
+	int err;
+
 	LOG_INF("Connecting to nRF Cloud");
+
+	err = nrf_cloud_client_id_get(device_id, sizeof(device_id));
+	if (!err) {
+		LOG_INF("Device ID: %s", device_id);
+	} else {
+		LOG_ERR("Error requesting the device id: %d", err);
+	}
 
 	/* Clear the disconnected flag, no longer accurate. */
 	k_event_clear(&cloud_events, CLOUD_DISCONNECTED);
 
-	int err;
-
-#if defined(CONFIG_NRF_CLOUD_MQTT)
 	/* Connect to nRF Cloud -- Non-blocking. State updates are handled in callbacks. */
 	err = nrf_cloud_connect();
-#elif defined(CONFIG_NRF_CLOUD_COAP)
-	/* Connect via CoAP -- blocking. */
-	err = nrf_cloud_coap_connect("1.0.0");
-	if (!err) {
-		cloud_ready();
-		update_shadow();
-		return true;
-	}
-#endif
 
 	/* If we were already connected, treat as a successful connection, but do nothing. */
 	if (err == NRF_CLOUD_CONNECT_RES_ERR_ALREADY_CONNECTED) {
@@ -170,74 +211,23 @@ static bool connect_cloud(void)
 		return true;
 	}
 
-	/* If the connection attempt fails, report and exit. */
+	/* If the connection attempt fails immediately, report and exit. */
 	if (err != 0) {
 		LOG_ERR("Could not connect to nRF Cloud, error: %d", err);
 		return false;
 	}
 
-	/* If the connect attempt succeeded, start the readiness timeout. */
-	LOG_INF("Connected to nRF Cloud");
+	/* Wait for the connection to either complete or fail. */
+	if (!await_connection_result(K_FOREVER)) {
+		LOG_ERR("Could not connect to nRF Cloud");
+		return false;
+	}
+
+	/* If connection succeeded and we aren't already ready, start the readiness timeout.
+	 * (Readiness check is performed by start_readiness_timeout).
+	 */
 	start_readiness_timeout();
 	return true;
-}
-
-/**
- * @brief Update internal state in response to achieving readiness.
- */
-static void cloud_ready(void)
-{
-	/* Clear the readiness timeout, since we have become ready. */
-	clear_readiness_timeout();
-
-	/* Notify that the nRF Cloud connection is ready for use. */
-	k_event_post(&cloud_events, CLOUD_READY);
-}
-
-/**
- * @brief Updates the nRF Cloud shadow with information about supported capabilities, current
- *  firmware running, FOTA support, and so on.
- */
-static void update_shadow(void)
-{
-#if !defined(CONFIG_NRF_CLOUD_COAP) || defined(CONFIG_COAP_SHADOW)
-	static bool updated;
-	int err;
-	struct nrf_cloud_svc_info_fota fota_info = {
-		.application = nrf_cloud_fota_is_type_enabled(NRF_CLOUD_FOTA_APPLICATION),
-		.bootloader = nrf_cloud_fota_is_type_enabled(NRF_CLOUD_FOTA_BOOTLOADER),
-		.modem = nrf_cloud_fota_is_type_enabled(NRF_CLOUD_FOTA_MODEM_DELTA),
-		.modem_full = nrf_cloud_fota_is_type_enabled(NRF_CLOUD_FOTA_MODEM_FULL)
-	};
-	struct nrf_cloud_svc_info service_info = {
-		.fota = &fota_info,
-	};
-	struct nrf_cloud_device_status device_status = {
-		/* Modem info is sent automatically since CONFIG_NRF_CLOUD_SEND_DEVICE_STATUS
-		 * is enabled, so it can be skipped here.
-		 */
-		.modem = NULL,
-		.svc = &service_info,
-		.conn_inf = NRF_CLOUD_INFO_NO_CHANGE
-	};
-
-	if (updated) {
-		return; /* It is not necessary to do this more than once per boot. */
-	}
-	LOG_DBG("Updating shadow");
-#if defined(CONFIG_NRF_CLOUD_MQTT)
-	err = nrf_cloud_shadow_device_status_update(&device_status);
-#elif defined(CONFIG_NRF_CLOUD_COAP)
-	err = nrf_cloud_coap_shadow_device_status_update(&device_status);
-#endif
-
-	if (err) {
-		LOG_ERR("Failed to update device shadow, error: %d", err);
-	} else {
-		LOG_DBG("Updated shadow");
-		updated = true;
-	}
-#endif /* !defined(CONFIG_NRF_CLOUD_COAP) || defined(CONFIG_COAP_SHADOW) */
 }
 
 /* External event handlers */
@@ -247,7 +237,7 @@ static void update_shadow(void)
  * The conn_mgr subsystem is responsible for seeking / maintaining network connectivity and
  * firing these events.
  */
-struct net_mgmt_event_callback l4_callback;
+static struct net_mgmt_event_callback l4_callback;
 static void l4_event_handler(struct net_mgmt_event_callback *cb,
 			     uint32_t event, struct net_if *iface)
 {
@@ -269,9 +259,6 @@ static void l4_event_handler(struct net_mgmt_event_callback *cb,
 		 * whenever internet access becomes available so that we get a timestamp
 		 * immediately.
 		 */
-		if (!IS_ENABLED(CONFIG_DATE_TIME_AUTO_UPDATE)) {
-			date_time_update_async(NULL);
-		}
 
 	} else if (event == NET_EVENT_L4_DISCONNECTED) {
 		LOG_INF("Network connectivity lost!");
@@ -295,13 +282,47 @@ static void date_time_event_handler(const struct date_time_evt *date_time_evt)
 }
 
 #if defined(CONFIG_NRF_CLOUD_MQTT)
+/* Handler for nRF Cloud shadow events */
+static void handle_shadow_event(struct nrf_cloud_obj_shadow_data *const shadow)
+{
+	if (!shadow) {
+		return;
+	}
+
+	int err;
+
+	if (shadow->type == NRF_CLOUD_OBJ_SHADOW_TYPE_DELTA) {
+		LOG_DBG("Shadow: Delta - version: %d, timestamp: %lld",
+			shadow->delta->ver,
+			shadow->delta->ts);
+
+		/* Always accept since this sample, by default,
+		 * doesn't have any application specific shadow handling
+		 */
+		err = nrf_cloud_obj_shadow_delta_response_encode(&shadow->delta->state, true);
+		if (err) {
+			LOG_ERR("Failed to encode shadow response: %d", err);
+			return;
+		}
+
+		err = nrf_cloud_obj_shadow_update(&shadow->delta->state);
+		if (err) {
+			LOG_ERR("Failed to send shadow response, error: %d", err);
+		}
+	} else if (shadow->type == NRF_CLOUD_OBJ_SHADOW_TYPE_ACCEPTED) {
+		LOG_DBG("Shadow: Accepted");
+	}
+}
+
 /* Handler for events from nRF Cloud Lib. */
 static void cloud_event_handler(const struct nrf_cloud_evt *nrf_cloud_evt)
 {
 	switch (nrf_cloud_evt->type) {
 	case NRF_CLOUD_EVT_TRANSPORT_CONNECTED:
 		LOG_DBG("NRF_CLOUD_EVT_TRANSPORT_CONNECTED");
-		/* There isn't much to do here since what we really care about is association! */
+
+		/* Handle connection success. */
+		cloud_connected();
 		break;
 	case NRF_CLOUD_EVT_TRANSPORT_CONNECTING:
 		LOG_DBG("NRF_CLOUD_EVT_TRANSPORT_CONNECTING");
@@ -354,8 +375,10 @@ static void cloud_event_handler(const struct nrf_cloud_evt *nrf_cloud_evt)
 		/* Handle achievement of readiness */
 		cloud_ready();
 
-		/* Update the device shadow */
-		update_shadow();
+		/* The nRF Cloud library will automatically update the
+		 * device's shadow based on the build configuration.
+		 * See config NRF_CLOUD_SEND_SHADOW_INFO for details.
+		 */
 
 		break;
 	case NRF_CLOUD_EVT_SENSOR_DATA_ACK:
@@ -389,9 +412,11 @@ static void cloud_event_handler(const struct nrf_cloud_evt *nrf_cloud_evt)
 		}
 
 		break;
-	case NRF_CLOUD_EVT_RX_DATA_SHADOW:
+	case NRF_CLOUD_EVT_RX_DATA_SHADOW: {
 		LOG_DBG("NRF_CLOUD_EVT_RX_DATA_SHADOW");
+		handle_shadow_event(nrf_cloud_evt->shadow);
 		break;
+	}
 	case NRF_CLOUD_EVT_FOTA_START:
 		LOG_DBG("NRF_CLOUD_EVT_FOTA_START");
 		break;
@@ -455,11 +480,10 @@ static int setup_cloud(void)
 	/* Register to be notified when the modem has figured out the current time. */
 	date_time_register_handler(date_time_event_handler);
 
-#if defined(CONFIG_NRF_CLOUD_MQTT)
 	/* Initialize nrf_cloud library. */
 	struct nrf_cloud_init_param params = {
 		.event_handler = cloud_event_handler,
-		.application_version = "1.0.0"
+		.application_version = APP_VERSION_STRING
 	};
 
 	err = nrf_cloud_init(&params);
@@ -468,36 +492,37 @@ static int setup_cloud(void)
 		return err;
 	}
 
-#elif defined(CONFIG_NRF_CLOUD_COAP)
-#if defined(CONFIG_COAP_FOTA)
-	err = coap_fota_init();
-	if (err) {
-		LOG_ERR("Error initializing FOTA: %d", err);
-		return err;
-	}
-	err = coap_fota_begin();
-	if (err) {
-		LOG_ERR("Error starting FOTA: %d", err);
-		return err;
-	}
-#endif /* CONFIG_COAP_FOTA */
-	err = nrf_cloud_coap_init();
-	if (err) {
-		LOG_ERR("Failed to initialize CoAP client: %d", err);
-		return err;
-	}
-#endif /* CONFIG_NRF_CLOUD_COAP */
 
 	return 0;
+}
+
+/* Check whether nRF Cloud credentials are installed. If not, sleep forever. */
+static void check_credentials(void)
+{
+	int status = nrf_cloud_credentials_configured_check();
+
+	if (status == -ENOTSUP) {
+		k_sleep(K_FOREVER);
+	} else if (status) {
+		LOG_ERR("Error while checking for credentials: %d. Proceeding anyway.", status);
+	}
 }
 
 void cloud_connection_thread_fn(void)
 {
 
+	LOG_INF("Enabling connectivity...");
+	conn_mgr_all_if_connect(true);
+
 	LOG_INF("Setting up nRF Cloud library...");
 	if (setup_cloud()) {
 		LOG_ERR("Fatal: nRF Cloud library setup failed");
 		return;
+	}
+
+	/* Check for credentials, if the feature is enabled. */
+	if (IS_ENABLED(CONFIG_NRF_CLOUD_CHECK_CREDENTIALS)) {
+		check_credentials();
 	}
 
 	/* Indefinitely maintain a connection to nRF Cloud whenever the network is reachable. */
@@ -507,6 +532,7 @@ void cloud_connection_thread_fn(void)
 		(void)await_network_ready(K_FOREVER);
 
 		LOG_INF("Network is ready");
+
 
 		/* Attempt to connect to nRF Cloud. */
 		if (connect_cloud()) {
@@ -518,9 +544,9 @@ void cloud_connection_thread_fn(void)
 			LOG_INF("Disconnected from nRF Cloud");
 		}
 
-		LOG_INF("Retrying in %d seconds...", 50);
+		LOG_INF("Retrying in %d seconds...", 60);
 
 		/* Wait a bit before trying again. */
-		k_sleep(K_SECONDS(50));
+		k_sleep(K_SECONDS(60));
 	}
 }
