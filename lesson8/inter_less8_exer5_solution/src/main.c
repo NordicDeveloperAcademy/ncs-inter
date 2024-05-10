@@ -28,6 +28,10 @@ LOG_MODULE_REGISTER(aws_iot_sample, CONFIG_AWS_IOT_SAMPLE_LOG_LEVEL);
 
 #define MODEM_FIRMWARE_VERSION_SIZE_MAX 50
 
+/* Application specific topics. */
+#define MY_CUSTOM_TOPIC_1 "my-custom-topic/example"
+#define MY_CUSTOM_TOPIC_2 "my-custom-topic/example_2"
+
 /* Macro called upon a fatal error, reboots the device. */
 #define FATAL_ERROR()					\
 	LOG_ERR("Fatal error! Rebooting the device.");	\
@@ -37,6 +41,9 @@ LOG_MODULE_REGISTER(aws_iot_sample, CONFIG_AWS_IOT_SAMPLE_LOG_LEVEL);
 /* Zephyr NET management event callback structures. */
 static struct net_mgmt_event_callback l4_cb;
 static struct net_mgmt_event_callback conn_cb;
+
+/* Variable used to store the device's hardware ID. */
+static char hw_id[HW_ID_LEN];
 
 /* Forward declarations. */
 static void shadow_update_work_fn(struct k_work *work);
@@ -52,52 +59,33 @@ static K_WORK_DELAYABLE_DEFINE(connect_work, connect_work_fn);
 static int app_topics_subscribe(void)
 {
 	int err;
-	static const char custom_topic[] = "my-custom-topic/example";
-	static const char custom_topic_2[] = "my-custom-topic/example_2";
-
-	const struct aws_iot_topic_data topics_list[CONFIG_AWS_IOT_APP_SUBSCRIPTION_LIST_COUNT] = {
-		[0].str = custom_topic,
-		[0].len = strlen(custom_topic),
-		[1].str = custom_topic_2,
-		[1].len = strlen(custom_topic_2)
+	static const struct mqtt_topic topic_list[] = {
+		{
+			.topic.utf8 = MY_CUSTOM_TOPIC_1,
+			.topic.size = strlen(MY_CUSTOM_TOPIC_1),
+			.qos = MQTT_QOS_1_AT_LEAST_ONCE,
+		},
+		{
+			.topic.utf8 = MY_CUSTOM_TOPIC_2,
+			.topic.size = strlen(MY_CUSTOM_TOPIC_2),
+			.qos = MQTT_QOS_1_AT_LEAST_ONCE,
+		}
 	};
 
-	err = aws_iot_subscription_topics_add(topics_list, ARRAY_SIZE(topics_list));
+	err = aws_iot_application_topics_set(topic_list, ARRAY_SIZE(topic_list));
 	if (err) {
-		LOG_ERR("aws_iot_subscription_topics_add, error: %d", err);
+		LOG_ERR("aws_iot_application_topics_set, error: %d", err);
 		FATAL_ERROR();
 		return err;
 	}
 
 	return 0;
 }
-
 static int aws_iot_client_init(void)
 {
 	int err;
-	struct aws_iot_config config = { 0 };
 
-#if defined(CONFIG_AWS_IOT_SAMPLE_DEVICE_ID_USE_HW_ID)
-	char device_id[HW_ID_LEN] = { 0 };
-
-	/* Get unique hardware ID, can be used as AWS IoT MQTT broker device/client ID. */
-	err = hw_id_get(device_id, ARRAY_SIZE(device_id));
-	if (err) {
-		LOG_ERR("Failed to retrieve device ID, error: %d", err);
-		FATAL_ERROR();
-		return err;
-	}
-
-	/* To use HW ID as MQTT device/client ID set the CONFIG_AWS_IOT_CLIENT_ID_APP option.
-	 * Otherwise the ID set by CONFIG_AWS_IOT_CLIENT_ID_STATIC is used.
-	 */
-	config.client_id = device_id;
-	config.client_id_len = strlen(device_id);
-
-	LOG_INF("Hardware ID: %s", device_id);
-#endif /* CONFIG_AWS_IOT_SAMPLE_DEVICE_ID_USE_HW_ID */
-
-	err = aws_iot_init(&config, aws_iot_event_handler);
+	err = aws_iot_init(aws_iot_event_handler);
 	if (err) {
 		LOG_ERR("AWS IoT library could not be initialized, error: %d", err);
 		FATAL_ERROR();
@@ -172,19 +160,24 @@ static void shadow_update_work_fn(struct k_work *work)
 static void connect_work_fn(struct k_work *work)
 {
 	int err;
+	const struct aws_iot_config config = {
+		.client_id = hw_id,
+	};
 
 	LOG_INF("Connecting to AWS IoT");
 
-	err = aws_iot_connect(NULL);
-	if (err) {
-		LOG_ERR("aws_iot_connect, error: %d", err);
-	}
+	err = aws_iot_connect(&config);
+	if (err == -EAGAIN) {
+		LOG_INF("Connection attempt timed out, "
+			"Next connection retry in %d seconds",
+			CONFIG_AWS_IOT_SAMPLE_CONNECTION_RETRY_TIMEOUT_SECONDS);
 
-	LOG_INF("Next connection retry in %d seconds",
-		CONFIG_AWS_IOT_SAMPLE_CONNECTION_RETRY_TIMEOUT_SECONDS);
-
-	(void)k_work_reschedule(&connect_work,
+		(void)k_work_reschedule(&connect_work,
 				K_SECONDS(CONFIG_AWS_IOT_SAMPLE_CONNECTION_RETRY_TIMEOUT_SECONDS));
+	} else if (err) {
+		LOG_ERR("aws_iot_connect, error: %d", err);
+		FATAL_ERROR();
+	}
 }
 
 /* Functions that are executed on specific connection-related events. */
@@ -245,6 +238,13 @@ static void on_aws_iot_evt_fota_done(const struct aws_iot_evt *const evt)
 			return;
 		}
 
+		err = conn_mgr_all_if_connect(true);
+		if (err) {
+			LOG_ERR("conn_mgr_all_if_connect, error: %d", err);
+			FATAL_ERROR();
+			return;
+		}
+
 	} else if (evt->data.image & DFU_TARGET_IMAGE_TYPE_ANY_APPLICATION) {
 		LOG_INF("Application FOTA done, rebooting");
 		IF_ENABLED(CONFIG_REBOOT, (sys_reboot(0)));
@@ -276,9 +276,6 @@ static void aws_iot_event_handler(const struct aws_iot_evt *const evt)
 	case AWS_IOT_EVT_CONNECTED:
 		LOG_INF("AWS_IOT_EVT_CONNECTED");
 		on_aws_iot_evt_connected(evt);
-		break;
-	case AWS_IOT_EVT_READY:
-		LOG_INF("AWS_IOT_EVT_READY");
 		break;
 	case AWS_IOT_EVT_DISCONNECTED:
 		LOG_INF("AWS_IOT_EVT_DISCONNECTED");
@@ -316,6 +313,7 @@ static void aws_iot_event_handler(const struct aws_iot_evt *const evt)
 		break;
 	case AWS_IOT_EVT_ERROR:
 		LOG_INF("AWS_IOT_EVT_ERROR, %d", evt->data.err);
+				FATAL_ERROR();
 		break;
 	case AWS_IOT_EVT_FOTA_ERROR:
 		LOG_INF("AWS_IOT_EVT_FOTA_ERROR");
@@ -358,7 +356,7 @@ static void connectivity_event_handler(struct net_mgmt_event_callback *cb,
 
 int main(void)
 {
-	LOG_INF("AWS IoT sample started, version: %s", CONFIG_AWS_IOT_SAMPLE_APP_VERSION);
+	LOG_INF("The AWS IoT sample started, version: %s", CONFIG_AWS_IOT_SAMPLE_APP_VERSION);
 
 	int err;
 
@@ -382,6 +380,13 @@ int main(void)
 		return err;
 	}
 
+		err = conn_mgr_all_if_connect(true);
+	if (err) {
+		LOG_ERR("conn_mgr_all_if_connect, error: %d", err);
+		FATAL_ERROR();
+		return err;
+	}
+
 	err = aws_iot_client_init();
 	if (err) {
 		LOG_ERR("aws_iot_client_init, error: %d", err);
@@ -395,9 +400,6 @@ int main(void)
 	 * This means that NET_EVENT_L4_CONNECTED fires before the
 	 * appropriate handler l4_event_handler() is registered.
 	 */
-	if (IS_ENABLED(CONFIG_BOARD_QEMU_X86)) {
-		conn_mgr_mon_resend_status();
-	}
 
 	return 0;
 }
