@@ -1,4 +1,4 @@
-&spi2{
+&spi3{
         compatible = "nordic,nrf-spi";
         #address-cells = < 0x1 >;
         #size-cells = < 0x0 >;
@@ -8,8 +8,8 @@
         easydma-maxcnt-bits = < 0x8 >;
         status = "okay";
         cs-gpios = < &arduino_header 0x10 0x1 >, < &arduino_header 0xa 0x1 >;
-        pinctrl-0 = < &spi2_default >;
-        pinctrl-1 = < &spi2_sleep >;
+        pinctrl-0 = < &spi3_default >;
+        pinctrl-1 = < &spi3_sleep >;
         pinctrl-names = "default", "sleep";
         ili9340: ili9340@0 {
                 compatible = "ilitek,ili9340";
@@ -40,7 +40,7 @@
 };
 
 &pinctrl {
-    spi2_default{
+    spi3_default{
         group1 {
                 psels = <NRF_PSEL(SPIM_SCK, 0, 13)>,
                         <NRF_PSEL(SPIM_MISO, 0, 12)>,
@@ -48,7 +48,7 @@
         };
     };
 
-    spi2_sleep{
+    spi3_sleep{
         group1 {
                 psels = <NRF_PSEL(SPIM_SCK, 0, 13)>,
                         <NRF_PSEL(SPIM_MISO, 0, 12)>,
