@@ -29,7 +29,7 @@ LOG_MODULE_REGISTER(Lesson6_Exercise3, LOG_LEVEL_DBG);
 const nrfx_timer_t timer_instance = NRFX_TIMER_INSTANCE(2);
 
 /* STEP 4.2 - Declare the buffers for the SAADC */
-static nrf_saadc_value_t saadc_sample_buffer[2][SAADC_BUFFER_SIZE];
+static int16_t saadc_sample_buffer[2][SAADC_BUFFER_SIZE];
 
 /* STEP 4.3 - Declare variable used to keep track of which buffer was last assigned to the SAADC driver */
 static uint32_t saadc_current_buffer = 0;
@@ -80,20 +80,21 @@ static void saadc_event_handler(nrfx_saadc_evt_t const * p_event)
             int64_t average = 0;
             int16_t max = INT16_MIN;
             int16_t min = INT16_MAX;
+            int16_t current_value; 
             for(int i=0; i < p_event->data.done.size; i++){
-                average += p_event->data.done.p_buffer[i];
-                if((int16_t)p_event->data.done.p_buffer[i] > max){
-                    max = p_event->data.done.p_buffer[i];
+                current_value = ((int16_t *)(p_event->data.done.p_buffer))[i];
+                average += current_value;
+                if(current_value > max){
+                    max = current_value;
                 }
-                if((int16_t)p_event->data.done.p_buffer[i] < min){
-                    min = p_event->data.done.p_buffer[i];
+                if(current_value < min){
+                    min = current_value;
                 }
             }
             average = average/p_event->data.done.size;
             LOG_INF("SAADC buffer at 0x%x filled with %d samples", (uint32_t)p_event->data.done.p_buffer, p_event->data.done.size);
             LOG_INF("AVG=%d, MIN=%d, MAX=%d", (int16_t)average, min, max);
             break;
-
         default:
             LOG_INF("Unhandled SAADC evt %d", p_event->type);
             break;
