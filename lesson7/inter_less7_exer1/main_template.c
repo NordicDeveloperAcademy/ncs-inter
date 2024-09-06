@@ -9,7 +9,7 @@
 
 LOG_MODULE_REGISTER(Lesson7_Exercise1, LOG_LEVEL_INF);
 
-/* STEP 15 - Get the device structure from the node label */
+/* STEP 16 - Get the device structure from the node label */
 
 int main(void)
 {
@@ -17,7 +17,7 @@ int main(void)
 
 	LOG_INF("Lesson 7 - Exercise 1 started");
 
-	/* STEP 16.1 - Define variables to store the temperature, pressure and humidity */
+	/* STEP 17.1 - Define variables to store the temperature, pressure and humidity */
 
 	err = device_is_ready(dev);
 	if (!err) {
@@ -26,7 +26,7 @@ int main(void)
 	}
 
 	while (1) {
-		/* STEP 16.2 - Continuously read out sensor data using the sensor API calls */
+		/* STEP 17.2 - Continuously read out sensor data using the sensor API calls */
 
 		k_sleep(K_MSEC(1000));
 	}
