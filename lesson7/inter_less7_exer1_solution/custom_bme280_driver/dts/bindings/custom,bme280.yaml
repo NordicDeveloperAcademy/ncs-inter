@@ -1,8 +1,0 @@
-# Copyright (c) 2023, Nordic Semiconductor
-# SPDX-License-Identifier: Apache-2.0
-
-description: BME280 integrated environmental sensor
-
-compatible: "custom,bme280"
-
-include: spi-device.yaml
