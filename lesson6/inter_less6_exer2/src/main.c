@@ -33,7 +33,7 @@ static void configure_saadc(void)
         /* STEP 5.1 - Connect ADC interrupt to nrfx interrupt handler */
 
         
-        /* STEP 5.2 - Connect ADC interrupt to nrfx interrupt handler */
+        /* STEP 5.2 - Initialize the nrfx_SAADC driver */
 
 
         /* STEP 5.3 - Configure the SAADC channel */

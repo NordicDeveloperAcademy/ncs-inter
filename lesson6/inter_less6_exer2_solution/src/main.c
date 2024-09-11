@@ -51,7 +51,7 @@ static void configure_saadc(void)
 		    DT_IRQ(DT_NODELABEL(adc), priority),
 		    nrfx_isr, nrfx_saadc_irq_handler, 0);
         
-        /* STEP 5.2 - Connect ADC interrupt to nrfx interrupt handler */
+        /* STEP 5.2 - Initialize the nrfx_SAADC driver */
         nrfx_err_t err = nrfx_saadc_init(DT_IRQ(DT_NODELABEL(adc), priority));
         if (err != NRFX_SUCCESS) 
         {
