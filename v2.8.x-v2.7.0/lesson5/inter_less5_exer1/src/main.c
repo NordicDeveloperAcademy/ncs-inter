@@ -354,7 +354,7 @@ int bme_read_sample(void)
 	int err;
 
 	int32_t datap = 0, datat = 0, datah = 0;
-	float pressure = 0.0, temperature = 0.0, humidity = 0.0;
+	float pressure = 0.0f, temperature = 0.0f, humidity = 0.0f;
 
 	/* STEP 9.1 - Store register addresses to do burst read */
 	
@@ -383,9 +383,9 @@ int bme_read_sample(void)
 	humidity 	= (float)bmedata.comp_humidity/1024.0;
 	
 	/* Print the uncompensated and compensated values */
-	LOG_INF("\tTemperature: \t uncomp = %d C \t comp = %8.2f C", datat, temperature);
-	LOG_INF("\tPressure:    \t uncomp = %d Pa \t comp = %8.2f Pa", datap, pressure);	
-	LOG_INF("\tHumidity:    \t uncomp = %d RH \t comp = %8.2f %%RH", datah, humidity);
+	LOG_INF("\tTemperature: \t uncomp = %d C \t comp = %8.2f C", datat, (double)temperature);
+	LOG_INF("\tPressure:    \t uncomp = %d Pa \t comp = %8.2f Pa", datap, (double)pressure);	
+	LOG_INF("\tHumidity:    \t uncomp = %d RH \t comp = %8.2f %%RH", datah, (double)humidity);
 
 	return 0;
 }
