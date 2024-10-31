@@ -18,6 +18,9 @@ LOG_MODULE_REGISTER(Lesson6_Exercise3, LOG_LEVEL_DBG);
 /* STEP 4.1 - Define the buffer size for the SAADC */
 
 
+/* STEP 4.6 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
+
+
 /* STEP 3.2 - Declaring an instance of nrfx_timer for TIMER2. */
 
 
@@ -78,12 +81,7 @@ static void configure_saadc(void)
     /* STEP 4.4 - Connect ADC interrupt to nrfx interrupt handler */
 
 
-    
     /* STEP 4.5 - Initialize the nrfx_SAADC driver */
-
-
-    
-    /* STEP 4.6 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
 
 
     /* STEP 4.7 - Change gain config in default config and apply channel configuration */
@@ -91,7 +89,7 @@ static void configure_saadc(void)
 
     /* STEP 4.8 - Configure channel 0 in advanced mode with event handler (non-blocking mode) */
 
-                                            
+
     /* STEP 4.9 - Configure two buffers to make use of double-buffering feature of SAADC */
 
 
@@ -107,7 +105,6 @@ static void configure_ppi(void)
 
 
     /* STEP 6.2 - Trigger task sample from timer */
-
 
 
     /* STEP 6.3 - Trigger task sample from timer */

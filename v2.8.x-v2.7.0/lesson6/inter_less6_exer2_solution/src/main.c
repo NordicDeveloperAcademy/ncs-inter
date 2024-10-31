@@ -11,7 +11,18 @@
 #include <nrfx_saadc.h>
 
 /* STEP 3.1 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
-static nrfx_saadc_channel_t channel = NRFX_SAADC_DEFAULT_CHANNEL_SE(NRF_SAADC_INPUT_AIN0, 0);
+#if NRF_SAADC_HAS_AIN_AS_PIN
+
+#if defined(CONFIG_SOC_NRF54L15)
+#define NRF_SAADC_INPUT_AIN7 NRF_PIN_PORT_TO_PIN_NUMBER(14U, 1)
+#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN7
+#else
+BUILD_ASSERT(0, "Unsupported device family");
+#endif
+#else 
+#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN0
+#endif
+static nrfx_saadc_channel_t channel = NRFX_SAADC_DEFAULT_CHANNEL_SE(SAADC_INPUT_PIN, 0);
 
 /* STEP 3.2 - Declare the buffer to hold the SAAD sample value */
 static int16_t sample;
@@ -37,7 +48,12 @@ void battery_sample_timer_handler(struct k_timer *timer)
         }
 
         /* STEP 7.3 - Calculate and print voltage */
+        
+#if defined(CONFIG_SOC_NRF54L15)
+        int battery_voltage = ((900*4) * sample) / ((1<<12));
+#else
         int battery_voltage = ((600*6) * sample) / ((1<<12));
+#endif
 
         printk("SAADC sample: %d\n", sample);
         printk("Battery Voltage: %d mV\n", battery_voltage);
@@ -60,7 +76,11 @@ static void configure_saadc(void)
         }
 
         /* STEP 5.3 - Configure the SAADC channel */
+#if defined(CONFIG_SOC_NRF54L15)
+        channel.channel_config.gain = NRF_SAADC_GAIN1_4;
+#else
         channel.channel_config.gain = NRF_SAADC_GAIN1_6;
+#endif
         err = nrfx_saadc_channels_config(&channel, 1);
         if (err != NRFX_SUCCESS) 
         {

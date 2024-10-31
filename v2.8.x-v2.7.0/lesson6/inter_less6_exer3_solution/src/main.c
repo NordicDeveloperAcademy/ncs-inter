@@ -25,8 +25,28 @@ LOG_MODULE_REGISTER(Lesson6_Exercise3, LOG_LEVEL_DBG);
 /* STEP 4.1 - Define the buffer size for the SAADC */
 #define SAADC_BUFFER_SIZE   8000
 
+/* STEP 4.6 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
+#if NRF_SAADC_HAS_AIN_AS_PIN
+
+#if defined(CONFIG_SOC_NRF54L15)
+#define NRF_SAADC_INPUT_AIN7 NRF_PIN_PORT_TO_PIN_NUMBER(14U, 1)
+#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN7
+#else
+BUILD_ASSERT(0, "Unsupported device family");
+#endif
+#else 
+#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN0
+#endif
+static nrfx_saadc_channel_t channel = NRFX_SAADC_DEFAULT_CHANNEL_SE(SAADC_INPUT_PIN, 0);
+
+
 /* STEP 3.2 - Declaring an instance of nrfx_timer for TIMER2. */
-const nrfx_timer_t timer_instance = NRFX_TIMER_INSTANCE(2);
+#if defined(CONFIG_SOC_NRF54L15)
+#define TIMER_INSTANCE_NUMBER 22
+#else
+#define TIMER_INSTANCE_NUMBER 2
+#endif
+const nrfx_timer_t timer_instance = NRFX_TIMER_INSTANCE(TIMER_INSTANCE_NUMBER);
 
 /* STEP 4.2 - Declare the buffers for the SAADC */
 static int16_t saadc_sample_buffer[2][SAADC_BUFFER_SIZE];
@@ -118,12 +138,12 @@ static void configure_saadc(void)
         return;
     }
 
-    
-    /* STEP 4.6 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
-    nrfx_saadc_channel_t channel = NRFX_SAADC_DEFAULT_CHANNEL_SE(NRF_SAADC_INPUT_AIN0, 0);
-
     /* STEP 4.7 - Change gain config in default config and apply channel configuration */
+#if defined(CONFIG_SOC_NRF54L15)
+    channel.channel_config.gain = NRF_SAADC_GAIN1_4;
+#else
     channel.channel_config.gain = NRF_SAADC_GAIN1_6;
+#endif
     err = nrfx_saadc_channels_config(&channel, 1);
     if (err != NRFX_SUCCESS) {
         LOG_ERR("nrfx_saadc_channels_config error: %08x", err);
