@@ -1,0 +1,14 @@
+/* STEP 1.2 -  Add a pwm_led instance and change the polarity */
+
+
+/* STEP 1.3 - Add your own custom pwm0 instance */
+
+
+/* STEP 1.4 - Configure which pins your custom pwm0 instance should use */
+/* STEP 4.1 - Configure pwm0 to drive the GPIO pin for LED 1 */
+
+
+/* STEP 5.2 - Add the servo device */
+
+
+/* STEP 5.3 - Configure which pins pwm1 should use */

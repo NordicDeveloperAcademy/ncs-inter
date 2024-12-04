@@ -1,0 +1,72 @@
+&spi3{
+    compatible = "nordic,nrf-spim";
+    #address-cells = < 0x1 >;
+    #size-cells = < 0x0 >;
+    reg = < 0xb000 0x1000 >;
+    interrupts = < 0xb 0x1 >;
+    max-frequency = < 0x7a1200 >;
+    easydma-maxcnt-bits = < 0xd >;
+    status = "okay";
+    cs-gpios = < &arduino_header 0x10 0x1 >, < &arduino_header 0xa 0x1 >;
+    pinctrl-0 = < &spi3_default >;
+    pinctrl-1 = < &spi3_sleep >;
+    pinctrl-names = "default", "sleep";
+    mx25r64: mx25r6435f@1 {
+        compatible = "jedec,spi-nor";
+        status = "disabled";
+        reg = < 0x1 >;
+        spi-max-frequency = < 0x7a1200 >;
+        jedec-id = [ C2 28 17 ];
+        sfdp-bfp = [ E5 20 F1 FF FF FF FF 03 44 EB 08 6B 08 3B 04 BB EE FF FF FF FF FF 00 FF FF FF 00 FF 0C 20 0F 52 10 D8 00 FF 23 72 F5 00 82 ED 04 CC 44 83 48 44 30 B0 30 B0 F7 C4 D5 5C 00 BE 29 FF F0 D0 FF FF ];
+        size = < 0x4000000 >;
+        has-dpd;
+        t-enter-dpd = < 0x2710 >;
+        t-exit-dpd = < 0x88b8 >;
+    };
+    ili9340: ili9340@0 {
+        compatible = "ilitek,ili9340";
+        spi-max-frequency = < 0xe7319b >;
+        reg = < 0x0 >;
+        cmd-data-gpios = < &arduino_header 0xf 0x1 >;
+        width = < 0x140 >;
+        height = < 0xf0 >;
+        pixel-format = < 0x1 >;
+        rotation = < 0x5a >;
+        frmctr1 = [ 00 18 ];
+        pwctrl1 = [ 23 00 ];
+        vmctrl1 = [ 3E 28 ];
+        vmctrl2 = [ 86 ];
+        pgamctrl = [ 0F 31 2B 0C 0E 08 4E F1 37 07 10 03 0E 09 00 ];
+        ngamctrl = [ 00 0E 14 03 11 07 31 C1 48 08 0F 0C 31 36 0F ];
+    };
+    adafruit_2_8_tft_touch_v2_sdhc: sdhc@1 {
+        compatible = "zephyr,sdhc-spi-slot";
+        reg = < 0x1 >;
+        status = "okay";
+        spi-max-frequency = < 0x16e3600 >;
+        mmc {
+            compatible = "zephyr,sdmmc-disk";
+            status = "okay";
+        };
+    };
+};
+
+&pinctrl {
+    spi3_default{
+        group1 {
+                psels = <NRF_PSEL(SPIM_SCK, 0, 13)>,
+                        <NRF_PSEL(SPIM_MISO, 0, 12)>,
+                        <NRF_PSEL(SPIM_MOSI, 0, 11)>;
+                        nordic,drive-mode = <NRF_DRIVE_H0H1>;
+        };
+    };
+
+    spi3_sleep{
+        group1 {
+                psels = <NRF_PSEL(SPIM_SCK, 0, 13)>,
+                        <NRF_PSEL(SPIM_MISO, 0, 12)>,
+                        <NRF_PSEL(SPIM_MOSI, 0, 11)>;
+                low-power-enable;
+        };
+    };
+};
