@@ -5,8 +5,14 @@ The nRF Connect SDK Intermediate course is a self-paced, hands-on online course 
 
 The course covers a wide range of topics, including thread management, data passing, debugging applications, adding support for custom boards, interacting with the SPI, ADC, and PWM peripherals, device driver development, and secure Device Firmware Update (DFU/FOTA) over different transports. The skills and knowledge gained from this course are applicable to any of Nordic Semiconductor’s devices, including the nRF91, nRF70, nRF53, and nRF52 Series.
 
+This repository contains the exercise code base and solutions. Make sure to select the directory that corresponds with the nRF Connect SDK version of your choosing:
+<ul>
+    <li><code>v2.8.x-v2.7.0</code>: For nRF Connect SDK versions v2.8.x to v2.7.0. Please note that not all exercises are supported in v2.8.x-v2.7.0 yet. Support is ongoing.  </li> 
+    <li><code>v2.6.2-v2.5.2</code>: For nRF Connect SDK versions v2.6.2-v2.5.2 </li> 
+</ul>
+
 The course supports the following hardware:
- - [nRF54L15 DK](https://docs.nordicsemi.com/bundle/ncs-latest/page/zephyr/boards/nordic/nrf54l15dk/doc/index.html) - On nRF Connect SDK v2.8.0 and above
+ - [nRF54L15 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF54L15-DK) - On nRF Connect SDK v2.8.0 and above . Support is ongoing.
  - [nRF5340 DK](https://www.nordicsemi.com/Software-and-tools/Development-Kits/nRF5340-DK) 
  - [nRF52840 DK](https://www.nordicsemi.com/Software-and-tools/Development-Kits/nRF52840-DK)
  - [nRF52833 DK](https://www.nordicsemi.com/Software-and-tools/Development-Kits/nRF52833-DK)
