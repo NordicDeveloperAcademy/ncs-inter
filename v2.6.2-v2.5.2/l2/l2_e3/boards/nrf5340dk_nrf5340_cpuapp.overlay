@@ -1,4 +1,4 @@
 /* STEP 4 - Fix the issue by enabling gpio0 */
 &gpio0 {
-	status = "okay";
+	status = "disabled";
 };
