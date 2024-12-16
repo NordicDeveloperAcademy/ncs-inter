@@ -1,0 +1,7 @@
+board:
+  name: devacademyl3e2
+  vendor: nordic
+  socs:
+  - name: nrf9151
+    variants:
+    - name: 'ns'

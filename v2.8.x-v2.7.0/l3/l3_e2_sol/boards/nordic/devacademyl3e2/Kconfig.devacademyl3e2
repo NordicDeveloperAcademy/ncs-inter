@@ -1,0 +1,7 @@
+# DevAcademyL3E2 NRF9151 board configuration
+
+# Copyright (c) 2023 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_DEVACADEMYL3E2
+	select SOC_NRF9151_LACA
