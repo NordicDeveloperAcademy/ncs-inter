@@ -87,7 +87,7 @@ static void producer_func(void *unused1, void *unused2, void *unused3)
 		number of data items to send every time the producer thread is scheduled */
 		uint32_t data_number =
 			MIN_DATA_ITEMS + sys_rand32_get() % (MAX_DATA_ITEMS - MIN_DATA_ITEMS + 1);
-		for (int i = 0; i <= data_number; i++) {
+		for (int i = 0; i < data_number; i++) {
 			/* Create a data item to send */
 			struct data_item_t *buf = k_malloc(sizeof(struct data_item_t));
 			if (buf == NULL) {
