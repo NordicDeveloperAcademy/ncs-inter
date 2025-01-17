@@ -15,7 +15,7 @@ LOG_MODULE_REGISTER(Lesson4_Exercise1, LOG_LEVEL_INF);
 
 /* STEP 2 - Define the desired PWM period and pulse */
 #define PWM_PERIOD_NS   100000000
-#define PWM_DUTY_CYCLE  1400000
+#define PWM_PULSE_WIDTH  1400000
 
 
 /* STEP 3.1 - Get the node identifier for [] through its alias */
@@ -35,7 +35,7 @@ int main(void)
 	}
     
     /* STEP 4 - Control the LED with the control signal generated from the PWM */
-    err = pwm_set_dt(&pwm_led0, PWM_PERIOD_NS, PWM_DUTY_CYCLE);
+    err = pwm_set_dt(&pwm_led0, PWM_PERIOD_NS, PWM_PULSE_WIDTH);
     if (err) {
 	LOG_ERR("Error in pwm_set_dt(), err: %d", err);
 	return 0;
