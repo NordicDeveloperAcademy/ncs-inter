@@ -8,7 +8,7 @@
 #include <string.h>
 
 static const char img_data[] = {
-    #include "img.file"
+    #include "logo.file"
 };
 
 /** Display the Nordic Semiconductor logo with 1 second delay */
