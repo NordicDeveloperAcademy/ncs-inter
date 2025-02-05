@@ -1,0 +1,13 @@
+/ {
+  aliases {
+		mcuboot-button0 = &button1;
+		mcuboot-led0 = &led1;
+  };
+};
+
+/* Step 2.1 - Configure CDC ACM */
+&zephyr_udc0 {
+	cdc_acm_uart0: cdc_acm_uart0 {
+		compatible = "zephyr,cdc-acm-uart";
+	};
+};
