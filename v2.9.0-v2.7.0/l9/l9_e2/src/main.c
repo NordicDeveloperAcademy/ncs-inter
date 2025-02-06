@@ -7,12 +7,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 
-/* STEP 4.4 - Include header for usb */
-
-
 /* 1000 msec = 1 sec */
 
-/* STEP 2.4 - Change LED timing to create a new image for DFU */
 #define SLEEP_TIME_MS   1000
 
 /* The devicetree node identifier for the "led0" alias. */
@@ -28,23 +24,20 @@ int main(void)
 {
 	int ret;
 
-  /* Step 4.5 - Enable USB */
-
 	if (!device_is_ready(led.port)) {
-		return 0;
+		return -1;
 	}
 
 	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
 	if (ret < 0) {
-		return 0;
+		return -1;
 	}
 
 	while (1) {
 		ret = gpio_pin_toggle_dt(&led);
 		if (ret < 0) {
-			return 0;
+			return -1;
 		}
 		k_msleep(SLEEP_TIME_MS);
 	}
-  return 1;
 }
