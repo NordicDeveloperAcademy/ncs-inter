@@ -12,7 +12,7 @@
 
 /* 1000 msec = 1 sec */
 
-#define SLEEP_TIME_MS   1000
+#define SLEEP_TIME_MS 1000
 
 /* The devicetree node identifier for the "led0" alias. */
 #define LED0_NODE DT_ALIAS(led0)
@@ -27,11 +27,15 @@ int main(void)
 {
 	int ret;
 
-  /* Step 5.5 - Enable USB */
-  ret = usb_enable(NULL);
-  if (ret) {
-    return 0;
-  }
+	/* Step 5.5 - Enable USB */
+
+	if (IS_ENABLED(CONFIG_USB_DEVICE_STACK)) {
+		ret = usb_enable(NULL);
+		if (ret) {
+			return 0;
+		}
+	}
+
 	if (!device_is_ready(led.port)) {
 		return 0;
 	}
@@ -48,5 +52,5 @@ int main(void)
 		}
 		k_msleep(SLEEP_TIME_MS);
 	}
-  return 1;
+	return 1;
 }
