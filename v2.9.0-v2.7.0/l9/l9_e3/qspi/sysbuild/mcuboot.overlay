@@ -5,4 +5,4 @@
   };
 };
 
-/* Step 2.1 - Add external flash */
+/* Step 2.2 - Add external flash to MCUboot */
