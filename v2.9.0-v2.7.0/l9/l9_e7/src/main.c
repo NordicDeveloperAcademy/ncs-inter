@@ -62,12 +62,12 @@ static int app_topics_subscribe(void)
 	static const struct mqtt_topic topic_list[] = {
 		{
 			.topic.utf8 = MY_CUSTOM_TOPIC_1,
-			.topic.size = strlen(MY_CUSTOM_TOPIC_1),
+			.topic.size = strlen(MY_CUSTOM_TOPIC_1) - 1,
 			.qos = MQTT_QOS_1_AT_LEAST_ONCE,
 		},
 		{
 			.topic.utf8 = MY_CUSTOM_TOPIC_2,
-			.topic.size = strlen(MY_CUSTOM_TOPIC_2),
+			.topic.size = strlen(MY_CUSTOM_TOPIC_2) - 1,
 			.qos = MQTT_QOS_1_AT_LEAST_ONCE,
 		}
 	};
@@ -81,6 +81,7 @@ static int app_topics_subscribe(void)
 
 	return 0;
 }
+
 static int aws_iot_client_init(void)
 {
 	int err;
@@ -393,13 +394,6 @@ int main(void)
 		FATAL_ERROR();
 		return err;
 	}
-
-	/* Resend connection status if the sample is built for QEMU x86.
-	 * This is necessary because the network interface is automatically brought up
-	 * at SYS_INIT() before main() is called.
-	 * This means that NET_EVENT_L4_CONNECTED fires before the
-	 * appropriate handler l4_event_handler() is registered.
-	 */
 
 	return 0;
 }
