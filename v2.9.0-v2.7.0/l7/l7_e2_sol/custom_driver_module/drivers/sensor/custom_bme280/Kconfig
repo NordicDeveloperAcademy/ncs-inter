@@ -1,0 +1,7 @@
+config CUSTOM_BME280
+	bool "Custom BME280 sensor"
+	default y
+	depends on DT_HAS_ZEPHYR_CUSTOM_BME280_ENABLED
+	select SPI
+	help
+	  Enable custom BME280 driver
