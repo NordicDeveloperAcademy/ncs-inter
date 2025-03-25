@@ -10,6 +10,8 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/spi.h>
 #include <zephyr/drivers/sensor.h>
+#include <zephyr/pm/device.h>
+#include <zephyr/pm/device_runtime.h>
 
 /* STEP 4 - Define the driver compatible from the custom binding */
 #define DT_DRV_COMPAT zephyr_custom_bme280
@@ -400,16 +402,35 @@ static int custom_bme280_init(const struct device *dev)
 	return 0;
 }
 
+static int custom_bme280_pm_action(const struct device *dev,
+	enum pm_device_action action)
+{
+switch (action) {
+case PM_DEVICE_ACTION_RESUME:
+printk("child resuming..\n");
+break;
+case PM_DEVICE_ACTION_SUSPEND:
+printk("child suspending..\n");
+break;
+default:
+return -ENOTSUP;
+}
+
+return 0;
+}
+
+
+
 /* STEP 8 - Define a macro for the device driver instance */
 #define CUSTOM_BME280_DEFINE(inst)												\
 	static struct custom_bme280_data custom_bme280_data_##inst;					\
 	static const struct custom_bme280_config custom_bme280_config_##inst = {	\
 		.spi = SPI_DT_SPEC_INST_GET(inst, SPIOP, 0),							\
 	};																			\
-																				\
+	PM_DEVICE_DT_INST_DEFINE(inst, custom_bme280_pm_action);					\
 	DEVICE_DT_INST_DEFINE(inst,													\
 				custom_bme280_init,												\
-				NULL,															\
+				PM_DEVICE_DT_INST_GET(inst),											\
 				&custom_bme280_data_##inst,										\
 				&custom_bme280_config_##inst,									\
 				POST_KERNEL, 													\
