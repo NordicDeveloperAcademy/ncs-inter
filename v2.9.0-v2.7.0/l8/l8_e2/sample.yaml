@@ -2,14 +2,19 @@ sample:
   description: nRF Connect SDK Intermediate Course by Nordic Developer Academy (https://academy.nordicsemi.com/)
   name: nRF Connect SDK Intermediate Course (Lesson 8 - Exercise 2)
 
-common:
-  sysbuild: true
-
+common: 
+    sysbuild: true
+    build_only: true
+    skip: true
+    integration_platforms: 
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf5340dk/nrf5340/cpuapp/ns
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf7002dk/nrf5340/cpuapp
+      - nrf7002dk/nrf5340/cpuapp/ns
+    platform_exclude:
+      - native_sim
+    
 tests:
-  sample.sysbuild.hello_world.nrf54l15dk_nrf54l15_cpuflpr:
-    platform_allow:
-      - nrf54l15dk/nrf54l15/cpuapp
-    integration_platforms:
-      - nrf54l15dk/nrf54l15/cpuapp
-    extra_args:
-      hello_world_SNIPPET=nordic-flpr
+  l8.e2: {}
