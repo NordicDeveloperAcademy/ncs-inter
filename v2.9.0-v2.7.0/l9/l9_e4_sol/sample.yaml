@@ -14,4 +14,4 @@ common:
       - native_sim
     
 tests:
-  l9.e4: {}
+  l9.e4.sol: {}
