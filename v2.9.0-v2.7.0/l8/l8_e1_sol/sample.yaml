@@ -16,19 +16,8 @@ common:
       - nrf5340dk/nrf5340/cpuapp/ns
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
-      - nrf7002dk/nrf5340/cpuapp
-      - nrf7002dk/nrf5340/cpuapp/ns
     platform_exclude:
       - native_sim
     
 tests:
-  l8.e1_sol:
-    platform_specific:
-      nrf7002dk/nrf5340/cpuapp:
-        extra_configs:
-          - CONFIG_SPI=n
-          - CONFIG_SPI_NOR=n
-      nrf7002dk/nrf5340/cpuapp/ns:
-        extra_configs:
-          - CONFIG_SPI=n
-          - CONFIG_SPI_NOR=n
+  l8.e1_sol: {}
