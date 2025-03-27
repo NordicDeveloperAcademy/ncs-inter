@@ -1,6 +1,6 @@
 sample:
   description: nRF Connect SDK Intermediate Course by Nordic Developer Academy (https://academy.nordicsemi.com/)
-  name: nRF Connect SDK Intermediate Course (Lesson 9 - Exercise 6)
+  name: nRF Connect SDK Intermediate Course - Lesson 9 Exercise 6
   
 common: 
     sysbuild: true

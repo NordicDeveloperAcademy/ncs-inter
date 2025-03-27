@@ -1,6 +1,6 @@
 sample:
   description: nRF Connect SDK Intermediate Course by Nordic Developer Academy (https://academy.nordicsemi.com/)
-  name: nRF Connect SDK Intermediate Course (Lesson 9 - Exercise 3 - SPI)
+  name: nRF Connect SDK Intermediate Course - Lesson 9 Exercise 3 SPI
 
 common: 
     sysbuild: true
