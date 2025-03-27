@@ -29,10 +29,12 @@
  
      while (1) {
          /* STEP 17.2 - Continuously read out sensor data using the sensor API calls */
+         LOG_INF("Sample fetching...");
          err = sensor_sample_fetch(dev);
          if (err < 0) {
              LOG_ERR("Could not fetch sample (%d)", err);
-             return 0;
+             k_sleep(K_MSEC(5000));
+             continue;
          }
  
          if (sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &temp_val)) {
@@ -54,7 +56,7 @@
          LOG_INF("Compensated pressure value: %d", press_val.val1);
          LOG_INF("Compensated humidity value: %d", hum_val.val1);
          
-         k_sleep(K_MSEC(1000));
+         k_sleep(K_MSEC(5000));
      }
      
      return 0;

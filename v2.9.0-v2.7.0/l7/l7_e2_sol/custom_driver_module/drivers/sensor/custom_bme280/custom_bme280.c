@@ -100,6 +100,17 @@ int bme280_reg_read(const struct device *dev,
 	const struct spi_buf_set tx_spi_buf_set 	= {.buffers = &tx_spi_buf, .count = 1};
 	struct spi_buf rx_buf[2];
 	const struct spi_buf_set rx_spi_buf_set 	= {.buffers = rx_buf, .count = ARRAY_SIZE(rx_buf)};
+
+
+	#ifdef CONFIG_PM_DEVICE
+	enum pm_device_state state;
+	(void)pm_device_state_get(bus->spi.bus, &state);
+	/* Do not allow sample fetching from suspended state */
+	if (state == PM_DEVICE_STATE_SUSPENDED) {
+		LOG_INF("BME SPI Suspended");
+		return -EIO;
+	}
+	#endif
 	
 	int i;
 	rx_buf[0].buf = NULL;
@@ -131,6 +142,17 @@ int bme280_reg_write(const struct device *dev, uint8_t reg,
 	uint8_t tx_buf[] = { reg & 0x7F, value};
 	struct spi_buf tx_spi_buf = {.buf = tx_buf, .len = sizeof(tx_buf)};
 	struct spi_buf_set tx_spi_buf_set = {.buffers = &tx_spi_buf, .count = 1};
+
+
+	#ifdef CONFIG_PM_DEVICE
+	enum pm_device_state state;
+	(void)pm_device_state_get(bus->spi.bus, &state);
+	/* Do not allow sample fetching from suspended state */
+	if (state == PM_DEVICE_STATE_SUSPENDED) {
+		LOG_INF("BME SPI Suspended");
+		return -EIO;
+	}
+	#endif
 	
 	err = spi_write_dt(&bus->spi, &tx_spi_buf_set);
 	if (err) {
@@ -224,6 +246,17 @@ static int custom_bme280_sample_fetch(const struct device *dev,
 {
 	/* STEP 7.1 - Populate the custom_bme280_sample_fetch() function */
 	struct custom_bme280_data *data = dev->data;
+
+
+	#ifdef CONFIG_PM_DEVICE
+	enum pm_device_state state;
+	(void)pm_device_state_get(dev, &state);
+	/* Do not allow sample fetching from suspended state */
+	if (state == PM_DEVICE_STATE_SUSPENDED) {
+		LOG_INF("BME SENSOR Suspended");
+		return -EIO;
+	}
+	#endif
 
 	uint8_t buf[8];
 	int32_t adc_press, adc_temp, adc_humidity;
@@ -402,22 +435,38 @@ static int custom_bme280_init(const struct device *dev)
 	return 0;
 }
 
-static int custom_bme280_pm_action(const struct device *dev,
-	enum pm_device_action action)
-{
-switch (action) {
-case PM_DEVICE_ACTION_RESUME:
-printk("child resuming..\n");
-break;
-case PM_DEVICE_ACTION_SUSPEND:
-printk("child suspending..\n");
-break;
-default:
-return -ENOTSUP;
-}
 
-return 0;
+#ifdef CONFIG_PM_DEVICE
+static int custom_bme280_pm_action(const struct device *dev,
+			    enum pm_device_action action)
+{
+	int ret = 0;
+
+	switch (action) {
+	case PM_DEVICE_ACTION_RESUME:
+		printk("Resuming BME280 sensor \n");
+		/* Re-initialize the chip */
+		ret = custom_bme280_init(dev);
+		break;
+	case PM_DEVICE_ACTION_SUSPEND:
+		printk("Suspending BME280 sensor \n");
+		/* Put the chip into sleep mode */
+		ret = bme280_reg_write(dev,
+			CTRLMEAS,
+			0x93);
+
+		if (ret < 0) {
+			LOG_DBG("CTRL_MEAS write failed: %d", ret);
+		}
+		break;
+	default:
+		return -ENOTSUP;
+	}
+
+	return ret;
 }
+#endif /* CONFIG_PM_DEVICE */
+
 
 
 
