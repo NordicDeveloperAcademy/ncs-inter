@@ -19,5 +19,5 @@ The course supports the following hardware:
  - [nRF52 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf52-dk)
  - [nRF9160 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf9160-dk)
  - [nRF9161 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF9161-DK)
- - [nRF9151 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF9151-DK)
+ - [nRF9151 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF9151-DK) - On nRF Connect SDK v2.6.0 and above.
  - [nRF7002 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF7002-DK)
