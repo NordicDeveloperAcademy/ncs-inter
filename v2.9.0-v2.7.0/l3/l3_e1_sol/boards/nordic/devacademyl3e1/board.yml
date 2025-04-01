@@ -1,5 +1,0 @@
-board:
-  name: devacademyl3e1
-  vendor: nordic
-  socs:
-    - name: nrf52833

@@ -1,6 +1,0 @@
-if BOARD_DEVACADEMYL3E1
-
-config BT_CTLR
-	default BT
-
-endif # BOARD_DEVACADEMYL3E1
