@@ -101,17 +101,6 @@ int bme280_reg_read(const struct device *dev,
 	struct spi_buf rx_buf[2];
 	const struct spi_buf_set rx_spi_buf_set 	= {.buffers = rx_buf, .count = ARRAY_SIZE(rx_buf)};
 
-
-	#ifdef CONFIG_PM_DEVICE
-	enum pm_device_state state;
-	(void)pm_device_state_get(bus->spi.bus, &state);
-	/* Do not allow sample fetching from suspended state */
-	if (state == PM_DEVICE_STATE_SUSPENDED) {
-		LOG_INF("BME SPI Suspended");
-		return -EIO;
-	}
-	#endif
-	
 	int i;
 	rx_buf[0].buf = NULL;
 	rx_buf[0].len = 1;
@@ -143,22 +132,12 @@ int bme280_reg_write(const struct device *dev, uint8_t reg,
 	struct spi_buf tx_spi_buf = {.buf = tx_buf, .len = sizeof(tx_buf)};
 	struct spi_buf_set tx_spi_buf_set = {.buffers = &tx_spi_buf, .count = 1};
 
-
-	#ifdef CONFIG_PM_DEVICE
-	enum pm_device_state state;
-	(void)pm_device_state_get(bus->spi.bus, &state);
-	/* Do not allow sample fetching from suspended state */
-	if (state == PM_DEVICE_STATE_SUSPENDED) {
-		LOG_INF("BME SPI Suspended");
-		return -EIO;
-	}
-	#endif
-	
 	err = spi_write_dt(&bus->spi, &tx_spi_buf_set);
 	if (err) {
 		LOG_ERR("spi_write_dt() failed, err %d", err);
 		return err;
 	}
+
 	return 0;
 }
 
@@ -247,17 +226,6 @@ static int custom_bme280_sample_fetch(const struct device *dev,
 	/* STEP 7.1 - Populate the custom_bme280_sample_fetch() function */
 	struct custom_bme280_data *data = dev->data;
 
-
-	#ifdef CONFIG_PM_DEVICE
-	enum pm_device_state state;
-	(void)pm_device_state_get(dev, &state);
-	/* Do not allow sample fetching from suspended state */
-	if (state == PM_DEVICE_STATE_SUSPENDED) {
-		LOG_INF("BME SENSOR Suspended");
-		return -EIO;
-	}
-	#endif
-
 	uint8_t buf[8];
 	int32_t adc_press, adc_temp, adc_humidity;
 	int size = 8;
@@ -265,15 +233,25 @@ static int custom_bme280_sample_fetch(const struct device *dev,
 
 	__ASSERT_NO_MSG(chan == SENSOR_CHAN_ALL);
 
+	int ret = pm_device_runtime_get(dev);
+    if (ret < 0) {
+		pm_device_runtime_put(dev);
+        return ret;
+    }
+
 	err = bme280_wait_until_ready(dev);
 	if (err < 0) {
+		pm_device_runtime_put(dev);
 		return err;
 	}
 
 	err = bme280_reg_read(dev, PRESSMSB, buf, size);
 	if (err < 0) {
+		pm_device_runtime_put(dev);
 		return err;
 	}
+
+	LOG_INF("Sensor Data acquired");
 
 	adc_press = (buf[0] << 12) | (buf[1] << 4) | (buf[2] >> 4);
 	adc_temp = (buf[3] << 12) | (buf[4] << 4) | (buf[5] >> 4);
@@ -283,8 +261,7 @@ static int custom_bme280_sample_fetch(const struct device *dev,
 	bme280_compensate_press(data, adc_press);
 	bme280_compensate_humidity(data, adc_humidity);
 
-
-	return 0;
+	return pm_device_runtime_put(dev);
 }
 
 static int custom_bme280_channel_get(const struct device *dev,
@@ -392,6 +369,7 @@ static int custom_bme280_init(const struct device *dev)
 	struct custom_bme280_data *data = dev->data;
 	int err;
 
+
 	err = bme280_reg_read(dev, ID, &data->chip_id, 1);
 	if (err < 0) {
 		LOG_DBG("ID read failed: %d", err);
@@ -430,6 +408,7 @@ static int custom_bme280_init(const struct device *dev)
 
 	/* Wait for the sensor to be ready */
 	k_sleep(K_MSEC(1));
+
 
 	LOG_DBG("\"%s\" OK", dev->name);
 	return 0;

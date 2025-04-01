@@ -3,14 +3,17 @@
     compatible = "nordic,nrf-spim";
 	status = "okay";
 	pinctrl-0 = <&spi21_default>;
+	
 	pinctrl-1 = <&spi21_sleep>;
 	pinctrl-names = "default", "sleep";
 	cs-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
+	zephyr,pm-device-runtime-auto;
 
 	bme280: bme280@0 {
 		compatible = "zephyr,custom-bme280";
 		reg = <0>;
 		spi-max-frequency = <1000000>; // 1MHz
+		zephyr,pm-device-runtime-auto;
 	};
 };
 
