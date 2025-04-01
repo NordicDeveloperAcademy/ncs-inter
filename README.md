@@ -5,9 +5,10 @@ The nRF Connect SDK Intermediate course is a self-paced, hands-on online course 
 
 The course covers a wide range of topics, including thread management, data passing, debugging applications, adding support for custom boards, interacting with the SPI, ADC, and PWM peripherals, device driver development, and secure Device Firmware Update (DFU/FOTA) over different transports. The skills and knowledge gained from this course are applicable to any of Nordic Semiconductor’s devices, including the nRF91, nRF70, nRF53, and nRF52 Series.
 
-This repository contains the exercise code base and solutions. Make sure to select the directory that corresponds with the nRF Connect SDK version of your choosing:
+This repository contains the exercise code base and solutions. Make sure to select the branch that corresponds with the nRF Connect SDK version of your choosing:
 <ul>
-    <li><code>v2.9.0-v2.7.0</code>: For nRF Connect SDK versions v2.9.0 to v2.7.0. Please note that not all exercises are supported in v2.9.0-v2.7.0 yet. Support is ongoing.  </li> 
+    <li><code>main</code>: For nRF Connect SDK version v3.0.0 </li> 
+    <li><code>v2.9.0-v2.7.0</code>: For nRF Connect SDK versions v2.9.0 to v2.7.0  </li> 
     <li><code>v2.6.2-v2.5.2</code>: For nRF Connect SDK versions v2.6.2-v2.5.2 </li> 
 </ul>
 
