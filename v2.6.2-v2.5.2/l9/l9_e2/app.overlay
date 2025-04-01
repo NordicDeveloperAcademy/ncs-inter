@@ -1,9 +1,0 @@
-/* Step 4.2 - choose CDC ACM for mcumgr */
-/* Step 8.1 - Add external flash */
-/ {
-	chosen {
-
-	};
-};
-
-/* Step 4.1 - Configure CDC ACM */
