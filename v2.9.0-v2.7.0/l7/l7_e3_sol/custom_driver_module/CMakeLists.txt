@@ -6,5 +6,6 @@ add_subdirectory(drivers)
 
 # Include headers
 zephyr_syscall_include_directories(include)
+
 zephyr_include_directories(drivers)
 zephyr_include_directories(include)
