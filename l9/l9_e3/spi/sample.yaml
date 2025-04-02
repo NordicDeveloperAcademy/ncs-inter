@@ -6,9 +6,7 @@ common:
     sysbuild: true
     build_only: true
     skip: true
-    integration_platforms: 
-      - nrf52dk/nrf52832
-      - nrf52833dk/nrf52833
+    integration_platforms:
       - nrf9160dk/nrf9160/ns
       - nrf9161dk/nrf9161/ns
       - nrf9151dk/nrf9151/ns
