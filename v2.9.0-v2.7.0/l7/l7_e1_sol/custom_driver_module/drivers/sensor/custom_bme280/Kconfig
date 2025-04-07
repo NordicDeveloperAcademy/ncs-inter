@@ -1,6 +1,6 @@
 config CUSTOM_BME280
 	bool "Custom BME280 sensor"
-	default y
+	default n
 	depends on DT_HAS_ZEPHYR_CUSTOM_BME280_ENABLED
 	select SPI
 	help
