@@ -11,7 +11,7 @@
 #include <zephyr/drivers/spi.h>
 #include <zephyr/drivers/sensor.h>
 
-/* STEP 4 - Define the driver compatible from the custom binding */
+/* STEP 2.1 - Define the driver compatible from the custom binding */
 #define DT_DRV_COMPAT zephyr_custom_bme280
 
 LOG_MODULE_REGISTER(custom_bme280, CONFIG_SENSOR_LOG_LEVEL);
@@ -45,12 +45,12 @@ LOG_MODULE_REGISTER(custom_bme280, CONFIG_SENSOR_LOG_LEVEL);
 
 #define SPIOP	SPI_WORD_SET(8) | SPI_TRANSFER_MSB
 
-/* STEP 5 - Check if the devicetree contains any devices with the driver compatible */
+/* STEP 2.2 - Check if the devicetree contains any devices with the driver compatible */
 #if DT_NUM_INST_STATUS_OKAY(DT_DRV_COMPAT) == 0
 #warning "Custom BME280 driver enabled without any devices"
 #endif
 
-/* STEP 6.1 - Define data structure to store BME280 data */
+/* STEP 3.1 - Define data structure to store BME280 data */
 struct custom_bme280_data {
 	/* Compensation parameters */
 	uint16_t dig_t1;
@@ -83,7 +83,7 @@ struct custom_bme280_data {
 	uint8_t chip_id;
 };
 
-/* STEP 6.2 - Define data structure to store sensor configuration data */
+/* STEP 3.2 - Define structure to store sensor configuration */
 struct custom_bme280_config {
 	struct spi_dt_spec spi;
 };
@@ -220,7 +220,8 @@ int bme280_wait_until_ready(const struct device *dev)
 static int custom_bme280_sample_fetch(const struct device *dev,
 				      enum sensor_channel chan)
 {
-	/* STEP 7.1 - Populate the custom_bme280_sample_fetch() function */
+	/* STEP 4.1 - Populate the custom_bme280_sample_fetch() function */
+
 	struct custom_bme280_data *data = dev->data;
 
 	uint8_t buf[8];
@@ -256,7 +257,8 @@ static int custom_bme280_channel_get(const struct device *dev,
 				     enum sensor_channel chan,
 				     struct sensor_value *val)
 {
-	/* STEP 7.2 - Populate the custom_bme280_channel_get() function */
+
+	/* STEP 4.2 - Populate the custom_bme280_channel_get() function */
 	struct custom_bme280_data *data = dev->data;
 
 	switch (chan) {
@@ -294,7 +296,7 @@ static int custom_bme280_channel_get(const struct device *dev,
 	return 0;
 }
 
-/* STEP 7.3 - Define the sensor driver API */
+/* STEP 3.3 - Define the sensor driver API */
 static const struct sensor_driver_api custom_bme280_api = {
 	.sample_fetch = &custom_bme280_sample_fetch,
 	.channel_get = &custom_bme280_channel_get,
@@ -400,13 +402,13 @@ static int custom_bme280_init(const struct device *dev)
 	return 0;
 }
 
-/* STEP 8 - Define a macro for the device driver instance */
 #define CUSTOM_BME280_DEFINE(inst)												\
+	/* STEP 5.1 - Define device drivers structures */							\
 	static struct custom_bme280_data custom_bme280_data_##inst;					\
 	static const struct custom_bme280_config custom_bme280_config_##inst = {	\
 		.spi = SPI_DT_SPEC_INST_GET(inst, SPIOP, 0),							\
 	};																			\
-																				\
+	/* STEP 5.2 - Define a macro for the device driver instance */				\
 	DEVICE_DT_INST_DEFINE(inst,													\
 				custom_bme280_init,												\
 				NULL,															\
@@ -416,5 +418,5 @@ static int custom_bme280_init(const struct device *dev)
 				CONFIG_SENSOR_INIT_PRIORITY, 									\
 				&custom_bme280_api);
 
-/* STEP 9 - Create the struct device for every status "okay" node in the devicetree */
+/* STEP 5.3 - Create the struct device for every status "okay" node in the devicetree */
 DT_INST_FOREACH_STATUS_OKAY(CUSTOM_BME280_DEFINE)
