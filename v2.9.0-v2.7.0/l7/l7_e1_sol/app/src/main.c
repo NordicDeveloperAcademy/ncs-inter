@@ -9,7 +9,7 @@
  
  LOG_MODULE_REGISTER(Lesson7_Exercise1, LOG_LEVEL_INF);
  
- /* STEP 16 - Get the device structure from the node label */
+ /* STEP 9.1 - Get the device structure from the node label */
  const struct device * dev = DEVICE_DT_GET(DT_NODELABEL(bme280));
  
  int main(void)
@@ -18,7 +18,7 @@
  
      LOG_INF("Lesson 7 - Exercise 1 started");
  
-     /* STEP 17.1 - Define variables to store the temperature, pressure and humidity */
+     /* STEP 9.2 - Define variables to store the temperature, pressure and humidity */
      struct sensor_value temp_val, press_val, hum_val;
  
      err = device_is_ready(dev);
@@ -28,7 +28,7 @@
      }
  
      while (1) {
-         /* STEP 17.2 - Continuously read out sensor data using the sensor API calls */
+         /* STEP 9.3 - Continuously read out sensor data using the sensor API calls */
          err = sensor_sample_fetch(dev);
          if (err < 0) {
              LOG_ERR("Could not fetch sample (%d)", err);
