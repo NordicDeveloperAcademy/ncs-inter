@@ -219,11 +219,10 @@ int bme280_wait_until_ready(const struct device *dev)
 
 	return 0;
 }
-
+/* STEP 2 Modify */
 static int custom_bme280_sample_fetch(const struct device *dev,
 				      enum sensor_channel chan)
 {
-	/* STEP 7.1 - Populate the custom_bme280_sample_fetch() function */
 	struct custom_bme280_data *data = dev->data;
 
 	uint8_t buf[8];
@@ -233,21 +232,25 @@ static int custom_bme280_sample_fetch(const struct device *dev,
 
 	__ASSERT_NO_MSG(chan == SENSOR_CHAN_ALL);
 
-	int ret = pm_device_runtime_get(dev);
-    if (ret < 0) {
-		pm_device_runtime_put(dev);
-        return ret;
-    }
+	if (IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME)){
+		pm_device_runtime_get(dev);
+	}
 
 	err = bme280_wait_until_ready(dev);
 	if (err < 0) {
-		pm_device_runtime_put(dev);
+		if (IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME))
+		{
+			pm_device_runtime_put(dev);
+		}
 		return err;
 	}
 
 	err = bme280_reg_read(dev, PRESSMSB, buf, size);
 	if (err < 0) {
-		pm_device_runtime_put(dev);
+		if (IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME))
+		{
+			pm_device_runtime_put(dev);
+		}
 		return err;
 	}
 
@@ -261,7 +264,11 @@ static int custom_bme280_sample_fetch(const struct device *dev,
 	bme280_compensate_press(data, adc_press);
 	bme280_compensate_humidity(data, adc_humidity);
 
-	return pm_device_runtime_put(dev);
+	if (IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME)){
+		pm_device_runtime_put(dev);
+	}
+
+	return 0;
 }
 
 static int custom_bme280_channel_get(const struct device *dev,
@@ -369,7 +376,6 @@ static int custom_bme280_init(const struct device *dev)
 	struct custom_bme280_data *data = dev->data;
 	int err;
 
-
 	err = bme280_reg_read(dev, ID, &data->chip_id, 1);
 	if (err < 0) {
 		LOG_DBG("ID read failed: %d", err);
@@ -415,6 +421,7 @@ static int custom_bme280_init(const struct device *dev)
 }
 
 
+/* STEP 1 - Define power callback*/
 #ifdef CONFIG_PM_DEVICE
 static int custom_bme280_pm_action(const struct device *dev,
 			    enum pm_device_action action)
@@ -423,12 +430,12 @@ static int custom_bme280_pm_action(const struct device *dev,
 
 	switch (action) {
 	case PM_DEVICE_ACTION_RESUME:
-		printk("Resuming BME280 sensor \n");
+		LOG_INF("Resuming BME280 sensor");
 		/* Re-initialize the chip */
 		ret = custom_bme280_init(dev);
 		break;
 	case PM_DEVICE_ACTION_SUSPEND:
-		printk("Suspending BME280 sensor \n");
+		LOG_INF("Suspending BME280 sensor");
 		/* Put the chip into sleep mode */
 		ret = bme280_reg_write(dev,
 			CTRLMEAS,
@@ -448,8 +455,6 @@ static int custom_bme280_pm_action(const struct device *dev,
 
 
 
-
-/* STEP 8 - Define a macro for the device driver instance */
 #define CUSTOM_BME280_DEFINE(inst)												\
 	static struct custom_bme280_data custom_bme280_data_##inst;					\
 	static const struct custom_bme280_config custom_bme280_config_##inst = {	\
@@ -458,7 +463,7 @@ static int custom_bme280_pm_action(const struct device *dev,
 	PM_DEVICE_DT_INST_DEFINE(inst, custom_bme280_pm_action);					\
 	DEVICE_DT_INST_DEFINE(inst,													\
 				custom_bme280_init,												\
-				PM_DEVICE_DT_INST_GET(inst),											\
+				PM_DEVICE_DT_INST_GET(inst),									\
 				&custom_bme280_data_##inst,										\
 				&custom_bme280_config_##inst,									\
 				POST_KERNEL, 													\
