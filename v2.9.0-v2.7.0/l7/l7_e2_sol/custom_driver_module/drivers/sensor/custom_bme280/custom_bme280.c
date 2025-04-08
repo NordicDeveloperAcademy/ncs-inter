@@ -459,11 +459,11 @@ static int custom_bme280_pm_action(const struct device *dev,
 	static struct custom_bme280_data custom_bme280_data_##inst;					\
 	static const struct custom_bme280_config custom_bme280_config_##inst = {	\
 		.spi = SPI_DT_SPEC_INST_GET(inst, SPIOP, 0),							\
-	};						
-	/* Step 3.1 -  Attach power management fuction  */																			\
+	};																			\
+	/* Step 3.1 -  Attach power management fuction  */							\
 	PM_DEVICE_DT_INST_DEFINE(inst, custom_bme280_pm_action);					\
-
-	/* Step 3.2 */
+																				\
+	/* Step 3.2 */																\
 	DEVICE_DT_INST_DEFINE(inst,													\
 				custom_bme280_init,												\
 				PM_DEVICE_DT_INST_GET(inst),									\
@@ -473,5 +473,4 @@ static int custom_bme280_pm_action(const struct device *dev,
 				CONFIG_SENSOR_INIT_PRIORITY, 									\
 				&custom_bme280_api);
 
-/* STEP 9 - Create the struct device for every status "okay" node in the devicetree */
 DT_INST_FOREACH_STATUS_OKAY(CUSTOM_BME280_DEFINE)

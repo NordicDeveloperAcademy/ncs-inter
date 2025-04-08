@@ -1,4 +1,3 @@
-
 if SENSOR
 rsource "custom_bme280/Kconfig"
 endif
