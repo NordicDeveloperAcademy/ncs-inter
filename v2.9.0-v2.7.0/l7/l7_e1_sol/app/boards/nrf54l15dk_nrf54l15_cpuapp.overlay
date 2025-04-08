@@ -7,6 +7,7 @@
 	pinctrl-names = "default", "sleep";
 	cs-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
 
+	/* STEP 8.3 Create bme280 node */
 	bme280: bme280@0 {
 		compatible = "zephyr,custom-bme280";
 		reg = <0>;
@@ -14,9 +15,6 @@
 	};
 };
 
-/* STEP 2.2 - Change the pin configuration */
-
-/*  */
 &pinctrl {
 	spi21_default: spi21_default {
 		group1 {
