@@ -8,6 +8,7 @@ menuconfig BLINK
 
 if BLINK
 
+# STEP 5 - Define driver`s init priority 
 config BLINK_INIT_PRIORITY
 	int "Blink device drivers init priority"
 	default KERNEL_INIT_PRIORITY_DEVICE
@@ -18,6 +19,13 @@ module = BLINK
 module-str = blink
 source "subsys/logging/Kconfig.template.log_config"
 
-rsource "Kconfig.gpio_led"
+config BLINK_GPIO_LED
+	bool "GPIO-controlled LED blink driver"
+	default y
+	depends on DT_HAS_BLINK_GPIO_LED_ENABLED
+	select GPIO
+	help
+	  Enable this option to use the GPIO-controlled LED blink driver. This
+	  demonstrates how to implement a driver for a custom driver class.
 
 endif # BLINK

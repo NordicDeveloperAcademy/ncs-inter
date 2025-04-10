@@ -15,8 +15,7 @@
  
  int main(void)
  {
-     int ret;
-     unsigned int period_ms = BLINK_PERIOD_MS_MAX;
+      unsigned int period_ms = BLINK_PERIOD_MS_MAX;
  
      printk("Zephyr Example Application \n");
  
@@ -25,14 +24,14 @@
          LOG_ERR("Blink LED not ready");
          return 0;
      }
+
+     /* Step 7.2 Use driver in the application */
  
-     ret = blink_off(blink);
+     int ret = blink_off(blink);
      if (ret < 0) {
          LOG_ERR("Could not turn off LED (%d)", ret);
          return 0;
      }
- 
-     printk("Use the sensor to change LED blinking period\n");
  
      while (1) {
    
@@ -46,6 +45,7 @@
             period_ms);
 
         blink_set_period_ms(blink, period_ms);
+       
 
         k_sleep(K_MSEC(2000));
      }

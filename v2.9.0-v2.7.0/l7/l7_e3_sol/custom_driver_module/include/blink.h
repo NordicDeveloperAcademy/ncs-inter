@@ -35,6 +35,8 @@
  */
 
 /** @brief Blink driver class operations */
+
+/* STEP 2.1 Define the API structure */
 __subsystem struct blink_driver_api {
 	/**
 	 * @brief Configure the LED blink period.
@@ -48,7 +50,11 @@ __subsystem struct blink_driver_api {
 	 * @retval -errno Other negative errno code on failure.
 	 */
 	int (*set_period_ms)(const struct device *dev, unsigned int period_ms);
+	func3 
+	func4
 };
+
+
 
 /** @} */
 
@@ -98,6 +104,7 @@ static inline int z_impl_blink_set_period_ms(const struct device *dev,
  *
  * @return See blink_set_period_ms().
  */
+/* STEP 2.4 Add blink_off api function */
 static inline int blink_off(const struct device *dev)
 {
 	return blink_set_period_ms(dev, 0);

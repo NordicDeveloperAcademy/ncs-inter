@@ -13,16 +13,19 @@ description: |
         blink-period-ms = <1000>;
     };
 
+#STEP 1.1
 compatible: "blink-gpio-led"
 
 include: base.yaml
 
+#STEP 1.2
 properties:
   led-gpios:
     type: phandle-array
     required: true
     description: GPIO-controlled LED.
 
+#STEP 1.3
   blink-period-ms:
     type: int
     description: Initial blinking period in milliseconds.
