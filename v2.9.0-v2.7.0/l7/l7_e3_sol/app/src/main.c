@@ -47,7 +47,7 @@
 
         blink_set_period_ms(blink, period_ms);
 
-        k_sleep(K_MSEC(3000));
+        k_sleep(K_MSEC(2000));
      }
  
      return 0;
