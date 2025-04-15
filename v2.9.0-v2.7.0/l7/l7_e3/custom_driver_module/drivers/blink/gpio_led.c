@@ -17,15 +17,10 @@
 LOG_MODULE_REGISTER(blink_gpio_led, CONFIG_BLINK_LOG_LEVEL);
 
 /* STEP 3.1 Define data structure */
-struct blink_gpio_led_data {
-	struct k_timer timer;
-};
+
 
 /* STEP 3.2 Define configuration structure */
-struct blink_gpio_led_config {
-	struct gpio_dt_spec led;
-	unsigned int period_ms;
-};
+
 
 
 static void blink_gpio_led_on_timer_expire(struct k_timer *timer)
@@ -58,9 +53,7 @@ static int blink_gpio_led_set_period_ms(const struct device *dev,
 }
 
 /* STEP 3.3 Assign set perdiod function to drivers API*/
-static DEVICE_API(blink, blink_gpio_led_api) = {
-	.set_period_ms = &blink_gpio_led_set_period_ms,
-};
+
 
 static int blink_gpio_led_init(const struct device *dev)
 {
@@ -90,20 +83,12 @@ static int blink_gpio_led_init(const struct device *dev)
 	return 0;
 }
 
-#define BLINK_GPIO_LED_DEFINE(inst)                                         \
-    /* STEP 4.1 Create data structure instance template*/				    \
-	static struct blink_gpio_led_data data##inst;                          \
-                                                                            \
-	/* STEP 4.2 Create configuration structure instance template */		   \
-	static const struct blink_gpio_led_config config##inst = {             \
-	    .led = GPIO_DT_SPEC_INST_GET(inst, led_gpios),                     \
-	    .period_ms = DT_INST_PROP_OR(inst, blink_period_ms, 0U),           \
-	};                                                                     \
-                                                                            \
-    /*STEP 4.3 Declare device definition template */				 \
-	DEVICE_DT_INST_DEFINE(inst, blink_gpio_led_init, NULL, &data##inst,    \
-			      &config##inst, POST_KERNEL,                      \
-			      CONFIG_BLINK_INIT_PRIORITY,                      \
-			      &blink_gpio_led_api);
+#define BLINK_GPIO_LED_DEFINE(inst)                                       \
+    /* STEP 4.1 Create data structure instance template*/				 
+                                                                           
+	/* STEP 4.2 Create configuration structure instance template */		   
+                                                                            
+    /*STEP 4.3 Declare device definition template */				 
+
 
 DT_INST_FOREACH_STATUS_OKAY(BLINK_GPIO_LED_DEFINE)

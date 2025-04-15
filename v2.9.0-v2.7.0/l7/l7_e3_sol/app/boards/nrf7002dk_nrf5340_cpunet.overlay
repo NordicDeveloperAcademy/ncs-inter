@@ -2,7 +2,7 @@
 / {
 	blink_led: blink-led {
 		compatible = "blink-gpio-led";
-		led-gpios = <&gpio2 9 GPIO_ACTIVE_HIGH>;
+		led-gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
 		blink-period-ms = <1000>;
 	};
 };
