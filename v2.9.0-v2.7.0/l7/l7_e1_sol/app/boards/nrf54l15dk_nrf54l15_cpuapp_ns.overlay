@@ -1,6 +1,3 @@
-/* STEP 2.1 - Add the SPI peripheral to spi21 */
-
-/* uart20 is being used, so use spi21 as you cannot use same instance of spi/i2c/uart */
 &spi21 {
     compatible = "nordic,nrf-spim";
 	status = "okay";

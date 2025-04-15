@@ -1,4 +1,3 @@
-/* STEP 2.1 - Add the SPI peripheral to spi21. uart20 is being used, so use spi21 as you cannot use same instance of spi/i2c/uart */
 &spi21 {
     compatible = "nordic,nrf-spim";
 	status = "okay";
@@ -8,14 +7,15 @@
 	pinctrl-names = "default", "sleep";
 	cs-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
 
-	//STEP 4.2 - enable device runtime pm for spi bus
+	/* STEP 4.2 - enable device runtime pm for spi bus */
 	zephyr,pm-device-runtime-auto;
 
 	bme280: bme280@0 {
 		compatible = "zephyr,custom-bme280";
 		reg = <0>;
 		spi-max-frequency = <1000000>; // 1MHz
-		//STEP 4.1 - enable device runtime pm for bme sensor
+
+		/* STEP 4.1 - enable device runtime pm for bme sensor */
 		zephyr,pm-device-runtime-auto;
 	};
 };

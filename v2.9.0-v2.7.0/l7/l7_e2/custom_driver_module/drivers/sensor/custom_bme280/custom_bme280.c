@@ -84,6 +84,7 @@ struct custom_bme280_data
 	uint8_t chip_id;
 };
 
+
 struct custom_bme280_config
 {
 	struct spi_dt_spec spi;
@@ -241,64 +242,7 @@ int bme280_wait_until_ready(const struct device *dev)
 static int custom_bme280_sample_fetch(const struct device *dev,
 									  enum sensor_channel chan)
 {
-	struct custom_bme280_data *data = dev->data;
-
-	uint8_t buf[8];
-	int32_t adc_press, adc_temp, adc_humidity;
-	int size = 8;
-	int err;
-
-	__ASSERT_NO_MSG(chan == SENSOR_CHAN_ALL);
-
-	/* let power management system know that driver needs device to be active */
-
-	if (IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME))
-	{
-		/* Check if device runtime power managemeng is enabled */
-		pm_device_runtime_get(dev);
-	}
-
-	err = bme280_wait_until_ready(dev);
-	if (err < 0)
-	{
-		/* Check if device runtime power managemeng is enabled */
-		if (IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME))
-		{
-			/* let power management system know that device is no longer needed needed  */
-			pm_device_runtime_put(dev);
-		}
-		return err;
-	}
-
-	err = bme280_reg_read(dev, PRESSMSB, buf, size);
-	if (err < 0)
-	{
-		/* Check if device runtime power managemeng is enabled */
-		if (IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME))
-		{
-			/* let power management system know that device is no longer needed needed  */
-			pm_device_runtime_put(dev);
-		}
-		return err;
-	}
-
-	LOG_INF("Sensor Data acquired");
-
-	adc_press = (buf[0] << 12) | (buf[1] << 4) | (buf[2] >> 4);
-	adc_temp = (buf[3] << 12) | (buf[4] << 4) | (buf[5] >> 4);
-	adc_humidity = (buf[6] << 8) | buf[7];
-
-	bme280_compensate_temp(data, adc_temp);
-	bme280_compensate_press(data, adc_press);
-	bme280_compensate_humidity(data, adc_humidity);
-
-	/* Check if device runtime power managemeng is enabled */
-	if (IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME))
-	{
-
-		/* let power management system know that device is no longer needed needed  */
-		pm_device_runtime_put(dev);
-	}
+	
 
 	return 0;
 }
@@ -461,36 +405,6 @@ static int custom_bme280_init(const struct device *dev)
 }
 
 /* STEP 1 - Define power callback*/
-static int custom_bme280_pm_action(const struct device *dev,
-								   enum pm_device_action action)
-{
-	int ret = 0;
-
-	switch (action)
-	{
-	case PM_DEVICE_ACTION_RESUME:
-		LOG_INF("Resuming BME280 sensor");
-		/* Re-initialize the chip */
-		ret = custom_bme280_init(dev);
-		break;
-	case PM_DEVICE_ACTION_SUSPEND:
-		LOG_INF("Suspending BME280 sensor");
-		/* Put the chip into sleep mode */
-		ret = bme280_reg_write(dev,
-							   CTRLMEAS,
-							   0x93);
-
-		if (ret < 0)
-		{
-			LOG_DBG("CTRL_MEAS write failed: %d", ret);
-		}
-		break;
-	default:
-		return -ENOTSUP;
-	}
-
-	return ret;
-}
 
 #define CUSTOM_BME280_DEFINE(inst)                                           \
 	static struct custom_bme280_data custom_bme280_data_##inst;              \
@@ -498,16 +412,8 @@ static int custom_bme280_pm_action(const struct device *dev,
 		.spi = SPI_DT_SPEC_INST_GET(inst, SPIOP, 0),                         \
 	};                                                                       \
 	/* STEP 3.1 -  Attach power management fuction  */                       \
-	PM_DEVICE_DT_INST_DEFINE(inst, custom_bme280_pm_action);                 \
-                                                                             \
-/* STEP 3.2  Use the power management resources in the device definition*/   \
-	DEVICE_DT_INST_DEFINE(inst,                                              \
-						  custom_bme280_init,                                \
-						  PM_DEVICE_DT_INST_GET(inst),                       \
-						  &custom_bme280_data_##inst,                        \
-						  &custom_bme280_config_##inst,                      \
-						  POST_KERNEL,                                       \
-						  CONFIG_SENSOR_INIT_PRIORITY,                       \
-						  &custom_bme280_api);
+                                                                             
+	/* STEP 3.2  -  Use the power management resources in the device definition*/                                                           \
+
 
 DT_INST_FOREACH_STATUS_OKAY(CUSTOM_BME280_DEFINE)
