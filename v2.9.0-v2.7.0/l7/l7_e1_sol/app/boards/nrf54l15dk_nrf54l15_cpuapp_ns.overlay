@@ -17,9 +17,6 @@
 	};
 };
 
-/* STEP 2.2 - Change the pin configuration */
-
-/*  */
 &pinctrl {
 	spi21_default: spi21_default {
 		group1 {

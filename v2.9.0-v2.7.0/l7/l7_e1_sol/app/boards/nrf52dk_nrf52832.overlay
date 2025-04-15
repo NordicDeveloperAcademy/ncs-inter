@@ -19,7 +19,7 @@
 	};
 };
 
-/* STEP 2.2 - Change the pin configuration */
+
 &pinctrl {
 	spi1_default: spi1_default {
 		group1 {
