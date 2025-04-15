@@ -18,7 +18,6 @@ common:
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf7002dk/nrf5340/cpunet
-      - nrf7002dk/nrf5340/cpunet/ns
     platform_exclude:
       - native_sim
     
