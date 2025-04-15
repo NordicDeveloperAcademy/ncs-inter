@@ -1,3 +1,4 @@
+#STEP 7.1: Create a zephyr/module.yml file
 build:
   kconfig: Kconfig
   cmake: .

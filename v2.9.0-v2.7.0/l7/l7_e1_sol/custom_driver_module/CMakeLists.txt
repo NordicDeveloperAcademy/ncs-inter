@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+#STEP 7.2: Create CMakeLists.txt for our module in the root directory
 
 cmake_minimum_required(VERSION 3.21)
 # Subdirectories

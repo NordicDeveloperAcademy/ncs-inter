@@ -1,3 +1,4 @@
+# STEP 1: Create a binding file for the custom driver
 description: BME280 integrated environmental sensor
 
 compatible: "zephyr,custom-bme280"

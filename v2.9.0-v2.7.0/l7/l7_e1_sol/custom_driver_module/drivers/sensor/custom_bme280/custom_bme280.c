@@ -402,8 +402,8 @@ static int custom_bme280_init(const struct device *dev)
 	return 0;
 }
 
+/* STEP 5.1 - Define macro with device drivers structures */							
 #define CUSTOM_BME280_DEFINE(inst)												\
-	/* STEP 5.1 - Define device drivers structures */							\
 	static struct custom_bme280_data custom_bme280_data_##inst;					\
 	static const struct custom_bme280_config custom_bme280_config_##inst = {	\
 		.spi = SPI_DT_SPEC_INST_GET(inst, SPIOP, 0),							\

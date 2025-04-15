@@ -1,3 +1,4 @@
+#STEP 6.2 Populate the Kconfig file for the custom driver
 config CUSTOM_BME280
 	bool "Custom BME280 sensor"
 	default n
