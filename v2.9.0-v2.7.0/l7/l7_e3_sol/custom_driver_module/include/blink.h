@@ -26,9 +26,7 @@ __subsystem struct blink_driver_api {
 	int (*set_period_ms)(const struct device *dev, unsigned int period_ms);
 };
 
-
-
- /* STEP 2.3 Provide the user space wrapper with the prefix __syscall before the API function declaration */
+ /* STEP 2.3 Provide the user space wrapper with the prefix syscall before the API function declaration */
 __syscall int blink_set_period_ms(const struct device *dev,
 				  unsigned int period_ms);
 

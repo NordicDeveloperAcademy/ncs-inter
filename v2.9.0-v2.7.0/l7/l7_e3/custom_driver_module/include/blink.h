@@ -12,7 +12,7 @@
 
 /* STEP 2.1 Define the API structure */
 
- /* STEP 2.3 Provide the user space wrapper with the prefix __syscall before the API function declaration */
+ /* STEP 2.3 Provide the user space wrapper with the prefix syscall before the API function declaration */
 
  /* STEP 2.2 Implement a public API function for the driver class */
 

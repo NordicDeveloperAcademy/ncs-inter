@@ -4,12 +4,11 @@
  */
 
  #include <zephyr/kernel.h>
- #include <zephyr/logging/log.h>
  #include <blink.h>
+ #include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(Lesson7_Exercise3, LOG_LEVEL_INF);
  
- 
- LOG_MODULE_REGISTER(main, CONFIG_APP_LOG_LEVEL);
- 
+  
  #define BLINK_PERIOD_MS_STEP 100U
  #define BLINK_PERIOD_MS_MAX  1000U
  
@@ -18,7 +17,7 @@
     /* Start blinking - slow*/ 
     unsigned int period_ms = BLINK_PERIOD_MS_MAX;
  
-     printk("Zephyr Example Application \n");
+     LOG_INF("Zephyr Example Application");
  
      const struct device * blink = DEVICE_DT_GET(DT_NODELABEL(blink_led));
      if (!device_is_ready(blink)) {
@@ -43,7 +42,7 @@
             period_ms -= BLINK_PERIOD_MS_STEP;
         }
  
-        printk("Setting LED period to %u ms\n",
+        LOG_INF("Setting LED period to %u ms",
             period_ms);
         
         /* Use custom API to change LED blinking period*/
