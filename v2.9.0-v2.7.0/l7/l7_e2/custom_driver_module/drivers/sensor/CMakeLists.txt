@@ -1,0 +1,1 @@
+add_subdirectory_ifdef(CONFIG_CUSTOM_BME280 custom_bme280)
