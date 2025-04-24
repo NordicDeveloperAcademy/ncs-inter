@@ -1,0 +1,38 @@
+&i2c0 {	status = "disabled";};
+&spi0 {	status = "disabled";};
+&i2c1 {	status = "disabled";};
+	
+&spi1 {
+    compatible = "nordic,nrf-spim";
+	status = "okay";
+	pinctrl-0 = <&spi1_default>;
+	pinctrl-1 = <&spi1_sleep>;
+	pinctrl-names = "default", "sleep";
+	cs-gpios = <&gpio0 25 GPIO_ACTIVE_LOW>;
+
+/* STEP 8.3 Create bme280 node */
+	bme280: bme280@0 {
+		compatible = "zephyr,custom-bme280";
+		reg = <0>;
+		spi-max-frequency = <1000000>; 
+	};
+};
+
+&pinctrl {
+	spi1_default: spi1_default {
+		group1 {
+				psels = <NRF_PSEL(SPIM_SCK, 0, 6)>,
+						<NRF_PSEL(SPIM_MOSI, 0, 7)>,
+						<NRF_PSEL(SPIM_MISO, 0, 26)>;
+		};
+	};
+
+	spi1_sleep: spi1_sleep {
+		group1 {
+				psels = <NRF_PSEL(SPIM_SCK, 0, 6)>,
+						<NRF_PSEL(SPIM_MOSI, 0, 7)>,
+						<NRF_PSEL(SPIM_MISO, 0, 26)>;
+				low-power-enable;
+		};
+	};
+};

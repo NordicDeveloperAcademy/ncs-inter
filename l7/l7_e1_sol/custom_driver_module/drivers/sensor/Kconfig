@@ -1,0 +1,4 @@
+#STEP 6.4: Add the custom driver as a subdirectory of the sensor driver
+if SENSOR
+rsource "custom_bme280/Kconfig"
+endif
