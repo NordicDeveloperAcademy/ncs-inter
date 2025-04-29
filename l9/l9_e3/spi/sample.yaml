@@ -18,4 +18,4 @@ common:
       - native_sim
     
 tests:
-  l9.e3.spi: {}
+  ncs_inter.l9.e3.spi: {}

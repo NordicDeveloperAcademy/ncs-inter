@@ -20,4 +20,4 @@ common:
       - native_sim
     
 tests:
-  l8.e1_sol: {}
+  ncs_inter.l8.e1_sol: {}

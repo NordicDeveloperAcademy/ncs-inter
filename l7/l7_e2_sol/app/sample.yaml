@@ -22,4 +22,4 @@ common:
       - native_sim
     
 tests:
-  l7.e2_sol: {}
+  ncs_inter.l7.e2_sol: {}

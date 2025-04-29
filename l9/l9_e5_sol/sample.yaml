@@ -17,4 +17,4 @@ common:
       - native_sim
     
 tests:
-  l9.e5_sol: {}
+  ncs_inter.l9.e5_sol: {}
