@@ -13,4 +13,4 @@ common:
       - native_sim
     
 tests:
-  l9.e3.qspi_sol: {}
+  ncs_inter.l9.e3.qspi_sol: {}

@@ -13,4 +13,4 @@ common:
       - native_sim
     
 tests:
-  l9.e7: {}
+  ncs_inter.l9.e7: {}

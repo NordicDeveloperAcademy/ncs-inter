@@ -12,4 +12,4 @@ common:
       - native_sim
     
 tests:
-  l9.e5.nrf53_sol: {}
+  ncs_inter.l9.e5.nrf53_sol: {}

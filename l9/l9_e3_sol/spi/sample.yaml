@@ -17,4 +17,4 @@ common:
       - native_sim
     
 tests:
-  l9.e3.spi_sol: {}
+  ncs_inter.l9.e3.spi_sol: {}
