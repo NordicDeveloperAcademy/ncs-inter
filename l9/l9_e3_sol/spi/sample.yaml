@@ -5,16 +5,26 @@ sample:
 common: 
     sysbuild: true
     build_only: true
-    integration_platforms:
-      - nrf9160dk/nrf9160/ns
-      - nrf9161dk/nrf9161/ns
-      - nrf9151dk/nrf9151/ns
-      - nrf54l15dk/nrf54l15/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp/ns
-      - nrf7002dk/nrf5340/cpuapp
-      - nrf7002dk/nrf5340/cpuapp/ns
     platform_exclude:
       - native_sim
     
 tests:
-  ncs_inter.l9.e3.spi_sol: {}
+  ncs_inter.l9.e3.spi_sol.gd:
+    integration_platforms:
+      - nrf9161dk/nrf9161/ns
+      - nrf9151dk/nrf9151/ns
+    extra_dtc_overlay_files:
+      - app_gd.overlay
+      - sysbuild/mcuboot_gd.overlay
+
+  ncs_inter.l9.e3.spi_sol.mx:
+    integration_platforms:
+      - nrf9160dk/nrf9160/ns
+      - nrf7002dk/nrf5340/cpuapp
+      - nrf7002dk/nrf5340/cpuapp/ns
+      #- nrf54l15dk/nrf54l15/cpuapp  extra_dtc_overlay_files does not work for mcuboot for nrf54l15
+      #- nrf54l15dk/nrf54l15/cpuapp/ns
+    extra_dtc_overlay_files:
+      - app_mx.overlay
+      - sysbuild/mcuboot_mx.overlay
+  

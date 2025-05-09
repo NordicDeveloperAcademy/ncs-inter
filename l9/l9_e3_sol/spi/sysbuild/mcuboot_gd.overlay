@@ -1,0 +1,17 @@
+/ {
+  aliases {
+		mcuboot-button0 = &button1;
+		mcuboot-led0 = &led1;
+  };
+};
+
+/* Step 2.2 - Add external flash to MCUboot */
+&gd25wb256 {
+	status = "okay";
+};
+
+/ {
+	chosen {
+		nordic,pm-ext-flash = &gd25wb256;
+	};
+};

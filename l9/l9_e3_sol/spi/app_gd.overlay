@@ -1,0 +1,10 @@
+&gd25wb256 {
+	status = "okay";
+};
+
+/ {
+	chosen {
+		nordic,pm-ext-flash = &gd25wb256;
+	};
+};
+
