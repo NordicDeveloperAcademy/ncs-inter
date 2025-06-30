@@ -402,20 +402,20 @@ static int custom_bme280_init(const struct device *dev)
     return 0;
 }
 
-/* STEP 5.1 - Define macro with device drivers structures */							
-#define CUSTOM_BME280_DEFINE(inst)												\
-    static struct custom_bme280_data custom_bme280_data_##inst;					\
-    static const struct custom_bme280_config custom_bme280_config_##inst = {	\
-        .spi = SPI_DT_SPEC_INST_GET(inst, SPIOP, 0),							\
-    };																			\
-    /* STEP 5.2 - Define a macro for the device driver instance */				\
-    DEVICE_DT_INST_DEFINE(inst,													\
-                custom_bme280_init,												\
-                NULL,															\
-                &custom_bme280_data_##inst,										\
-                &custom_bme280_config_##inst,									\
-                POST_KERNEL, 													\
-                CONFIG_SENSOR_INIT_PRIORITY, 									\
+/* STEP 5.1 - Define macro with device drivers structures */
+#define CUSTOM_BME280_DEFINE(inst)                                              \
+    static struct custom_bme280_data custom_bme280_data_##inst;                 \
+    static const struct custom_bme280_config custom_bme280_config_##inst = {    \
+        .spi = SPI_DT_SPEC_INST_GET(inst, SPIOP, 0),                            \
+    };                                                                          \
+    /* STEP 5.2 - Define a macro for the device driver instance */              \
+    DEVICE_DT_INST_DEFINE(inst,                                                 \
+                custom_bme280_init,                                             \
+                NULL,                                                           \
+                &custom_bme280_data_##inst,                                     \
+                &custom_bme280_config_##inst,                                   \
+                POST_KERNEL,                                                    \
+                CONFIG_SENSOR_INIT_PRIORITY,                                    \
                 &custom_bme280_api);
 
 /* STEP 5.3 - Create the struct device for every status "okay" node in the devicetree */
