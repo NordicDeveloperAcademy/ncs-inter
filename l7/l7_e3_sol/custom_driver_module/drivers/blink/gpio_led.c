@@ -91,19 +91,19 @@ static int blink_gpio_led_init(const struct device *dev)
 }
 
 #define BLINK_GPIO_LED_DEFINE(inst)                                         \
-    /* STEP 4.1 Create data structure instance template*/				    \
-    static struct blink_gpio_led_data data##inst;                          \
+    /* STEP 4.1 Create data structure instance template*/                   \
+    static struct blink_gpio_led_data data##inst;                           \
                                                                             \
-    /* STEP 4.2 Create configuration structure instance template */		   \
-    static const struct blink_gpio_led_config config##inst = {             \
-        .led = GPIO_DT_SPEC_INST_GET(inst, led_gpios),                     \
-        .period_ms = DT_INST_PROP_OR(inst, blink_period_ms, 0U),           \
-    };                                                                     \
+    /* STEP 4.2 Create configuration structure instance template */         \
+    static const struct blink_gpio_led_config config##inst = {              \
+        .led = GPIO_DT_SPEC_INST_GET(inst, led_gpios),                      \
+        .period_ms = DT_INST_PROP_OR(inst, blink_period_ms, 0U),            \
+    };                                                                      \
                                                                             \
-    /*STEP 4.3 Declare device definition template */				 \
-    DEVICE_DT_INST_DEFINE(inst, blink_gpio_led_init, NULL, &data##inst,    \
-                  &config##inst, POST_KERNEL,                      \
-                  CONFIG_BLINK_INIT_PRIORITY,                      \
+    /*STEP 4.3 Declare device definition template */                        \
+    DEVICE_DT_INST_DEFINE(inst, blink_gpio_led_init, NULL, &data##inst,     \
+                  &config##inst, POST_KERNEL,                               \
+                  CONFIG_BLINK_INIT_PRIORITY,                               \
                   &blink_gpio_led_api);
 
 DT_INST_FOREACH_STATUS_OKAY(BLINK_GPIO_LED_DEFINE)
