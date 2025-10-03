@@ -4,4 +4,5 @@ ExternalZephyrProject_Add(
   SOURCE_DIR ${APP_DIR}/../custom_image
   BOARD nrf54l15dk/nrf54l15/cpuflpr
   # BOARD nrf5340dk/nrf5340/cpunet
+  # BOARD nrf54lm20dk/nrf54lm20a/cpuflpr
 )
