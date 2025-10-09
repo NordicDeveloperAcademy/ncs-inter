@@ -28,8 +28,11 @@ LOG_MODULE_REGISTER(Lesson6_Exercise3, LOG_LEVEL_DBG);
 /* STEP 4.6 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
 #if NRF_SAADC_HAS_AIN_AS_PIN
 
-#if defined(CONFIG_SOC_NRF54L15 ) || defined(CONFIG_SOC_NRF54LM20A)
+#if defined(CONFIG_SOC_NRF54L15 )
 #define NRF_SAADC_INPUT_AIN4 NRF_PIN_PORT_TO_PIN_NUMBER(11U, 1)
+#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN4
+#elif defined(CONFIG_SOC_NRF54LM20A)
+#define NRF_SAADC_INPUT_AIN4 NRF_PIN_PORT_TO_PIN_NUMBER(6U, 1)
 #define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN4
 #else
 BUILD_ASSERT(0, "Unsupported device family");
