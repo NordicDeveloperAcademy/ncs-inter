@@ -326,7 +326,7 @@ static void aws_iot_event_handler(const struct aws_iot_evt *const evt)
 }
 
 static void l4_event_handler(struct net_mgmt_event_callback *cb,
-			     uint32_t event,
+			     uint64_t event,
 			     struct net_if *iface)
 {
 	switch (event) {
@@ -345,7 +345,7 @@ static void l4_event_handler(struct net_mgmt_event_callback *cb,
 }
 
 static void connectivity_event_handler(struct net_mgmt_event_callback *cb,
-				       uint32_t event,
+				       uint64_t event,
 				       struct net_if *iface)
 {
 	if (event == NET_EVENT_CONN_IF_FATAL_ERROR) {
