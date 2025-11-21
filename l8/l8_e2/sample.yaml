@@ -9,8 +9,9 @@ common:
     integration_platforms: 
       - nrf5340dk/nrf5340/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp
-    platform_exclude:
-      - native_sim
+    platform_allow:
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp
     
 tests:
   ncs_inter.l8.e2: {}

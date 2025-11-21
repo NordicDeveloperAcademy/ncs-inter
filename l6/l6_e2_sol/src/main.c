@@ -16,6 +16,9 @@
 #if defined(CONFIG_SOC_NRF54L15)
 #define NRF_SAADC_INPUT_AIN4 NRF_PIN_PORT_TO_PIN_NUMBER(11U, 1)
 #define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN4
+#elif defined(CONFIG_SOC_NRF54LM20A)
+#define NRF_SAADC_INPUT_AIN4 NRF_PIN_PORT_TO_PIN_NUMBER(6U, 1)
+#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN4
 #else
 BUILD_ASSERT(0, "Unsupported device family");
 #endif
@@ -49,7 +52,7 @@ void battery_sample_timer_handler(struct k_timer *timer)
 
         /* STEP 7.3 - Calculate and print voltage */
         
-#if defined(CONFIG_SOC_NRF54L15)
+#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A)
         int battery_voltage = ((900*4) * sample) / ((1<<12));
 #else
         int battery_voltage = ((600*6) * sample) / ((1<<12));
@@ -76,7 +79,7 @@ static void configure_saadc(void)
         }
 
         /* STEP 5.3 - Configure the SAADC channel */
-#if defined(CONFIG_SOC_NRF54L15)
+#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A)
         channel.channel_config.gain = NRF_SAADC_GAIN1_4;
 #else
         channel.channel_config.gain = NRF_SAADC_GAIN1_6;

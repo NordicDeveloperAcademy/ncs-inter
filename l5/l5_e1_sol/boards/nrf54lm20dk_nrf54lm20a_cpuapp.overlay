@@ -1,0 +1,36 @@
+/* STEP 2.1 - Add the SPI peripheral to spi21. uart20 is being used, so use spi21 as you cannot use same instance of spi/i2c/uart */
+&spi21 {
+    compatible = "nordic,nrf-spim";
+	status = "okay";
+	pinctrl-0 = <&spi21_default>;
+	pinctrl-1 = <&spi21_sleep>;
+	pinctrl-names = "default", "sleep";
+	cs-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
+	bme280: bme280@0 {
+		compatible = "bosch,bme280";
+		reg = <0>;
+		spi-max-frequency = <1000000>; // 1MHz
+	};
+};
+
+/* STEP 2.2 - Change the pin configuration */
+
+/*  */
+&pinctrl {
+	spi21_default: spi21_default {
+		group1 {
+				psels = <NRF_PSEL(SPIM_SCK, 1, 11)>, 
+						<NRF_PSEL(SPIM_MOSI, 1, 13)>,
+						<NRF_PSEL(SPIM_MISO, 1, 14)>;
+		};
+	};
+
+	spi21_sleep: spi21_sleep {
+		group1 {
+				psels = <NRF_PSEL(SPIM_SCK, 1, 11)>,
+						<NRF_PSEL(SPIM_MOSI, 1, 13)>,
+						<NRF_PSEL(SPIM_MISO, 1, 14)>;
+				low-power-enable;
+		};
+	};
+};
