@@ -7,9 +7,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 
-/* Step 5.4 - Include header for usb */
-#include <zephyr/usb/usb_device.h>
-#include <zephyr/usb/usbd.h>
+/* Step 7.1 - Include header for usb */
 #include <sample_usbd.h>
 
 #include <zephyr/logging/log.h>
@@ -28,13 +26,10 @@ LOG_MODULE_REGISTER(usb_cdc, LOG_LEVEL_INF);
  */
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
-const struct device *const uart_dev = DEVICE_DT_GET_ONE(zephyr_cdc_acm_uart);
-
+/* Step 7.2 - Create context for USB stack */
 static struct usbd_context *sample_usbd;
 
-#define DEVICE_DT_GET_COMMA(node_id) DEVICE_DT_GET(node_id),
-
-
+/* Step 7.3 - Create VBUS callback function */
 static void sample_msg_cb(struct usbd_context *const ctx, const struct usbd_msg *msg)
 {
     LOG_INF("USBD message: %s", usbd_msg_type_string(msg->type));
@@ -59,13 +54,14 @@ int main(void)
 {
     int ret;
 
-    /* Step 5.5 - Enable USB */
+    /* Step 7.4 - Initialize usb device */
     sample_usbd = sample_usbd_init_device(sample_msg_cb);
     if (sample_usbd == NULL) {
         LOG_ERR("Failed to initialize USB device");
         return -ENODEV;
     }
 
+    /* Step 7.5 - Enable usb device in case vbus not detected */
     if (!usbd_can_detect_vbus(sample_usbd)) {
         ret = usbd_enable(sample_usbd);
         if (ret) {
@@ -75,6 +71,10 @@ int main(void)
     }
 
     LOG_INF("USB device support enabled");
+
+    if (!device_is_ready(led.port)) {
+        return 0;
+    }
 
     ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
     if (ret < 0) {

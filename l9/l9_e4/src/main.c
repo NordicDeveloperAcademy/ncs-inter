@@ -22,27 +22,31 @@
  */
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
+/* Step 7.2 - Create context for USB stack */
+/* Step 7.3 - Create VBUS callback function */
+
 int main(void)
 {
-	int ret;
+    int ret;
 
-  /* Step 5.5 - Enable USB */
+    /* Step 7.4 - Initialize usb device */
+    /* Step 7.5 - Enable usb device in case vbus not detected */
 
-	if (!device_is_ready(led.port)) {
-		return 0;
-	}
+    if (!device_is_ready(led.port)) {
+        return 0;
+    }
 
-	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
-	if (ret < 0) {
-		return 0;
-	}
+    ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
+    if (ret < 0) {
+        return 0;
+    }
 
-	while (1) {
-		ret = gpio_pin_toggle_dt(&led);
-		if (ret < 0) {
-			return 0;
-		}
-		k_msleep(SLEEP_TIME_MS);
-	}
+    while (1) {
+        ret = gpio_pin_toggle_dt(&led);
+        if (ret < 0) {
+            return 0;
+        }
+        k_msleep(SLEEP_TIME_MS);
+    }
   return 1;
 }
