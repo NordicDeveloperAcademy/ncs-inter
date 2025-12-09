@@ -25,7 +25,7 @@ static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(PWM_LED0);
 
 #define PWM_PERIOD   PWM_MSEC(20)
 
-/* STEP  2.2 - Define minimum and maximum duty cycle */
+/* STEP 2.2 - Define minimum and maximum duty cycle */
 /* STEP 4.2 - Change the duty cycles for the LED */
 
 

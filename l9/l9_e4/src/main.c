@@ -7,7 +7,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 
-/* Step 5.4 - Include header for usb */
+/* STEP 5.4 - Include header for usb */
 
 /* 1000 msec = 1 sec */
 
@@ -22,15 +22,15 @@
  */
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
-/* Step 7.2 - Create context for USB stack */
-/* Step 7.3 - Create VBUS callback function */
+/* STEP 7.2 - Create context for USB stack */
+/* STEP 7.3 - Create VBUS callback function */
 
 int main(void)
 {
     int ret;
 
-    /* Step 7.4 - Initialize usb device */
-    /* Step 7.5 - Enable usb device in case vbus not detected */
+    /* STEP 7.4 - Initialize usb device */
+    /* STEP 7.5 - Enable usb device in case vbus not detected */
 
     if (!device_is_ready(led.port)) {
         return 0;
