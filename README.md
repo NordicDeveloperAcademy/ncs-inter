@@ -7,10 +7,11 @@ The course covers a wide range of topics, including thread management, data pass
 
 This repository contains the exercise code base and solutions. Make sure to select the branch that corresponds with the nRF Connect SDK version of your choosing:
 <ul>
-    <li><code>main</code>: For nRF Connect SDK version v3.1.0 </li> 
+    <li><code>main</code>: For nRF Connect SDK version v3.2.0 </li> 
 </ul>
 
 The course supports the following hardware:
+ - [nRF54LM20 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF54LM20-DK) - On nRF Connect SDK v3.1.1 and above
  - [nRF54L15 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF54L15-DK) - On nRF Connect SDK v2.8.0 and above.
  - [nRF5340 DK](https://www.nordicsemi.com/Software-and-tools/Development-Kits/nRF5340-DK) 
  - [nRF52840 DK](https://www.nordicsemi.com/Software-and-tools/Development-Kits/nRF52840-DK)
@@ -19,4 +20,5 @@ The course supports the following hardware:
  - [nRF9160 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf9160-dk)
  - [nRF9161 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF9161-DK)
  - [nRF9151 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF9151-DK) - On nRF Connect SDK v2.6.0 and above.
+ - [nRF9151 SMA DK](https://www.nordicsemi.com/Products/Development-hardware/nRF9151-SMA-DK)
  - [nRF7002 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF7002-DK)
