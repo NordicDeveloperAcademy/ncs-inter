@@ -7,8 +7,8 @@ common:
     build_only: true
     integration_platforms: 
       - nrf54l15dk/nrf54l15/cpuflpr
-    platform_exclude:
-      - native_sim
+    platform_allow:
+      - nrf54l15dk/nrf54l15/cpuflpr    
     
 tests:
   ncs_inter.l8.e2.custom_image: {}

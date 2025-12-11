@@ -1,4 +1,4 @@
-#Step 4.1 Change application version 
+#STEP 4.1 Change application version 
 VERSION_MAJOR = 1
 VERSION_MINOR = 0
 PATCHLEVEL = 0

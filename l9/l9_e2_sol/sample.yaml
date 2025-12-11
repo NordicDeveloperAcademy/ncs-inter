@@ -5,6 +5,24 @@ sample:
 common: 
     sysbuild: true
     build_only: true
+
+    
+tests:
+  ncs_inter.l9.e2_sol.ed25519:
+    integration_platforms: 
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+    platform_allow: 
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+    extra_args:
+      - SB_CONFIG_BOOT_SIGNATURE_TYPE_ED25519=y
+      - SB_CONFIG_BOOT_SIGNATURE_TYPE_ECDSA_P256=n
+      - SB_CONFIG_BOOT_SIGNATURE_KEY_FILE="\${APP_DIR}/ed_ci_key.pem"
+
+  ncs_inter.l9.e2_sol.ecdsa:
     integration_platforms: 
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
@@ -14,12 +32,20 @@ common:
       - nrf9151dk/nrf9151/ns
       - nrf5340dk/nrf5340/cpuapp
       - nrf5340dk/nrf5340/cpuapp/ns
-      - nrf54l15dk/nrf54l15/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf7002dk/nrf5340/cpuapp
       - nrf7002dk/nrf5340/cpuapp/ns
-    platform_exclude:
-      - native_sim
-    
-tests:
-  ncs_inter.l9.e2_sol: {}
+    platform_allow: 
+      - nrf52dk/nrf52832
+      - nrf52833dk/nrf52833
+      - nrf52840dk/nrf52840
+      - nrf9160dk/nrf9160/ns
+      - nrf9161dk/nrf9161/ns
+      - nrf9151dk/nrf9151/ns
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf5340dk/nrf5340/cpuapp/ns
+      - nrf7002dk/nrf5340/cpuapp
+      - nrf7002dk/nrf5340/cpuapp/ns
+    extra_args:
+      - SB_CONFIG_BOOT_SIGNATURE_KEY_FILE="\${APP_DIR}/ecdsa_ci_key.pem"
+      - SB_CONFIG_BOOT_SIGNATURE_TYPE_ED25519=n
+      - SB_CONFIG_BOOT_SIGNATURE_TYPE_ECDSA_P256=y
