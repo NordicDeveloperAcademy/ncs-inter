@@ -1,4 +1,4 @@
-/* Step 2.1 - Add external flash to application */
+/* STEP 2.1 - Add external flash to application */
 &mx25r64 {
 	status = "okay";
 };

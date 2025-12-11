@@ -27,7 +27,7 @@ static const struct pwm_dt_spec pwm_servo = PWM_DT_SPEC_GET(SERVO_MOTOR);
 
 #define PWM_PERIOD   PWM_MSEC(20)
 
-/* STEP  2.2 - Define minimum and maximum duty cycle */
+/* STEP 2.2 - Define minimum and maximum duty cycle */
 /* STEP 4.2 - Change the duty cycles for the LED */
 #define PWM_MIN_PULSE_WIDTH 20000000
 #define PWM_MAX_PULSE_WIDTH 50000000

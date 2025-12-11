@@ -106,14 +106,9 @@ static void configure_ppi(void)
 
     /* STEP 6.2 - Trigger task sample from timer */
 
+    /* STEP 6.3 - Trigger task start from end event */
 
-    /* STEP 6.3 - Trigger task sample from timer */
-
-
-    /* STEP 6.4 - Trigger task start from end event */
-
-
-    /* STEP 6.5 - Enable both (D)PPI channels */ 
+    /* STEP 6.4 - Enable both (D)PPI channels */ 
 
 }
 

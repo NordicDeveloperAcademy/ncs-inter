@@ -12,18 +12,13 @@
 
 /* STEP 3.1 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
 #if NRF_SAADC_HAS_AIN_AS_PIN
-
-#if defined(CONFIG_SOC_NRF54L15)
-#define NRF_SAADC_INPUT_AIN4 NRF_PIN_PORT_TO_PIN_NUMBER(11U, 1)
-#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN4
-#elif defined(CONFIG_SOC_NRF54LM20A)
-#define NRF_SAADC_INPUT_AIN4 NRF_PIN_PORT_TO_PIN_NUMBER(6U, 1)
-#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN4
+#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A)
+#define SAADC_INPUT_PIN NRFX_ANALOG_EXTERNAL_AIN4
 #else
 BUILD_ASSERT(0, "Unsupported device family");
 #endif
 #else 
-#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN0
+#define SAADC_INPUT_PIN NRFX_ANALOG_EXTERNAL_AIN0
 #endif
 static nrfx_saadc_channel_t channel = NRFX_SAADC_DEFAULT_CHANNEL_SE(SAADC_INPUT_PIN, 0);
 
@@ -45,7 +40,7 @@ void battery_sample_timer_handler(struct k_timer *timer)
 
         /* STEP 7.2 - Trigger the sampling */
         nrfx_err_t err = nrfx_saadc_mode_trigger();
-        if (err != NRFX_SUCCESS) {
+        if (err != 0) {
                 printk("nrfx_saadc_mode_trigger error: %08x", err);
                 return;
         }
@@ -72,7 +67,7 @@ static void configure_saadc(void)
         
         /* STEP 5.2 - Initialize the nrfx_SAADC driver */
         nrfx_err_t err = nrfx_saadc_init(DT_IRQ(DT_NODELABEL(adc), priority));
-        if (err != NRFX_SUCCESS) 
+        if (err != 0) 
         {
                 printk("nrfx_saadc_mode_trigger error: %08x", err);
                 return;
@@ -85,7 +80,7 @@ static void configure_saadc(void)
         channel.channel_config.gain = NRF_SAADC_GAIN1_6;
 #endif
         err = nrfx_saadc_channels_config(&channel, 1);
-        if (err != NRFX_SUCCESS) 
+        if (err != 0) 
         {
 		printk("nrfx_saadc_channels_config error: %08x", err);
 	        return;
@@ -96,14 +91,14 @@ static void configure_saadc(void)
                                          NRF_SAADC_RESOLUTION_12BIT,
                                          NRF_SAADC_OVERSAMPLE_DISABLED,
                                          NULL);
-        if (err != NRFX_SUCCESS) {
+        if (err != 0) {
                 printk("nrfx_saadc_simple_mode_set error: %08x", err);
                 return;
         }
         
         /* STEP 5.5 - Set buffer where sample will be stored */
         err = nrfx_saadc_buffer_set(&sample, 1);
-        if (err != NRFX_SUCCESS) {
+        if (err != 0) {
                 printk("nrfx_saadc_buffer_set error: %08x", err);
                 return;
         }

@@ -5,7 +5,7 @@
   };
 };
 
-/* Step 2.2 - Add external flash to MCUboot */
+/* STEP 2.2 - Add external flash to MCUboot */
 &gd25wb256 {
 	status = "okay";
 };

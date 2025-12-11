@@ -13,11 +13,6 @@ LOG_MODULE_REGISTER(Lesson6_Exercise3, LOG_LEVEL_DBG);
 #include <nrfx_saadc.h>
 #include <nrfx_timer.h>
 #include <helpers/nrfx_gppi.h>
-#if defined(DPPI_PRESENT)
-#include <nrfx_dppi.h>
-#else
-#include <nrfx_ppi.h>
-#endif
 
 /* STEP 3.1 - Define the SAADC sample interval in microseconds */
 #define SAADC_SAMPLE_INTERVAL_US 50
@@ -27,29 +22,25 @@ LOG_MODULE_REGISTER(Lesson6_Exercise3, LOG_LEVEL_DBG);
 
 /* STEP 4.6 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
 #if NRF_SAADC_HAS_AIN_AS_PIN
-
-#if defined(CONFIG_SOC_NRF54L15 )
-#define NRF_SAADC_INPUT_AIN4 NRF_PIN_PORT_TO_PIN_NUMBER(11U, 1)
-#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN4
-#elif defined(CONFIG_SOC_NRF54LM20A)
-#define NRF_SAADC_INPUT_AIN4 NRF_PIN_PORT_TO_PIN_NUMBER(6U, 1)
-#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN4
+#if defined(CONFIG_SOC_NRF54L15 ) || defined(CONFIG_SOC_NRF54LM20A)
+#define SAADC_INPUT_PIN NRFX_ANALOG_EXTERNAL_AIN4
 #else
 BUILD_ASSERT(0, "Unsupported device family");
 #endif
 #else 
-#define SAADC_INPUT_PIN NRF_SAADC_INPUT_AIN0
+#define SAADC_INPUT_PIN NRFX_ANALOG_EXTERNAL_AIN0 
 #endif
+
 static nrfx_saadc_channel_t channel = NRFX_SAADC_DEFAULT_CHANNEL_SE(SAADC_INPUT_PIN, 0);
 
 
 /* STEP 3.2 - Declaring an instance of nrfx_timer for TIMER2. */
 #if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A)
-#define TIMER_INSTANCE_NUMBER 22
+#define TIMER_INSTANCE_NUMBER NRF_TIMER22
 #else
-#define TIMER_INSTANCE_NUMBER 2
+#define TIMER_INSTANCE_NUMBER NRF_TIMER2
 #endif
-const nrfx_timer_t timer_instance = NRFX_TIMER_INSTANCE(TIMER_INSTANCE_NUMBER);
+nrfx_timer_t timer_instance = NRFX_TIMER_INSTANCE(TIMER_INSTANCE_NUMBER);
 
 /* STEP 4.2 - Declare the buffers for the SAADC */
 static int16_t saadc_sample_buffer[2][SAADC_BUFFER_SIZE];
@@ -64,7 +55,7 @@ static void configure_timer(void)
     /* STEP 3.3 - Declaring timer config and intialize nrfx_timer instance. */
     nrfx_timer_config_t timer_config = NRFX_TIMER_DEFAULT_CONFIG(1000000);
     err = nrfx_timer_init(&timer_instance, &timer_config, NULL);
-    if (err != NRFX_SUCCESS) {
+    if (err != 0) {
         LOG_ERR("nrfx_timer_init error: %08x", err);
         return;
     }
@@ -91,7 +82,7 @@ static void saadc_event_handler(nrfx_saadc_evt_t const * p_event)
             /* STEP 5.2 - Set up the next available buffer. Alternate between buffer 0 and 1 */
             err = nrfx_saadc_buffer_set(saadc_sample_buffer[(saadc_current_buffer++)%2], SAADC_BUFFER_SIZE);
             //err = nrfx_saadc_buffer_set(saadc_sample_buffer[((saadc_current_buffer == 0 )? saadc_current_buffer++ : 0)], SAADC_BUFFER_SIZE);
-            if (err != NRFX_SUCCESS) {
+            if (err != 0) {
                 LOG_ERR("nrfx_saadc_buffer_set error: %08x", err);
                 return;
             }
@@ -136,7 +127,7 @@ static void configure_saadc(void)
     
     /* STEP 4.5 - Initialize the nrfx_SAADC driver */
     err = nrfx_saadc_init(DT_IRQ(DT_NODELABEL(adc), priority));
-    if (err != NRFX_SUCCESS) {
+    if (err != 0) {
         LOG_ERR("nrfx_saadc_init error: %08x", err);
         return;
     }
@@ -148,7 +139,7 @@ static void configure_saadc(void)
     channel.channel_config.gain = NRF_SAADC_GAIN1_6;
 #endif
     err = nrfx_saadc_channels_config(&channel, 1);
-    if (err != NRFX_SUCCESS) {
+    if (err != 0) {
         LOG_ERR("nrfx_saadc_channels_config error: %08x", err);
         return;
     }
@@ -159,26 +150,26 @@ static void configure_saadc(void)
                                         NRF_SAADC_RESOLUTION_12BIT,
                                         &saadc_adv_config,
                                         saadc_event_handler);
-    if (err != NRFX_SUCCESS) {
+    if (err != 0) {
         LOG_ERR("nrfx_saadc_advanced_mode_set error: %08x", err);
         return;
     }
                                             
     /* STEP 4.9 - Configure two buffers to make use of double-buffering feature of SAADC */
     err = nrfx_saadc_buffer_set(saadc_sample_buffer[0], SAADC_BUFFER_SIZE);
-    if (err != NRFX_SUCCESS) {
+    if (err != 0) {
         LOG_ERR("nrfx_saadc_buffer_set error: %08x", err);
         return;
     }
     err = nrfx_saadc_buffer_set(saadc_sample_buffer[1], SAADC_BUFFER_SIZE);
-    if (err != NRFX_SUCCESS) {
+    if (err != 0) {
         LOG_ERR("nrfx_saadc_buffer_set error: %08x", err);
         return;
     }
 
     /* STEP 4.10 - Trigger the SAADC. This will not start sampling, but will prepare buffer for sampling triggered through PPI */
     err = nrfx_saadc_mode_trigger();
-    if (err != NRFX_SUCCESS) {
+    if (err != 0) {
         LOG_ERR("nrfx_saadc_mode_trigger error: %08x", err);
         return;
     }
@@ -189,35 +180,26 @@ static void configure_ppi(void)
 {
     nrfx_err_t err;
     /* STEP 6.1 - Declare variables used to hold the (D)PPI channel number */
-    uint8_t m_saadc_sample_ppi_channel;
-    uint8_t m_saadc_start_ppi_channel;
+    nrfx_gppi_handle_t gppi_handle_sample;
+    nrfx_gppi_handle_t gppi_handle_start;
 
     /* STEP 6.2 - Trigger task sample from timer */
-    err = nrfx_gppi_channel_alloc(&m_saadc_sample_ppi_channel);
-    if (err != NRFX_SUCCESS) {
-        LOG_ERR("nrfx_gppi_channel_alloc error: %08x", err);
+    err = nrfx_gppi_conn_alloc( nrfx_timer_compare_event_address_get(&timer_instance, NRF_TIMER_CC_CHANNEL0),nrf_saadc_task_address_get(NRF_SAADC, NRF_SAADC_TASK_SAMPLE), &gppi_handle_sample);
+    if (err != 0) {
+        LOG_ERR("nrfx_gppi_conn_alloc error: %08x", err);
         return;
     }
 
-    err = nrfx_gppi_channel_alloc(&m_saadc_start_ppi_channel);
-    if (err != NRFX_SUCCESS) {
-        LOG_ERR("nrfx_gppi_channel_alloc error: %08x", err);
+    /* STEP 6.3 - Trigger task start from end event */
+    err = nrfx_gppi_conn_alloc(nrf_saadc_event_address_get(NRF_SAADC, NRF_SAADC_EVENT_END),nrf_saadc_task_address_get(NRF_SAADC, NRF_SAADC_TASK_START), &gppi_handle_start);
+    if (err != 0) {
+        LOG_ERR("nrfx_gppi_conn_alloc error: %08x", err);
         return;
     }
 
-    /* STEP 6.3 - Trigger task sample from timer */
-    nrfx_gppi_channel_endpoints_setup(m_saadc_sample_ppi_channel, 
-                                      nrfx_timer_compare_event_address_get(&timer_instance, NRF_TIMER_CC_CHANNEL0),
-                                      nrf_saadc_task_address_get(NRF_SAADC, NRF_SAADC_TASK_SAMPLE));
-
-    /* STEP 6.4 - Trigger task start from end event */
-    nrfx_gppi_channel_endpoints_setup(m_saadc_start_ppi_channel, 
-                                      nrf_saadc_event_address_get(NRF_SAADC, NRF_SAADC_EVENT_END),
-                                      nrf_saadc_task_address_get(NRF_SAADC, NRF_SAADC_TASK_START));
-
-    /* STEP 6.5 - Enable both (D)PPI channels */ 
-    nrfx_gppi_channels_enable(BIT(m_saadc_sample_ppi_channel));
-    nrfx_gppi_channels_enable(BIT(m_saadc_start_ppi_channel));
+    /* STEP 6.4 - Enable both (D)PPI channels */ 
+    nrfx_gppi_conn_enable(gppi_handle_sample);
+    nrfx_gppi_conn_enable(gppi_handle_start);
 }
 
 

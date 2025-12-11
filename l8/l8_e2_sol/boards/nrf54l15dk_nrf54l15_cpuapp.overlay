@@ -1,4 +1,4 @@
-// Step 3.2 - Add overlay to enable FLPR core 
+// STEP 3.2 - Add overlay to enable FLPR core 
 / {
 	soc {
 		reserved-memory {

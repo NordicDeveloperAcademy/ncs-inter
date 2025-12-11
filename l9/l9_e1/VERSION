@@ -1,5 +1,5 @@
 VERSION_MAJOR = 0
-# Step 5.3 - Increment minor version
+# STEP 5.3 - Increment minor version
 VERSION_MINOR = 0
 PATCHLEVEL = 0
 VERSION_TWEAK = 0
