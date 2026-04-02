@@ -39,7 +39,7 @@ void battery_sample_timer_handler(struct k_timer *timer)
 {
 
         /* STEP 7.2 - Trigger the sampling */
-        nrfx_err_t err = nrfx_saadc_mode_trigger();
+        int err = nrfx_saadc_mode_trigger();
         if (err != 0) {
                 printk("nrfx_saadc_mode_trigger error: %08x", err);
                 return;
@@ -66,7 +66,7 @@ static void configure_saadc(void)
 		    nrfx_isr, nrfx_saadc_irq_handler, 0);
         
         /* STEP 5.2 - Initialize the nrfx_SAADC driver */
-        nrfx_err_t err = nrfx_saadc_init(DT_IRQ(DT_NODELABEL(adc), priority));
+        int err = nrfx_saadc_init(DT_IRQ(DT_NODELABEL(adc), priority));
         if (err != 0) 
         {
                 printk("nrfx_saadc_mode_trigger error: %08x", err);

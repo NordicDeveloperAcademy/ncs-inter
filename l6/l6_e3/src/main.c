@@ -32,7 +32,7 @@ LOG_MODULE_REGISTER(Lesson6_Exercise3, LOG_LEVEL_DBG);
 
 static void configure_timer(void)
 {
-    nrfx_err_t err;
+    int err;
 
     /* STEP 3.3 - Declaring timer config and intialize nrfx_timer instance. */
 
@@ -44,7 +44,7 @@ static void configure_timer(void)
 
 static void saadc_event_handler(nrfx_saadc_evt_t const * p_event)
 {
-    nrfx_err_t err;
+    int err;
     switch (p_event->type)
     {
         case NRFX_SAADC_EVT_READY:
@@ -76,7 +76,7 @@ static void saadc_event_handler(nrfx_saadc_evt_t const * p_event)
 
 static void configure_saadc(void)
 {
-    nrfx_err_t err;
+    int err;
 
     /* STEP 4.4 - Connect ADC interrupt to nrfx interrupt handler */
 
@@ -100,7 +100,7 @@ static void configure_saadc(void)
 
 static void configure_ppi(void)
 {
-    nrfx_err_t err;
+    int err;
     /* STEP 6.1 - Declare variables used to hold the (D)PPI channel number */
 
 
