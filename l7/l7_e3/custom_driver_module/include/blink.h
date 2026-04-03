@@ -17,7 +17,7 @@
  /* STEP 2.2 Implement a public API function for the driver class */
 
 
-/* STEP 2.4 Add blink_off api function */
+/* STEP 2.4 Add blink_off helper function */
 
 
 /* STEP 2.5 Add the syscall header at the end of the header file */
