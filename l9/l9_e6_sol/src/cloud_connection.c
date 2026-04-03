@@ -310,8 +310,13 @@ static void handle_shadow_event(struct nrf_cloud_obj_shadow_data *const shadow)
 		if (err) {
 			LOG_ERR("Failed to send shadow response, error: %d", err);
 		}
-	} else if (shadow->type == NRF_CLOUD_OBJ_SHADOW_TYPE_ACCEPTED) {
-		LOG_DBG("Shadow: Accepted");
+	} else if ((shadow->type == NRF_CLOUD_OBJ_SHADOW_TYPE_TF) && shadow->transform)
+	{
+		if (shadow->transform->is_err) {
+			LOG_ERR("Shadow transform error received");
+			return;
+		}
+		LOG_DBG("Shadow transform result received");
 	}
 }
 

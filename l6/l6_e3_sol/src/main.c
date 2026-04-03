@@ -50,7 +50,7 @@ static uint32_t saadc_current_buffer = 0;
 
 static void configure_timer(void)
 {
-    nrfx_err_t err;
+    int err;
 
     /* STEP 3.3 - Declaring timer config and intialize nrfx_timer instance. */
     nrfx_timer_config_t timer_config = NRFX_TIMER_DEFAULT_CONFIG(1000000);
@@ -68,7 +68,7 @@ static void configure_timer(void)
 
 static void saadc_event_handler(nrfx_saadc_evt_t const * p_event)
 {
-    nrfx_err_t err;
+    int err;
     switch (p_event->type)
     {
         case NRFX_SAADC_EVT_READY:
@@ -117,7 +117,7 @@ static void saadc_event_handler(nrfx_saadc_evt_t const * p_event)
 
 static void configure_saadc(void)
 {
-    nrfx_err_t err;
+    int err;
 
     /* STEP 4.4 - Connect ADC interrupt to nrfx interrupt handler */
     IRQ_CONNECT(DT_IRQN(DT_NODELABEL(adc)),
@@ -178,7 +178,7 @@ static void configure_saadc(void)
 
 static void configure_ppi(void)
 {
-    nrfx_err_t err;
+    int err;
     /* STEP 6.1 - Declare variables used to hold the (D)PPI channel number */
     nrfx_gppi_handle_t gppi_handle_sample;
     nrfx_gppi_handle_t gppi_handle_start;

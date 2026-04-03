@@ -39,7 +39,7 @@ const struct gpio_dt_spec ledspec = GPIO_DT_SPEC_GET(DT_NODELABEL(led0), gpios);
 
 /* STEP 3 - Retrieve the API-device structure */
 #define SPIOP	SPI_WORD_SET(8) | SPI_TRANSFER_MSB
-struct spi_dt_spec spispec = SPI_DT_SPEC_GET(DT_NODELABEL(bme280), SPIOP, 0);
+struct spi_dt_spec spispec = SPI_DT_SPEC_GET(DT_NODELABEL(bme280), SPIOP);
 
 /* Data structure to store BME280 data */
 struct bme280_data {
