@@ -40,7 +40,7 @@ static inline int z_impl_blink_set_period_ms(const struct device *dev,
 }
 
 
-/* STEP 2.4 Add blink_off api function */
+/* STEP 2.4 Add blink_off helper function */
 static inline int blink_off(const struct device *dev)
 {
 	return blink_set_period_ms(dev, 0);
