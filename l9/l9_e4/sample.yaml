@@ -11,11 +11,13 @@ common:
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
       - nrf5340dk/nrf5340/cpuapp/ns
+      - nrf54lm20dk/nrf54lm20a/cpuapp
     platform_allow:
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
       - nrf5340dk/nrf5340/cpuapp/ns    
+      - nrf54lm20dk/nrf54lm20a/cpuapp
     
 tests:
   ncs_inter.l9.e4: {}
