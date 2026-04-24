@@ -409,7 +409,7 @@ static int custom_bme280_init(const struct device *dev)
 #define CUSTOM_BME280_DEFINE(inst)                                           \
 	static struct custom_bme280_data custom_bme280_data_##inst;              \
 	static const struct custom_bme280_config custom_bme280_config_##inst = { \
-		.spi = SPI_DT_SPEC_INST_GET(inst, SPIOP, 0),                         \
+		.spi = SPI_DT_SPEC_INST_GET(inst, SPIOP),                         \
 	};                                                                       \
 	/* STEP 3.1 -  Attach power management fuction  */                       \
                                                                              
