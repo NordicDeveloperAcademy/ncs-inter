@@ -7,8 +7,10 @@ common:
     build_only: true
     integration_platforms: 
       - nrf54l15dk/nrf54l15/cpuflpr
+      - nrf54ls05dk/nrf54ls05b/cpuapp
     platform_allow:
       - nrf54l15dk/nrf54l15/cpuflpr    
+      - nrf54ls05dk/nrf54ls05b/cpuapp
     
 tests:
   ncs_inter.l8.e2.custom_image: {}

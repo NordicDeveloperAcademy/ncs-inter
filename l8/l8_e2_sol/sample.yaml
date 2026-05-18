@@ -8,9 +8,11 @@ common:
     integration_platforms: 
       - nrf5340dk/nrf5340/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54ls05dk/nrf54ls05b/cpuapp
     platform_allow:
       - nrf5340dk/nrf5340/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp    
+      - nrf54ls05dk/nrf54ls05b/cpuapp
     
 tests:
   ncs_inter.l8.e2_sol: {}

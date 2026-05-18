@@ -18,6 +18,7 @@ common:
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54ls05dk/nrf54ls05b/cpuapp
     platform_allow:
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
@@ -30,6 +31,7 @@ common:
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54lm20dk/nrf54lm20a/cpuapp    
+      - nrf54ls05dk/nrf54ls05b/cpuapp
     
 tests:
   ncs_inter.l8.e1: {}

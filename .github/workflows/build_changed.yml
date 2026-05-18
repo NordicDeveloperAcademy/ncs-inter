@@ -1,0 +1,117 @@
+name: Build Changed Samples
+
+on:
+  pull_request:
+    paths:
+      - 'l*/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'l*/**'
+  workflow_dispatch:
+    inputs:
+      build_all:
+        description: 'Build all samples instead of only changed ones'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  NCS_TOOLCHAIN_VERSION: latest
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_dirs: ${{ steps.changes.outputs.dirs }}
+      has_changes: ${{ steps.changes.outputs.has_changes }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed sample directories
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ "${{ inputs.build_all }}" == "true" ]; then
+            # Build all samples if manually triggered with build_all
+            DIRS=$(find . -maxdepth 2 -type d -name 'l*_e*' -o -name 'l*_e*_sol' | sed 's|^\./||' | sort -u | tr '\n' ' ')
+            echo "Building all samples"
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            # Get changed files in PR
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+            DIRS=$(echo "$CHANGED_FILES" | grep -E '^l[0-9]+/' | cut -d'/' -f1,2 | sort -u | tr '\n' ' ')
+          else
+            # Get changed files in push (compare with previous commit)
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only HEAD)
+            DIRS=$(echo "$CHANGED_FILES" | grep -E '^l[0-9]+/' | cut -d'/' -f1,2 | sort -u | tr '\n' ' ')
+          fi
+          
+          if [ -z "$DIRS" ]; then
+            echo "No sample directories changed"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "dirs=" >> $GITHUB_OUTPUT
+          else
+            echo "Changed directories: $DIRS"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "dirs=$DIRS" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/zephyrproject-rtos/ci:v0.26.13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ncs-inter
+
+      - name: Initialize west workspace
+        run: |
+          west init -l ncs-inter
+          west update --narrow -o=--depth=1
+
+      - name: Install nRF Connect SDK toolchain
+        run: |
+          pip install --upgrade pip
+          pip install west
+
+      - name: Run Twister on changed samples
+        run: |
+          DIRS="${{ needs.detect-changes.outputs.changed_dirs }}"
+          TWISTER_ARGS=""
+          
+          for dir in $DIRS; do
+            if [ -d "ncs-inter/$dir" ]; then
+              TWISTER_ARGS="$TWISTER_ARGS -T ncs-inter/$dir"
+            fi
+          done
+          
+          if [ -n "$TWISTER_ARGS" ]; then
+            echo "Running: west twister $TWISTER_ARGS -v --inline-logs --integration --build-only"
+            west twister $TWISTER_ARGS -v --inline-logs --integration --build-only
+          else
+            echo "No valid directories to build"
+          fi
+
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: twister-results
+          path: |
+            twister-out/
+          if-no-files-found: ignore
+
+  skip-notification:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: No changes detected
+        run: echo "No sample directories were changed. Skipping build."
