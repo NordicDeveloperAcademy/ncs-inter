@@ -24,7 +24,6 @@ tests:
       - nrf7002dk/nrf5340/cpuapp
       - nrf7002dk/nrf5340/cpuapp/ns
       - nrf54l15dk/nrf54l15/cpuapp  
-      - nrf54ls05dk/nrf54ls05b/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54lm20dk/nrf54lm20a/cpuapp
     platform_allow:
@@ -32,7 +31,6 @@ tests:
       - nrf7002dk/nrf5340/cpuapp
       - nrf7002dk/nrf5340/cpuapp/ns
       - nrf54l15dk/nrf54l15/cpuapp  
-      - nrf54ls05dk/nrf54ls05b/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54lm20dk/nrf54lm20a/cpuapp    
     extra_dtc_overlay_files:
