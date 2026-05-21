@@ -12,9 +12,11 @@
 
 LOG_MODULE_REGISTER(Lesson4_Exercise2, LOG_LEVEL_INF);
 
-#define PWM_LED0        DT_ALIAS(pwm_led0)
 
+#if DT_NODE_EXISTS(DT_NODELABEL(pwm_led0))
+#define PWM_LED0        DT_ALIAS(pwm_led0)
 static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(PWM_LED0);
+#endif
 
 /* STEP 5.4 - Retrieve the device structure for the servo motor */
 #define SERVO_MOTOR     DT_NODELABEL(servo) 
@@ -29,8 +31,11 @@ static const struct pwm_dt_spec pwm_servo = PWM_DT_SPEC_GET(SERVO_MOTOR);
 
 /* STEP 2.2 - Define minimum and maximum duty cycle */
 /* STEP 4.2 - Change the duty cycles for the LED */
+
+#if DT_NODE_EXISTS(DT_NODELABEL(pwm_led0))
 #define PWM_MIN_PULSE_WIDTH 20000000
 #define PWM_MAX_PULSE_WIDTH 50000000
+#endif
 
 /* STEP 2.1 - Create a function to set the angle of the motor */
 /* STEP 5.8 - Change set_motor_angle() to use the pwm_servo device */
@@ -44,6 +49,8 @@ int set_motor_angle(uint32_t pulse_width_ns)
     }
     return err;
 }
+
+#if DT_NODE_EXISTS(DT_NODELABEL(pwm_led0))
 /* STEP 4.3 - Create a function to set the duty cycle of a PWM LED */
 int set_led_blink(uint32_t period, uint32_t pulse_width_ns){
     int err;
@@ -53,6 +60,7 @@ int set_led_blink(uint32_t period, uint32_t pulse_width_ns){
     }
     return err;
 }
+#endif
 
 void button_handler(uint32_t button_state, uint32_t has_changed)
 {
@@ -71,6 +79,8 @@ void button_handler(uint32_t button_state, uint32_t has_changed)
                 LOG_INF("Button 2 pressed");
                 err = set_motor_angle(PWM_SERVO_MAX_PULSE_WIDTH);
                 break;
+                
+#if DT_NODE_EXISTS(DT_NODELABEL(pwm_led0))
             /* STEP 4.4 - Change LED when a button is pressed */
             case DK_BTN3_MSK:
                 LOG_INF("Button 3 pressed");
@@ -80,6 +90,7 @@ void button_handler(uint32_t button_state, uint32_t has_changed)
                 LOG_INF("Button 4 pressed");
                 err = set_led_blink(4*PWM_PERIOD, PWM_MAX_PULSE_WIDTH);
                 break;
+#endif                
 			default:
 				break;
 		}
@@ -98,6 +109,7 @@ int main(void)
         LOG_ERR("Failed to initialize the buttons library");
     }
 
+#if DT_NODE_EXISTS(DT_NODELABEL(pwm_led0))
     /* STEP 2.3 - Check if the device is ready and set its initial value */
     if (!pwm_is_ready_dt(&pwm_led0)) {
         LOG_ERR("Error: PWM device %s is not ready", pwm_led0.dev->name);
@@ -108,6 +120,7 @@ int main(void)
         LOG_ERR("pwm_set_dt returned %d", err);
         return 0;
     }
+#endif
 
     /* STEP 5.7 - Check if the motor device is ready and set its initial value */
     LOG_INF("Setting initial motor");

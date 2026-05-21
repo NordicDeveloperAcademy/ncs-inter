@@ -12,9 +12,10 @@
 
 LOG_MODULE_REGISTER(Lesson4_Exercise2, LOG_LEVEL_INF);
 
+#if DT_NODE_EXISTS(DT_NODELABEL(pwm_led0))
 #define PWM_LED0        DT_ALIAS(pwm_led0)   
-
 static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(PWM_LED0);
+#endif
 
 /* STEP 5.4 - Retrieve the device structure for the servo motor */
 
