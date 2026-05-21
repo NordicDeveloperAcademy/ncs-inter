@@ -75,7 +75,7 @@ int main(void)
 	return 0;
 }
 
-static void producer_func(void *unused1, void *uPnused2, void *unused3)
+static void producer_func(void *unused1, void *unused2, void *unused3)
 {
 	ARG_UNUSED(unused1);
 	ARG_UNUSED(unused2);
