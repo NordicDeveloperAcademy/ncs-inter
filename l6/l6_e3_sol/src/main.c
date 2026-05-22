@@ -22,8 +22,10 @@ LOG_MODULE_REGISTER(Lesson6_Exercise3, LOG_LEVEL_DBG);
 
 /* STEP 4.6 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
 #if NRF_SAADC_HAS_AIN_AS_PIN
-#if defined(CONFIG_SOC_NRF54L15 ) || defined(CONFIG_SOC_NRF54LM20A) || defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+#if defined(CONFIG_SOC_NRF54L15 ) || defined(CONFIG_SOC_NRF54LM20A) 
 #define SAADC_INPUT_PIN NRFX_ANALOG_EXTERNAL_AIN4
+#elif defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+#define SAADC_INPUT_PIN NRFX_ANALOG_EXTERNAL_AIN3
 #else
 BUILD_ASSERT(0, "Unsupported device family");
 #endif
@@ -35,8 +37,10 @@ static nrfx_saadc_channel_t channel = NRFX_SAADC_DEFAULT_CHANNEL_SE(SAADC_INPUT_
 
 
 /* STEP 3.2 - Declaring an instance of nrfx_timer for TIMER2. */
-#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A) || defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A) 
 #define TIMER_INSTANCE_NUMBER NRF_TIMER22
+#elif defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+#define TIMER_INSTANCE_NUMBER NRF_TIMER20   
 #else
 #define TIMER_INSTANCE_NUMBER NRF_TIMER2
 #endif
@@ -133,8 +137,10 @@ static void configure_saadc(void)
     }
 
     /* STEP 4.7 - Change gain config in default config and apply channel configuration */
-#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A) || defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A) 
     channel.channel_config.gain = NRF_SAADC_GAIN1_4;
+#elif defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+        channel.channel_config.reference = SAADC_CH_CONFIG_REFSEL_Vdd;
 #else
     channel.channel_config.gain = NRF_SAADC_GAIN1_6;
 #endif
