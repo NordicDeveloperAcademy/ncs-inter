@@ -52,8 +52,10 @@ void battery_sample_timer_handler(struct k_timer *timer)
 
         /* STEP 7.3 - Calculate and print voltage */
         
-#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A) || defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A)
         int battery_voltage = ((900*4) * sample) / ((1<<12));
+#elif defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+        int battery_voltage = ((3300*1) * sample) / ((1<<12));
 #else
         int battery_voltage = ((600*6) * sample) / ((1<<12));
 #endif
