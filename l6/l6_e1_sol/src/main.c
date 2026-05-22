@@ -12,7 +12,11 @@
 #include <zephyr/drivers/adc.h>
 
 /* STEP 3.2 - Define a variable of type adc_dt_spec for each channel */
+#if defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+static struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET(DT_PATH(zephyr_user));
+#else
 static const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET(DT_PATH(zephyr_user));
+#endif
 
 LOG_MODULE_REGISTER(Lesson6_Exercise1, LOG_LEVEL_DBG);
 
@@ -42,6 +46,16 @@ int main(void)
 		LOG_ERR("Could not setup channel #%d (%d)", 0, err);
 		return 0;
 	}
+
+#if defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+	/* Workaround to configure VDD as reference voltage for nRF54LS05 */
+
+	((NRF_SAADC_Type *) NRF_SAADC)->CH[0].CONFIG |= ((SAADC_CH_CONFIG_REFSEL_Vdd   << SAADC_CH_CONFIG_REFSEL_Pos) & SAADC_CH_CONFIG_REFSEL_Msk);
+	adc_channel.channel_cfg.reference = ADC_REF_VDD_1;
+	adc_channel.vref_mv= 3300;
+
+#endif
+
 	/* STEP 4.2 - Initialize the ADC sequence */
 	err = adc_sequence_init_dt(&adc_channel, &sequence);
 	if (err < 0) {
