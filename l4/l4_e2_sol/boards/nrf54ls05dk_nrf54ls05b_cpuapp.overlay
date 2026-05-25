@@ -1,0 +1,34 @@
+/* STEP 5.2 - Add the servo device  */
+/ {
+    servo: servo {
+        compatible = "pwm-servo";
+        pwms = <&pwm20 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+        min-pulse = <PWM_USEC(1000)>;
+        max-pulse = <PWM_USEC(2000)>;
+    };
+};
+
+/* STEP 5.3 - Configure which pins pwm1 should use */
+&pwm20 {
+    status = "okay";
+    pinctrl-0 = <&pwm20_custom_motor>;
+    pinctrl-1 = <&pwm20_csleep_motor>;
+    pinctrl-names = "default", "sleep";
+};
+
+&pinctrl {
+    pwm20_custom_motor: pwm20_custom_motor {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 1, 2)>;
+            nordic,invert;
+        };
+    };
+
+    pwm20_csleep_motor: pwm20_csleep_motor {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 1, 2)>;
+            low-power-enable;
+        };
+    };
+};
+

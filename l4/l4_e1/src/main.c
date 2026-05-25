@@ -25,7 +25,8 @@ LOG_MODULE_REGISTER(Lesson4_Exercise1, LOG_LEVEL_INF);
 int main(void)
 {
     int err;
-
+    LOG_INF("Lesson 4 Exercise 1 started");
+    
     /* STEP 3.3 - Check if the device is ready */
 
     
