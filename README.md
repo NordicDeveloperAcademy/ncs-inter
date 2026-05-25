@@ -11,6 +11,7 @@ This repository contains the exercise code base and solutions. Make sure to sele
 </ul>
 
 The course supports the following hardware:
+ - [nRF54LS05 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF54LS05-DK)  - On nRF Connect SDK v3.3.0 and above
  - [nRF54LM20 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF54LM20-DK) - On nRF Connect SDK v3.1.1 and above
  - [nRF54L15 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF54L15-DK) - On nRF Connect SDK v2.8.0 and above.
  - [nRF5340 DK](https://www.nordicsemi.com/Software-and-tools/Development-Kits/nRF5340-DK) 
