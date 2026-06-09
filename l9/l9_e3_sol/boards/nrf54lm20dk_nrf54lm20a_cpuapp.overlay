@@ -3,6 +3,8 @@
 /delete-node/ &slot1_partition;
 
 
+
+
 &cpuapp_rram {
     partitions {
         boot_partition: partition@0 {
@@ -14,26 +16,23 @@
         slot0_partition: partition@2c000 {
             compatible = "zephyr,mapped-partition";
             label = "image-0";
-            reg = <0x2c000 DT_SIZE_K(864)>;
+            reg = <0x2c000 DT_SIZE_K(1536)>;
         };
 
-        slot1_partition: partition@104000 {
-            compatible = "zephyr,mapped-partition";
+    };
+};
+
+&mx25r64 {
+    status = "okay";
+    partitions {
+        compatible = "fixed-partitions";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        slot1_partition: partition@0 {
             label = "image-1";
-            reg = <0x104000 DT_SIZE_K(864)>;
+            reg = <0x0 DT_SIZE_K(1536)>;
         };
     };
 };
 
-/* CDC ACM for mcumgr (from app.overlay) */
-/ {
-    chosen {
-        zephyr,uart-mcumgr = &cdc_acm_uart0;
-    };
-};
-
-&zephyr_udc0 {
-    cdc_acm_uart0: cdc_acm_uart0 {
-        compatible = "zephyr,cdc-acm-uart";
-    };
-};
