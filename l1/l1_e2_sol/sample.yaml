@@ -4,7 +4,6 @@ sample:
   
 common: 
     sysbuild: true
-    build_only: true
     integration_platforms: 
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
@@ -37,4 +36,10 @@ common:
       - nrf7002dk/nrf5340/cpuapp/ns   
     
 tests:
-  ncs_inter.l1.e2_sol: {}
+  ncs_inter.l1.e2_sol:
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - "Starting Lesson 1 - Exercise 2"
+    timeout: 15

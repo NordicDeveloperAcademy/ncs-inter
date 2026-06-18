@@ -4,7 +4,11 @@ sample:
   
 common: 
     sysbuild: true
-    build_only: true
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - "USB device support enabled"
     
 tests:
   ncs_inter.l9.e4.sol:

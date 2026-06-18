@@ -4,7 +4,6 @@ sample:
   
 common: 
     sysbuild: true
-    build_only: true
     integration_platforms: 
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
@@ -33,4 +32,5 @@ common:
       - nrf54lm20dk/nrf54lm20a/cpuapp
     
 tests:
-  ncs_inter.l9.e1_sol: {}
+  ncs_inter.l9.e1_sol:
+    build_only: true
