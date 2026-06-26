@@ -11,12 +11,10 @@ tests:
   ncs_inter.l9.e2_sol.ed25519_invalid:
     integration_platforms: 
       - nrf54l15dk/nrf54l15/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54ls05dk/nrf54ls05b/cpuapp
       - nrf54lm20dk/nrf54lm20a/cpuapp
     platform_allow: 
       - nrf54l15dk/nrf54l15/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54ls05dk/nrf54ls05b/cpuapp
       - nrf54lm20dk/nrf54lm20a/cpuapp
     extra_args:
@@ -31,8 +29,11 @@ tests:
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
+      - nrf9160dk/nrf9160
       - nrf9160dk/nrf9160/ns
+      - nrf9161dk/nrf9161
       - nrf9161dk/nrf9161/ns
+      - nrf9151dk/nrf9151
       - nrf9151dk/nrf9151/ns
       - nrf5340dk/nrf5340/cpuapp
       - nrf5340dk/nrf5340/cpuapp/ns
@@ -42,8 +43,11 @@ tests:
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
+      - nrf9160dk/nrf9160
       - nrf9160dk/nrf9160/ns
+      - nrf9161dk/nrf9161
       - nrf9161dk/nrf9161/ns
+      - nrf9151dk/nrf9151
       - nrf9151dk/nrf9151/ns
       - nrf5340dk/nrf5340/cpuapp
       - nrf5340dk/nrf5340/cpuapp/ns
@@ -58,12 +62,10 @@ tests:
   ncs_inter.l9.e2_sol.ed25519:
     integration_platforms: 
       - nrf54l15dk/nrf54l15/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54ls05dk/nrf54ls05b/cpuapp
       - nrf54lm20dk/nrf54lm20a/cpuapp
     platform_allow: 
       - nrf54l15dk/nrf54l15/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54ls05dk/nrf54ls05b/cpuapp
       - nrf54lm20dk/nrf54lm20a/cpuapp
     extra_args:
@@ -77,8 +79,11 @@ tests:
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
+      - nrf9160dk/nrf9160
       - nrf9160dk/nrf9160/ns
+      - nrf9161dk/nrf9161
       - nrf9161dk/nrf9161/ns
+      - nrf9151dk/nrf9151
       - nrf9151dk/nrf9151/ns
       - nrf5340dk/nrf5340/cpuapp
       - nrf5340dk/nrf5340/cpuapp/ns
@@ -88,8 +93,11 @@ tests:
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
+      - nrf9160dk/nrf9160
       - nrf9160dk/nrf9160/ns
+      - nrf9161dk/nrf9161
       - nrf9161dk/nrf9161/ns
+      - nrf9151dk/nrf9151
       - nrf9151dk/nrf9151/ns
       - nrf5340dk/nrf5340/cpuapp
       - nrf5340dk/nrf5340/cpuapp/ns
