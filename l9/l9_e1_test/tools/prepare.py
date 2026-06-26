@@ -72,6 +72,10 @@ def main():
                         help="Only flash existing build, do not rebuild")
     parser.add_argument("--no-erase", action="store_true",
                         help="Flash without erasing first")
+    parser.add_argument("--single-app", dest="single_app", action="store_true", default=True,
+                        help="Use SB_CONFIG_MCUBOOT_MODE_SINGLE_APP=y (default)")
+    parser.add_argument("--no-single-app", dest="single_app", action="store_false",
+                        help="Use SB_CONFIG_MCUBOOT_MODE_SINGLE_APP=n (dual slot)")
     parser.add_argument("--sleep-ms", type=int, default=None,
                         help="Temporarily patch SLEEP_TIME_MS before build (reverted after)")
     args = parser.parse_args()
@@ -120,11 +124,12 @@ def main():
             if patched:
                 print(f"Patched SLEEP_TIME_MS: {old_sleep} → {args.sleep_ms}")
 
-        print("\n=== Building ===")
+        mcuboot_mode = "y" if args.single_app else "n"
+        print(f"\n=== Building (MCUBOOT_MODE_SINGLE_APP={mcuboot_mode}) ===")
         build_cmd = toolchain_prefix + [
             "west", "build", "-p", "-b", args.board, project_dir,
             "--sysbuild",
-            "-DSB_CONFIG_MCUBOOT_MODE_SINGLE_APP=y",
+            f"-DSB_CONFIG_MCUBOOT_MODE_SINGLE_APP={mcuboot_mode}",
         ]
         rc = run(build_cmd, cwd=ncs_root)
 

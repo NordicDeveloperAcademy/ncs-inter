@@ -96,6 +96,10 @@ def main():
                         help="NCS version (default: v3.4.0-rc2)")
     parser.add_argument("--ncs-root", default="",
                         help="NCS installation root (auto-detected if not set)")
+    parser.add_argument("--single-app", dest="single_app", action="store_true", default=True,
+                        help="Use SB_CONFIG_MCUBOOT_MODE_SINGLE_APP=y (default)")
+    parser.add_argument("--no-single-app", dest="single_app", action="store_false",
+                        help="Use SB_CONFIG_MCUBOOT_MODE_SINGLE_APP=n (dual slot)")
     parser.add_argument("--build-only", action="store_true",
                         help="Only patch and build, do not upload")
     args = parser.parse_args()
@@ -140,15 +144,16 @@ def main():
         print(f"  SLEEP_TIME_MS already set to {args.sleep_ms}")
 
     # Step 2: Build
+    mcuboot_mode = "y" if args.single_app else "n"
     print(f"\n{'='*60}")
-    print(f"  Step 2: Build with SB_CONFIG_MCUBOOT_MODE_SINGLE_APP=y")
+    print(f"  Step 2: Build with SB_CONFIG_MCUBOOT_MODE_SINGLE_APP={mcuboot_mode}")
     print(f"{'='*60}")
     toolchain_prefix = ["nrfutil", "toolchain-manager", "launch",
                         "--ncs-version", args.ncs_version, "--"]
     build_cmd = toolchain_prefix + [
         "west", "build", "-p", "-b", args.board, project_dir,
         "--sysbuild",
-        "-DSB_CONFIG_MCUBOOT_MODE_SINGLE_APP=y",
+        f"-DSB_CONFIG_MCUBOOT_MODE_SINGLE_APP={mcuboot_mode}",
     ]
     rc = run(build_cmd, cwd=ncs_root)
 
