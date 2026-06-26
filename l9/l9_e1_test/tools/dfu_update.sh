@@ -91,6 +91,7 @@ echo ">>> Step 4: Confirm running image"
 python3 "$MCUBOOT_MGR" -p "$PORT" confirm --slot 0
 echo
 
+
 # Step 5: Print image info after update
 echo ">>> Step 5: Image info after update"
 python3 "$MCUBOOT_MGR" -p "$PORT" info

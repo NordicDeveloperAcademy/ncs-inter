@@ -13,9 +13,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(cd "$SCRIPT_DIR/../../l9_e1_sol" && pwd)"
-MCUBOOT_MGR="$SCRIPT_DIR/mcuboot_mgr.py"
-DFU_UPDATE="$SCRIPT_DIR/dfu_update.sh"
+TOOLS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../../../l9_e1_sol" && pwd)"
+MCUBOOT_MGR="$TOOLS_DIR/mcuboot_mgr.py"
+DFU_UPDATE="$TOOLS_DIR/dfu_update.sh"
 
 MAIN_C="$PROJECT_DIR/src/main.c"
 VERSION_FILE="$PROJECT_DIR/VERSION"
