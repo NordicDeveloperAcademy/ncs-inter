@@ -1,4 +1,4 @@
-#include "../../../boards/nrf91x1.overlay"
+#include "../../../boards/nrf9160dk_nrf9160_ns.overlay"
 
 / {
     chosen {
