@@ -1,0 +1,31 @@
+/delete-node/ &slot1_partition;
+
+
+
+&gd25wb256 {
+    status = "okay";
+    partitions {
+        compatible = "fixed-partitions";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        slot1_partition: partition@80000 {
+            compatible = "fixed-subpartitions";
+            label = "image-1";
+            reg = <0x80000 0x70000>;
+            #address-cells = <1>;
+            #size-cells = <1>;
+
+            slot1_s_partition: partition@0 {
+                label = "image-1-secure";
+                reg = <0x0 0x40000>;
+            };
+
+            slot1_ns_partition: partition@40000 {
+                label = "image-1-nonsecure";
+                reg = <0x40000 0x30000>;
+            };
+        };
+    };
+};
+
