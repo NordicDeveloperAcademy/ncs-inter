@@ -1,7 +1,0 @@
-#include "../../../boards/nrf9160dk_nrf9160_ns.overlay"
-
-/ {
-    chosen {
-        zephyr,code-partition = &boot_partition;
-    };
-};

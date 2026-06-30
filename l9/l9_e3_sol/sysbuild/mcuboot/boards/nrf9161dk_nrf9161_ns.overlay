@@ -1,8 +1,0 @@
-#include "../../../boards/nrf91x1.overlay"
-
-/ {
-    chosen {
-        zephyr,code-partition = &boot_partition;
-    };
-};
-
