@@ -2,6 +2,7 @@
 /delete-node/ &slot0_partition;
 /delete-node/ &storage_partition;
 
+
 &flash0 {
 	partitions {
 		ranges;
@@ -11,29 +12,24 @@
 		boot_partition: partition@0 {
 			compatible = "zephyr,mapped-partition";
 			label = "mcuboot";
-			reg = <0x00000000 0x19000>;
+			reg = <0x00000000 0x13000>;
 		};
 
-		slot0_partition: partition@19000 {
+		slot0_partition: partition@13000 {
 			compatible = "zephyr,mapped-partition";
 			label = "image-0";
-			reg = <0x00019000 0xd7000>;
+			reg = <0x00013000 0x74000>;
 		};
-	};
-};
 
-&mx25r64 {
-	partitions {
-		compatible = "fixed-partitions";
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		slot1_partition: partition@0 {
+		slot1_partition: partition@87000 {
+			compatible = "zephyr,mapped-partition";
 			label = "image-1";
-			reg = <0x00000 0xd7000>;
+			reg = <0x00087000 0x74000>;
 		};
+
 	};
 };
+
 
 / {
 	chosen {
