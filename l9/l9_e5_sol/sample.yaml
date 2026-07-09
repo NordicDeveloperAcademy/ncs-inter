@@ -29,5 +29,5 @@ tests:
     harness_config:
       type: one_line
       regex:
-        - "Starting Bluetooth Peripheral LBS sample"
+        - "Advertising successfully started"
     timeout: 15
