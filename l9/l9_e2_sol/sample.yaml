@@ -30,29 +30,19 @@ tests:
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
       - nrf9160dk/nrf9160
-      - nrf9160dk/nrf9160/ns
       - nrf9161dk/nrf9161
-      - nrf9161dk/nrf9161/ns
       - nrf9151dk/nrf9151
-      - nrf9151dk/nrf9151/ns
       - nrf5340dk/nrf5340/cpuapp
-      - nrf5340dk/nrf5340/cpuapp/ns
       - nrf7002dk/nrf5340/cpuapp
-      - nrf7002dk/nrf5340/cpuapp/ns
     platform_allow: 
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
       - nrf9160dk/nrf9160
-      - nrf9160dk/nrf9160/ns
       - nrf9161dk/nrf9161
-      - nrf9161dk/nrf9161/ns
       - nrf9151dk/nrf9151
-      - nrf9151dk/nrf9151/ns
       - nrf5340dk/nrf5340/cpuapp
-      - nrf5340dk/nrf5340/cpuapp/ns
       - nrf7002dk/nrf5340/cpuapp
-      - nrf7002dk/nrf5340/cpuapp/ns
     extra_args:
       - SB_CONFIG_BOOT_SIGNATURE_KEY_FILE="\${APP_DIR}/ecdsa_ci_key_invalid.pem"
       - SB_CONFIG_BOOT_SIGNATURE_TYPE_ED25519=n
@@ -80,29 +70,19 @@ tests:
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
       - nrf9160dk/nrf9160
-      - nrf9160dk/nrf9160/ns
       - nrf9161dk/nrf9161
-      - nrf9161dk/nrf9161/ns
       - nrf9151dk/nrf9151
-      - nrf9151dk/nrf9151/ns
       - nrf5340dk/nrf5340/cpuapp
-      - nrf5340dk/nrf5340/cpuapp/ns
       - nrf7002dk/nrf5340/cpuapp
-      - nrf7002dk/nrf5340/cpuapp/ns
     platform_allow: 
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
       - nrf9160dk/nrf9160
-      - nrf9160dk/nrf9160/ns
       - nrf9161dk/nrf9161
-      - nrf9161dk/nrf9161/ns
       - nrf9151dk/nrf9151
-      - nrf9151dk/nrf9151/ns
       - nrf5340dk/nrf5340/cpuapp
-      - nrf5340dk/nrf5340/cpuapp/ns
       - nrf7002dk/nrf5340/cpuapp
-      - nrf7002dk/nrf5340/cpuapp/ns
     extra_args:
       - SB_CONFIG_BOOT_SIGNATURE_KEY_FILE="\${APP_DIR}/ecdsa_ci_key.pem"
       - SB_CONFIG_BOOT_SIGNATURE_TYPE_ED25519=n

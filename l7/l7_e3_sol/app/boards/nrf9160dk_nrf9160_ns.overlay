@@ -1,3 +1,6 @@
+#include <samples/cellular/nrf91_no_bootloader_partitions.dtsi>
+#include <samples/cellular/nrf91_sram_partitions.dtsi>
+
 /* STEP 5 Create a blink_gpio_leds device node */
 / {
 	blink_led: blink-led {
