@@ -25,6 +25,8 @@ int main(void)
     int err;
     uint32_t count = 0;
 
+    LOG_INF("Starting Lesson 6 - Exercise 1");
+
     /* STEP 4.1 - Define a variable of type adc_sequence and a buffer of type uint16_t */
     int16_t buf;
     struct adc_sequence sequence = {

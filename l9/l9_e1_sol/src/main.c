@@ -6,11 +6,14 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/logging/log.h>
+
+LOG_MODULE_REGISTER(Lesson9_Exercise1, LOG_LEVEL_INF);
 
 /* 1000 msec = 1 sec */
 
 /* STEP 4.4 - Change LED timing to create a new image for DFU*/
-#define SLEEP_TIME_MS   2000
+#define SLEEP_TIME_MS   200
 
 /* The devicetree node identifier for the "led0" alias. */
 #define LED0_NODE DT_ALIAS(led0)

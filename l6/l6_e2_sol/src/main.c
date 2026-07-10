@@ -6,6 +6,9 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
+#include <zephyr/logging/log.h>
+
+LOG_MODULE_REGISTER(Lesson6_Exercise2, LOG_LEVEL_INF);
 
 /* STEP 2 - Include header for nrfx SAADC driver */
 #include <nrfx_saadc.h>
@@ -120,6 +123,8 @@ static void configure_saadc(void)
 
 int main(void)
 {
+        LOG_INF("Starting Lesson 6 - Exercise 2");
+
         configure_saadc();
 
         k_sleep(K_FOREVER);

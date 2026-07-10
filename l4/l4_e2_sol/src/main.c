@@ -104,6 +104,8 @@ int main(void)
 {
 
     int err = 0;
+
+    LOG_INF("Starting Lesson 4 - Exercise 2");
         
     if (dk_buttons_init(button_handler)) {
         LOG_ERR("Failed to initialize the buttons library");

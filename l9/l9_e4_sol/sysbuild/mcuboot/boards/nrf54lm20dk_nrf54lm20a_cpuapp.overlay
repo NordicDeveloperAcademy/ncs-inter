@@ -1,0 +1,19 @@
+#include "../../../boards/nrf54lm20dk_nrf54lm20a_cpuapp.overlay"
+
+/* Need to add this here as the app.overlay is not picked
+ * with board overlay.
+ */
+
+/ {
+    chosen {
+        zephyr,code-partition = &boot_partition;
+    };
+};
+
+/* STEP 2.1 - Configure CDC ACM */
+
+&zephyr_udc0 {
+    cdc_acm_uart0: cdc_acm_uart0 {
+        compatible = "zephyr,cdc-acm-uart";
+    };
+};

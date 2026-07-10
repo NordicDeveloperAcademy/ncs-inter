@@ -3,10 +3,12 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
+#include "../boards/nrf7002dk_nrf5340_cpuapp_ns.overlay"
 
 / {
-	/* Configure the partition manager to use the mx25r64 external flash memory. */
 	chosen {
-		nordic,pm-ext-flash = &mx25r64;
+		zephyr,code-partition = &boot_partition;
 	};
 };
+
+/* MCUboot uses slot0 as primary and slot1 (external flash) as secondary */

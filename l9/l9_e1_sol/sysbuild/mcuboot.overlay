@@ -6,3 +6,11 @@
 		mcuboot-led0 = &led1;
   };
 };
+
+
+/* STEP 2.5 - Configure mcuboot start partition */
+/ {
+	chosen {
+		zephyr,code-partition = &boot_partition;
+	};
+};

@@ -1,0 +1,10 @@
+/* STEP 2.2 - Include overlay file from the application  */
+#include "../../../boards/nrf91x1.overlay"
+
+/* STEP 2.3 - Configure bootloader to start from boot_partition  */
+/ {
+    chosen {
+        zephyr,code-partition = &boot_partition;
+    };
+};
+

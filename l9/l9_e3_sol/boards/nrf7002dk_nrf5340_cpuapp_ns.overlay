@@ -1,0 +1,41 @@
+/delete-node/ &slot1_partition;
+
+&slot0_partition {
+	reg = <0x00010000 0xe0000>;
+	ranges = <0x0 0x10000 0xe0000>;
+};
+
+&slot0_s_partition {
+	reg = <0x0 0x80000>;
+};
+
+&slot0_ns_partition {
+	reg = <0x80000 0x60000>;
+};
+
+/* STEP 2.1 - Add external flash to board conf file */
+&mx25r64 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		slot1_partition: partition@0 {
+			compatible = "fixed-subpartitions";
+			label = "image-1";
+			reg = <0x00000 0xe0000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			slot1_s_partition: partition@0 {
+				label = "image-1-secure";
+				reg = <0x0 0x80000>;
+			};
+
+			slot1_ns_partition: partition@80000 {
+				label = "image-1-nonsecure";
+				reg = <0x80000 0x60000>;
+			};
+		};
+	};
+};

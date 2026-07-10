@@ -56,6 +56,8 @@ int main(void)
 {
 	int ret;
 
+	LOG_INF("Starting Lesson 1 - Exercise 2");
+
 	if (!gpio_is_ready_dt(&led0)) {
 		return 0;
 	}
