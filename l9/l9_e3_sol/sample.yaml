@@ -1,6 +1,6 @@
 sample:
   description: nRF Connect SDK Intermediate Course by Nordic Developer Academy (https://academy.nordicsemi.com/)
-  name: nRF Connect SDK Intermediate Course - Lesson 9 Exercise 3 QSPI Solution
+  name: nRF Connect SDK Intermediate Course - Lesson 9 Exercise 3 Solution
   
 common: 
     sysbuild: true
@@ -8,6 +8,8 @@ common:
     
     integration_platforms: 
       - nrf52840dk/nrf52840
+      - nrf7002dk/nrf5340/cpuapp
+      - nrf7002dk/nrf5340/cpuapp/ns
       - nrf5340dk/nrf5340/cpuapp
       - nrf5340dk/nrf5340/cpuapp/ns
       - nrf54l15dk/nrf54l15/cpuapp
@@ -20,6 +22,8 @@ common:
       - nrf9161dk/nrf9161
     platform_allow:
       - nrf52840dk/nrf52840
+      - nrf7002dk/nrf5340/cpuapp
+      - nrf7002dk/nrf5340/cpuapp/ns
       - nrf5340dk/nrf5340/cpuapp
       - nrf5340dk/nrf5340/cpuapp/ns
       - nrf54l15dk/nrf54l15/cpuapp
@@ -33,4 +37,4 @@ common:
 
     
 tests:
-  ncs_inter.l9.e3.qspi_sol: {}
+  ncs_inter.l9.e3.sol: {}

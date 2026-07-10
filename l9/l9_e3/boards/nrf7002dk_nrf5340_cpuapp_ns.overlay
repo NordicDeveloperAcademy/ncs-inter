@@ -1,0 +1,16 @@
+/delete-node/ &slot1_partition;
+
+&slot0_partition {
+	reg = <0x00010000 0xe0000>;
+	ranges = <0x0 0x10000 0xe0000>;
+};
+
+&slot0_s_partition {
+	reg = <0x0 0x80000>;
+};
+
+&slot0_ns_partition {
+	reg = <0x80000 0x60000>;
+};
+
+/* STEP 2.1 - Add external flash to board conf file */
