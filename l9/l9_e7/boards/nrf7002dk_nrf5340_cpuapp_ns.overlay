@@ -4,13 +4,166 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-/ {
-	/* Configure the partition manager to use the mx25r64 external flash memory. */
-	chosen {
-		nordic,pm-ext-flash = &mx25r64;
+/*
+ * Partition layout matching partitions.yml (PM disabled).
+ *
+ * Internal Flash (1 MB):
+ *   0x000000 - 0x010000  mcuboot           (64 KB)
+ *   0x010000 - 0x010200  mcuboot_pad       (512 B)
+ *   0x010200 - 0x030000  tfm               (~128 KB)
+ *   0x030000 - 0x0F4000  app               (784 KB)
+ *   0x0F4000 - 0x0F6000  tfm_its           (8 KB)
+ *   0x0F6000 - 0x0F8000  (empty)           (8 KB)
+ *   0x0F8000 - 0x0FA000  tfm_otp_nv_ctr    (8 KB)
+ *   0x0FA000 - 0x0FC000  (empty)           (8 KB)
+ *   0x0FC000 - 0x100000  tfm_ps            (16 KB)
+ *
+ * External Flash (mx25r64):
+ *   0x000000 - 0x0E4000  mcuboot_secondary (912 KB)
+ *
+ * SRAM (512 KB):
+ *   0x20000000 - 0x2000C000  tfm_sram      (48 KB)
+ *   0x2000C000 - 0x20070000  sram_primary  (400 KB)
+ *   0x20070000 - 0x20080000  rpmsg_nrf53   (64 KB)
+ */
+
+/* Delete default partitions from internal flash */
+/delete-node/ &boot_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &sram0_image;
+/delete-node/ &sram0_ns;
+
+&flash0 {
+	partitions {
+		ranges;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
+			label = "mcuboot";
+			reg = <0x00000000 0x20000>;
+		};
+
+		slot0_partition: partition@20000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-0";
+			reg = <0x00020000 0xD0000>;
+			ranges = <0x0 0x20000 0xD0000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			slot0_s_partition: partition@0 {
+				compatible = "zephyr,mapped-partition";
+				label = "image-0-secure";
+				reg = <0x00000000 0x20000>;
+			};
+
+			slot0_ns_partition: partition@20000 {
+				compatible = "zephyr,mapped-partition";
+				label = "image-0-nonsecure";
+				reg = <0x00020000 0xB0000>;
+			};
+		};
+
+		tfm_ps_partition: partition@f0000 {
+			compatible = "zephyr,mapped-partition";
+			label = "tfm-ps";
+			reg = <0x000f0000 0x00004000>;
+		};
+
+		tfm_its_partition: partition@f4000 {
+			compatible = "zephyr,mapped-partition";
+			label = "tfm-its";
+			reg = <0x000f4000 0x00002000>;
+		};
+
+		tfm_otp_partition: partition@f6000 {
+			compatible = "zephyr,mapped-partition";
+			label = "tfm-otp";
+			reg = <0x000f6000 0x00002000>;
+		};
+
+		storage_partition: partition@f8000 {
+			compatible = "zephyr,mapped-partition";
+			label = "storage";
+			reg = <0x000f8000 0x00008000>;
+		};
 	};
 };
 
+&sram0 {
+	/* Default SRAM planning when building for nRF5340 with ARM TF-M support
+	 * - Lowest 256 kB SRAM allocated to Secure image (sram0_s)
+	 * - Upper 256 kB allocated to Non-Secure image (sram0_ns)
+	 * Of the memory allocated to the Non-Secure image
+	 * - 192 kB SRAM allocated to the Non-Secure application (sram0_ns_app).
+	 * - 64 kB allocated to shared memory (sram0_shared).
+	 *   (See nrf5340_shared_sram_partition.dtsi)
+	 */
+	sram0_image: sram@0 {
+		/* Zephyr image(s) memory */
+		reg = <0x0 0x70000>;
+		ranges = <0x0 0x0 0x70000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		sram0_s: sram0_image@0 {
+			/* Secure image memory — 48 KB for TF-M small profile */
+			reg = <0x0 0xC000>;
+		};
+
+		sram0_offset_for_dfu: sram@2000 {
+			reg = <0x2000 0x6E000>;
+			ranges = <0x0 0x2000 0x6E000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+		};
+	};
+
+	/*
+	 * This is overlapping with the above part as this is used to set memory permissions to
+	 * non-secure, the above outer partition is used for applications without TF-M support.
+	 */
+	sram0_ns: sram@C000 {
+		/* Non-Secure image memory — starts after 48 KB TF-M SRAM */
+		reg = <0xC000 0x74000>;
+		ranges = <0x0 0xC000 0x74000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		sram0_ns_app: sram0_ns@0 {
+			/* Non-Secure application memory — 400 KB */
+			reg = <0x0 0x64000>;
+		};
+	};
+};
+
+
 &mx25r64 {
 	status = "okay";
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		slot1_partition: partition@0 {
+			label = "image-1";
+			reg = <0x0 0xD0000>;
+			ranges = <0x0 0x0 0xD0000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			slot1_s_partition: partition@0 {
+				label = "image-1-secure";
+				reg = <0x0 0x20000>;
+			};
+
+			slot1_ns_partition: partition@20000 {
+				label = "image-1-nonsecure";
+				reg = <0x20000 0xB0000>;
+			};
+		};
+	};
 };
