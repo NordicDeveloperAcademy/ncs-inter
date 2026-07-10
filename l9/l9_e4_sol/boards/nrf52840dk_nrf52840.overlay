@@ -46,12 +46,14 @@
 
 
 
+/* STEP 5.2 - Choose CDC ACM for mcumgr */
 / {
 	chosen {
 		zephyr,uart-mcumgr = &cdc_acm_uart0;
 	};
 };
 
+/* STEP 5.1 - Configure CDC ACM */
 &zephyr_udc0 {
 	cdc_acm_uart0: cdc_acm_uart0 {
 		compatible = "zephyr,cdc-acm-uart";
