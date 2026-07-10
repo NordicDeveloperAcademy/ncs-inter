@@ -1,0 +1,39 @@
+/delete-node/ &slot1_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &storage_partition;
+
+&flash0 {
+	partitions {
+		ranges;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
+			label = "mcuboot";
+			reg = <0x00000000 0x13000>;
+		};
+
+		slot0_partition: partition@13000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-0";
+			reg = <0x00013000 0x17000>;
+		};
+
+		slot1_partition: partition@2a000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-1";
+			reg = <0x0002a000 0x17000>;
+		};
+
+		storage_partition: partition@41000 {
+			compatible = "zephyr,mapped-partition";
+			label = "storage";
+			reg = <0x00041000 0x00006000>;
+		};
+	};
+};
+
+/* STEP 5.1 - Configure CDC ACM */
+/* STEP 5.2 - Choose CDC ACM for mcumgr */
+

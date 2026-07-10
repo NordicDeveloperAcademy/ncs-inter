@@ -1,5 +1,6 @@
 /delete-node/ &slot1_partition;
 
+/* STEP 2.1 - Add external flash to board conf file */
 &mx25r64 {
     status = "okay";
 

@@ -29,6 +29,7 @@
 	};
 };
 
+/* STEP 2.1 - Add external flash to board conf file */
 &mx25r64 {
 	partitions {
 		compatible = "fixed-partitions";

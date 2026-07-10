@@ -1,5 +1,4 @@
-#include  "../../../boards/nrf52840dk_nrf52840.overlay"
-
+#include "../../../boards/nrf52840dk_nrf52840.overlay"
 
 / {
 	chosen {
@@ -7,3 +6,4 @@
 	};
 };
 
+/* STEP 2.1 - Configure CDC ACM */

@@ -1,5 +1,4 @@
-#include  "../../../boards/nrf5340dk_nrf5340_cpuapp.overlay"
-
+#include "../../../boards/nrf5340dk_nrf5340_cpuapp.overlay"
 
 / {
 	chosen {
@@ -7,3 +6,4 @@
 	};
 };
 
+/* STEP 2.1 - Configure CDC ACM */
