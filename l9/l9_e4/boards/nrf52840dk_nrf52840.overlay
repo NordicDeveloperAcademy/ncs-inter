@@ -1,0 +1,50 @@
+/delete-node/ &slot1_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &storage_partition;
+
+&flash0 {
+	partitions {
+		ranges;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
+			label = "mcuboot";
+			reg = <0x00000000 0x00013000>;
+		};
+
+		slot0_partition: partition@13000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-0";
+			reg = <0x00013000 0x00076000>;
+		};
+
+		slot1_partition: partition@89000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-1";
+			reg = <0x00089000 0x00076000>;
+		};
+
+		/*
+		 * The flash starting at 0x000f8000 and ending at
+		 * 0x000fffff is reserved for use by the application.
+		 */
+
+		/*
+		 * Storage partition will be used by FCB/LittleFS/NVS
+		 * if enabled.
+		 */
+		storage_partition: partition@ff000 {
+			compatible = "zephyr,mapped-partition";
+			label = "storage";
+			reg = <0x000ff000 0x00001000>;
+		};
+	};
+};
+
+/* STEP 5.1 - Configure CDC ACM */
+/* STEP 5.2 - Choose CDC ACM for mcumgr */
+
+
+

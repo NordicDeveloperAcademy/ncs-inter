@@ -28,6 +28,8 @@ int main(void)
 {
     int err;
 
+    LOG_INF("Starting Lesson 4 - Exercise 1");
+
     /* STEP 3.3 - Check if the device is ready */
     if (!pwm_is_ready_dt(&pwm_led0)) {
         LOG_ERR("Error: PWM device %s is not ready", pwm_led0.dev->name);

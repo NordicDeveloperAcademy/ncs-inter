@@ -1,6 +1,24 @@
 /* STEP 1.1  - Add external flash to applciation */
-/ {
-	chosen {
-		nordic,pm-ext-flash = &mx25r64;
+/delete-node/ &slot1_partition;
+
+&mx25r64 {
+	status = "okay";
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		slot1_partition: partition@0 {
+			label = "image-1";
+			reg = <0x0 0x74000>;
+			ranges = <0x0 0x0 0x74000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+		};
+		/* Net core secondary slot for multi-image DFU */
+		slot3_partition: partition@74000 {
+			label = "image-3";
+			reg = <0x74000 0x40000>;
+		};
 	};
+
 };

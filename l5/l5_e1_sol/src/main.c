@@ -422,6 +422,8 @@ int bme_read_sample(void)
 int main(void)
 {
 	int err;
+
+	LOG_INF("Starting Lesson 5 - Exercise 1");
 	
 	err = gpio_is_ready_dt(&ledspec);
 	if (!err) {

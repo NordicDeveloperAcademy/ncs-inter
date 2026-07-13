@@ -1,0 +1,9 @@
+#include "../../../boards/nrf7002dk_nrf5340_cpuapp.overlay"
+
+/ {
+	chosen {
+		zephyr,code-partition = &boot_partition;
+	};
+};
+
+/* STEP 2.1 - Configure CDC ACM */

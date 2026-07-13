@@ -211,6 +211,8 @@ static void configure_ppi(void)
 
 int main(void)
 {
+    LOG_INF("Starting Lesson 6 - Exercise 3");
+
     configure_timer();
     configure_saadc();  
     configure_ppi();

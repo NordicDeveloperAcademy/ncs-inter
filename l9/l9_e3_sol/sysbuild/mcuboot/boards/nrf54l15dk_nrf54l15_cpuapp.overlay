@@ -1,0 +1,14 @@
+/* STEP 2.2 - Include overlay file from the application  */
+#include "../../../boards/nrf54l15dk_nrf54l15_cpuapp.overlay"
+
+/* Need to add this here as the app.overlay is not picked
+ * with board overlay.
+ */
+
+/* STEP 2.3 - Configure bootloader to start from boot_partition  */
+/ {
+    chosen {
+        zephyr,code-partition = &boot_partition;
+    };
+};
+

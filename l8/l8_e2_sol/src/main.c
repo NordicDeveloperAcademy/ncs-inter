@@ -6,6 +6,9 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/logging/log.h>
+
+LOG_MODULE_REGISTER(Lesson8_Exercise2, LOG_LEVEL_INF);
 #define LED0_NODE DT_ALIAS(led0)
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
@@ -13,6 +16,8 @@ int main()
 {
 	int ret;
 	bool led_is_on = true;
+
+	LOG_INF("Starting Lesson 8 - Exercise 2");
 
 	if (!gpio_is_ready_dt(&led)) {
 		printk("Error: device not ready\n");

@@ -1,0 +1,10 @@
+#include "../../../boards/nrf52840dk_nrf52840.overlay"
+
+/ {
+	chosen {
+		zephyr,code-partition = &boot_partition;
+	};
+};
+
+/* STEP 2.1 - Configure CDC ACM */
+

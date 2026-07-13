@@ -1,0 +1,9 @@
+/* STEP 2.2 - Include overlay file from the application  */
+#include "../../../boards/nrf5340dk_nrf5340_cpuapp.overlay"
+
+/* STEP 2.3 - Configure bootloader to start from boot_partition  */
+/ {
+	chosen {
+		zephyr,code-partition = &boot_partition;
+	};
+};

@@ -7,7 +7,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 
-/* STEP 5.4 - Include header for usb */
+/* STEP 7.1 - Include header for usb */
 
 /* 1000 msec = 1 sec */
 

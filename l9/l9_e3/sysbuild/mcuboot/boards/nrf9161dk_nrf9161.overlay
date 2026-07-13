@@ -1,0 +1,3 @@
+/* STEP 2.2 - Include overlay file from the application  */
+/* STEP 2.3 - Configure bootloader to start from boot_partition  */
+

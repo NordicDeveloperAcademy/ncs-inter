@@ -11,7 +11,6 @@ common:
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
-      - nrf5340dk/nrf5340/cpuapp/ns
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54ls05dk/nrf54ls05b/cpuapp
@@ -21,7 +20,6 @@ common:
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
-      - nrf5340dk/nrf5340/cpuapp/ns
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54ls05dk/nrf54ls05b/cpuapp
