@@ -99,7 +99,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
 
 	dk_set_led_off(CON_STATUS_LED);
-
+/* STEP 2.3 (cont.) - Clear mds_conn here if it matches the closing connection */
 #if defined(CONFIG_BT_MDS)
 	if (conn == mds_conn) {
 		mds_conn = NULL;
