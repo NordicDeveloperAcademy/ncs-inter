@@ -1,0 +1,19 @@
+/*
+ * MCUboot image copy of the nRF52833DK re-partition (Partition Manager disabled).
+ *
+ * MCUboot is a separate sysbuild image and reads the flash layout from its own
+ * devicetree, so it must see the SAME partitions as the application. This file is
+ * picked up as mcuboot_DTC_OVERLAY_FILE via the sysbuild "<image>.overlay" naming.
+ *
+ * In addition to the partition table it selects boot_partition as the code
+ * partition, because MCUboot itself runs from the boot slot.
+ */
+
+#include "../../../boards/nrf52833dk_nrf52833.overlay"
+
+/ {
+	chosen {
+		zephyr,code-partition = &boot_partition;
+	};
+};
+

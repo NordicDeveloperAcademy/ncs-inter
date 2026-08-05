@@ -1,0 +1,48 @@
+/*
+ * nRF52833DK flash re-partition (Partition Manager disabled, DTS authoritative).
+ *
+ * Change vs. the board default: mcuboot (boot_partition) is 8 KB smaller and the
+ * application slot (slot0_partition / image-0) is 8 KB bigger. slot0's end address
+ * is unchanged, so slot1 and storage keep their original addresses.
+ *
+ * MCUboot swap-based DFU requires slot0 and slot1 to be equal, so slot1 also grows
+ * to 228 KB; the extra 8 KB is reclaimed from storage (24 KB -> 16 KB).
+ *
+ *   boot_partition    0x00000  40 KB  (was 48 KB)
+ *   slot0_partition   0x0a000 228 KB  (was 220 KB)
+ *   slot1_partition   0x43000 228 KB  (was 220 KB)
+ *   storage_partition 0x7c000  16 KB  (was 24 KB)
+ */
+
+/delete-node/ &boot_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &storage_partition;
+
+&flash0 {
+	partitions {
+		boot_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
+			label = "mcuboot";
+			reg = <0x0 DT_SIZE_K(40)>;
+		};
+
+		slot0_partition: partition@a000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-0";
+			reg = <0xa000 DT_SIZE_K(228)>;
+		};
+
+		slot1_partition: partition@43000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-1";
+			reg = <0x43000 DT_SIZE_K(228)>;
+		};
+
+		storage_partition: partition@7c000 {
+			compatible = "zephyr,mapped-partition";
+			label = "storage";
+			reg = <0x7c000 DT_SIZE_K(16)>;
+		};
+	};
+};
