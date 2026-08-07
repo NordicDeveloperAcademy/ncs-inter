@@ -18,7 +18,7 @@ LOG_MODULE_REGISTER(Lesson6_Exercise2, LOG_LEVEL_INF);
 
 /* STEP 3.1 - Declare the struct to hold the configuration for the SAADC channel used to sample the battery voltage */
 #if NRF_SAADC_HAS_AIN_AS_PIN
-#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A) 
+#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A) || defined(CONFIG_SOC_NRF54LC10A)
 #define SAADC_INPUT_PIN NRFX_ANALOG_EXTERNAL_AIN4
 #elif defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
 #define SAADC_INPUT_PIN NRFX_ANALOG_EXTERNAL_AIN3
@@ -55,9 +55,9 @@ void battery_sample_timer_handler(struct k_timer *timer)
 
         /* STEP 7.3 - Calculate and print voltage */
         
-#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A)
+#if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A) 
         int battery_voltage = ((900*4) * sample) / ((1<<12));
-#elif defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+#elif defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B) || defined(CONFIG_SOC_NRF54LC10A)
         int battery_voltage = ((3300*1) * sample) / ((1<<12));
 #else
         int battery_voltage = ((600*6) * sample) / ((1<<12));
@@ -87,7 +87,7 @@ static void configure_saadc(void)
 #if defined(CONFIG_SOC_NRF54L15) || defined(CONFIG_SOC_NRF54LM20A) 
         channel.channel_config.gain = NRF_SAADC_GAIN1_4;
 
-#elif defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B)
+#elif defined(CONFIG_SOC_NRF54LS05A) || defined(CONFIG_SOC_NRF54LS05B) || defined(CONFIG_SOC_NRF54LC10A)
         channel.channel_config.reference = SAADC_CH_CONFIG_REFSEL_Vdd;
 #else
         channel.channel_config.gain = NRF_SAADC_GAIN1_6;
