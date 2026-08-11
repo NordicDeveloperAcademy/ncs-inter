@@ -1,4 +1,4 @@
-#include "../../../boards/nrf54ls05dk_nrf54ls05b_cpuapp.overlay"
+#include "../../../boards/nrf54lc10dk_nrf54lc10a_cpuapp.overlay"
 
 / {
 	chosen {
