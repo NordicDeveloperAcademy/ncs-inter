@@ -478,7 +478,7 @@ static int custom_bme280_pm_action(const struct device *dev,
         /* Put the chip into sleep mode */
         ret = bme280_reg_write(dev,
                                CTRLMEAS,
-                               0x93);
+                               0x90);
 
         if (ret < 0)
         {
